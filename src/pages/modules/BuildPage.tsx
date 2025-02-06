@@ -20,7 +20,11 @@ import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { nodeTypes, getInitialNode } from "@/constants/moduleComponents";
 import { NodeDetailsPanel } from "@/components/nodes/NodeDetailsPanel";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import "@xyflow/react/dist/style.css";
 
 const convertToReactFlowNode = (node: any): FlowNode => ({
@@ -34,6 +38,7 @@ export default function BuildPage() {
   const { id } = useParams();
   const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [popoverAnchor, setPopoverAnchor] = useState<{ x: number; y: number } | null>(null);
 
   const { data: module, isLoading } = useQuery({
     queryKey: ["module", id],
@@ -86,12 +91,16 @@ export default function BuildPage() {
     setEdges
   );
 
-  const onNodeClick = (_: React.MouseEvent, node: Node) => {
+  const onNodeClick = (event: React.MouseEvent, node: Node) => {
+    event.stopPropagation();
+    const bounds = (event.target as HTMLElement).getBoundingClientRect();
+    setPopoverAnchor({ x: bounds.right, y: bounds.top });
     setSelectedNode(node);
   };
 
   const onPaneClick = () => {
     setSelectedNode(null);
+    setPopoverAnchor(null);
   };
 
   const onNodeUpdate = (nodeId: string, data: NodeData) => {
@@ -137,14 +146,28 @@ export default function BuildPage() {
           />
         </Panel>
       </ReactFlow>
-      <Sheet open={selectedNode !== null} onOpenChange={() => setSelectedNode(null)}>
-        <SheetContent>
-          <NodeDetailsPanel 
-            selectedNode={selectedNode}
-            onNodeUpdate={onNodeUpdate}
-          />
-        </SheetContent>
-      </Sheet>
+      {selectedNode && popoverAnchor && (
+        <div 
+          className="fixed"
+          style={{ 
+            left: popoverAnchor.x, 
+            top: popoverAnchor.y,
+            zIndex: 1000 
+          }}
+        >
+          <Popover open={selectedNode !== null} onOpenChange={() => setSelectedNode(null)}>
+            <PopoverTrigger asChild>
+              <div className="w-0 h-0" />
+            </PopoverTrigger>
+            <PopoverContent side="right" className="w-80">
+              <NodeDetailsPanel 
+                selectedNode={selectedNode}
+                onNodeUpdate={onNodeUpdate}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
     </div>
   );
 }
