@@ -11,7 +11,8 @@ import {
   useEdgesState,
   Node,
   Edge,
-  Panel
+  Panel,
+  Connection
 } from "@xyflow/react";
 import { useState } from "react";
 import { ComponentType } from "@/types/module";
@@ -19,8 +20,6 @@ import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { nodeTypes, getInitialNode } from "@/constants/moduleComponents";
 import "@xyflow/react/dist/style.css";
-
-type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 const convertToReactFlowNode = (node: any): Node => ({
   id: node.id.toString(),

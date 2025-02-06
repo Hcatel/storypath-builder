@@ -60,7 +60,7 @@ export const useModuleFlow = (
         position: node.position,
         data: node.data,
         type: node.type,
-      })) as JsonValue[];
+      }));
 
       const edgeData = edges.map(edge => ({
         id: edge.id,
@@ -68,13 +68,13 @@ export const useModuleFlow = (
         target: edge.target,
         type: edge.type || 'default',
         data: edge.data || {},
-      })) as JsonValue[];
+      }));
 
       const { error } = await supabase
         .from("modules")
         .update({
-          nodes: nodeData,
-          edges: edgeData,
+          nodes: nodeData as JsonValue[],
+          edges: edgeData as JsonValue[],
           updated_at: new Date().toISOString(),
         })
         .eq("id", moduleId);
@@ -103,7 +103,7 @@ export const useModuleFlow = (
         const choiceIndex = parseInt(params.sourceHandle.replace('choice-', ''));
         const updatedNodes = nodes.map(node => {
           if (node.id === params.source) {
-            const choices = [...(node.data.choices || [])];
+            const choices = [...((node.data as NodeData & { choices: any[] }).choices || [])];
             choices[choiceIndex] = {
               ...choices[choiceIndex],
               nextComponentId: params.target,

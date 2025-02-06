@@ -39,7 +39,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
   const updateNodeData = (updates: Partial<NodeData>) => {
     if (!selectedNode || !nodeData) return;
 
-    const updatedData = { ...nodeData, ...updates } as NodeData;
+    const updatedData = { ...nodeData, ...updates };
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
   };
