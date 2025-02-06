@@ -1,26 +1,17 @@
 import { Header } from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
-import { Navigate, Link, useNavigate } from "react-router-dom";
-
-type ProfileView = "learner" | "creator";
+import { Navigate, Link } from "react-router-dom";
+import { ViewToggle } from "@/components/ViewToggle";
 
 const Profile = () => {
   const { user } = useAuth();
-  const [view, setView] = useState<ProfileView>("learner");
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (view === "creator") {
-      navigate("/creator/dashboard");
-    }
-  }, [view, navigate]);
 
   const { data: completions, isLoading: completionsLoading } = useQuery({
     queryKey: ['module_completions', user?.id],
@@ -87,16 +78,10 @@ const Profile = () => {
       <main className="container py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Your Profile</h1>
-          <Button
-            onClick={() => setView(view === "learner" ? "creator" : "learner")}
-            variant="outline"
-          >
-            Switch to {view === "learner" ? "Creator" : "Learner"} View
-          </Button>
+          <ViewToggle isCreatorView={false} />
         </div>
 
-        {view === "learner" ? (
-          <div className="grid gap-6">
+        <div className="grid gap-6">
             {/* Learning Progress */}
             <Card>
               <CardHeader>
@@ -196,8 +181,7 @@ const Profile = () => {
                 )}
               </CardContent>
             </Card>
-          </div>
-        ) : null}
+        </div>
       </main>
     </div>
   );
