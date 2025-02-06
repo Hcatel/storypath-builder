@@ -4,6 +4,7 @@ import { MessageNode } from "@/components/nodes/MessageNode";
 import { VideoNode } from "@/components/nodes/VideoNode";
 import { RouterNode } from "@/components/nodes/RouterNode";
 import { TextInputNode } from "@/components/nodes/TextInputNode";
+import { MultipleChoiceNode } from "@/components/nodes/MultipleChoiceNode";
 import { FlowNode } from "@/types/module";
 
 export const componentOptions: { value: ComponentType; label: string }[] = [
@@ -34,4 +35,5 @@ export const nodeTypes = {
   video: VideoNode,
   router: RouterNode,
   text_input: TextInputNode,
+  multiple_choice: MultipleChoiceNode,
 };

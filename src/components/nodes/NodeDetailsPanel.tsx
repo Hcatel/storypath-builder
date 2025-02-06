@@ -7,6 +7,7 @@ import { MessageNodeDetails } from "./details/MessageNodeDetails";
 import { VideoNodeDetails } from "./details/VideoNodeDetails";
 import { RouterNodeDetails } from "./details/RouterNodeDetails";
 import { TextInputNodeDetails } from "./details/TextInputNodeDetails";
+import { MultipleChoiceNodeDetails } from "./details/MultipleChoiceNodeDetails";
 
 type NodeDetailsPanelProps = {
   selectedNode: Node | null;
@@ -55,6 +56,8 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
         return <RouterNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       case 'text_input':
         return <TextInputNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'multiple_choice':
+        return <MultipleChoiceNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       default:
         return null;
     }

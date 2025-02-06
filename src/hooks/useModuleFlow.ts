@@ -34,6 +34,20 @@ const getInitialDataForType = (type: ComponentType, nodeCount: number): NodeData
           { text: "Choice 2", nextComponentId: "" },
         ],
       };
+    case "text_input":
+      return {
+        type: "text_input",
+        label: `Text Input ${nodeCount + 1}`,
+        question: "",
+      };
+    case "multiple_choice":
+      return {
+        type: "multiple_choice",
+        label: `Multiple Choice ${nodeCount + 1}`,
+        question: "",
+        options: ["Option 1", "Option 2"],
+        allowMultiple: false,
+      };
     default:
       return {
         type: "message",
