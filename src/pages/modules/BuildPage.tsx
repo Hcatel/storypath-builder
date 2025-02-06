@@ -12,12 +12,14 @@ import {
   Connection,
   Panel,
   NodeTypes,
+  Node,
 } from "@xyflow/react";
 import { useState } from "react";
 import { ComponentType, NodeData, FlowNode, FlowEdge } from "@/types/module";
 import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { nodeTypes, getInitialNode } from "@/constants/moduleComponents";
+import { NodeDetailsPanel } from "@/components/nodes/NodeDetailsPanel";
 import "@xyflow/react/dist/style.css";
 
 const convertToReactFlowNode = (node: any): FlowNode => ({
@@ -30,6 +32,7 @@ const convertToReactFlowNode = (node: any): FlowNode => ({
 export default function BuildPage() {
   const { id } = useParams();
   const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const { data: module, isLoading } = useQuery({
     queryKey: ["module", id],
@@ -82,33 +85,65 @@ export default function BuildPage() {
     setEdges
   );
 
+  const onNodeClick = (_: React.MouseEvent, node: Node) => {
+    setSelectedNode(node);
+  };
+
+  const onPaneClick = () => {
+    setSelectedNode(null);
+  };
+
+  const onNodeUpdate = (nodeId: string, data: NodeData) => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === nodeId) {
+          return {
+            ...node,
+            data,
+          };
+        }
+        return node;
+      })
+    );
+  };
+
   if (isLoading || !id) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="h-[calc(100vh-10rem)]">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes as NodeTypes}
-        fitView
-      >
-        <Background />
-        <Controls />
-        <MiniMap />
-        <Panel position="top-left">
-          <ModuleToolbar
-            selectedComponentType={selectedComponentType}
-            onComponentTypeChange={setSelectedComponentType}
-            onAddNode={() => addNode(selectedComponentType)}
-            onSave={saveChanges}
-          />
-        </Panel>
-      </ReactFlow>
+    <div className="flex h-[calc(100vh-10rem)]">
+      <div className="flex-grow">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes as NodeTypes}
+          onNodeClick={onNodeClick}
+          onPaneClick={onPaneClick}
+          fitView
+        >
+          <Background />
+          <Controls />
+          <MiniMap />
+          <Panel position="top-left">
+            <ModuleToolbar
+              selectedComponentType={selectedComponentType}
+              onComponentTypeChange={setSelectedComponentType}
+              onAddNode={() => addNode(selectedComponentType)}
+              onSave={saveChanges}
+            />
+          </Panel>
+        </ReactFlow>
+      </div>
+      <div className="w-96 border-l">
+        <NodeDetailsPanel 
+          selectedNode={selectedNode}
+          onNodeUpdate={onNodeUpdate}
+        />
+      </div>
     </div>
   );
 }
