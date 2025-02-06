@@ -87,6 +87,36 @@ export default function SummaryPage() {
     return <div>Loading...</div>;
   }
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${id}/thumbnail.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(filePath, file, {
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media')
+        .getPublicUrl(filePath);
+
+      updateModule({ thumbnail_url: publicUrl });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to upload thumbnail: " + error.message,
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -117,6 +147,7 @@ export default function SummaryPage() {
                 value={module?.description || ""}
                 onChange={(e) => updateModule({ description: e.target.value })}
                 placeholder="Enter module description"
+                className="min-h-[100px]"
               />
             </div>
             <div className="space-y-2">
@@ -129,9 +160,22 @@ export default function SummaryPage() {
                     className="h-20 w-20 object-cover rounded"
                   />
                 )}
-                <Button variant="outline" size="sm">
-                  {module?.thumbnail_url ? "Change" : "Upload"} Thumbnail
-                </Button>
+                <div>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="thumbnail-upload"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => document.getElementById('thumbnail-upload')?.click()}
+                  >
+                    {module?.thumbnail_url ? "Change" : "Upload"} Thumbnail
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
