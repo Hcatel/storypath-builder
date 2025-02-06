@@ -1,11 +1,9 @@
-
 import { useCallback } from "react";
-import { Connection, Edge } from "@xyflow/react";
-import { ComponentType, NodeData, RouterNodeData, FlowEdge } from "@/types/module";
+import { Connection } from "@xyflow/react";
+import { ComponentType, NodeData, RouterNodeData, FlowNode, FlowEdge } from "@/types/module";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { NodeWithData } from "@/pages/modules/BuildPage";
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
@@ -47,9 +45,9 @@ const getInitialDataForType = (type: ComponentType, nodeCount: number): NodeData
 
 export const useModuleFlow = (
   moduleId: string,
-  nodes: NodeWithData[],
+  nodes: FlowNode[],
   edges: FlowEdge[],
-  setNodes: (nodes: NodeWithData[]) => void,
+  setNodes: (nodes: FlowNode[]) => void,
   setEdges: (edges: FlowEdge[]) => void
 ) => {
   const { toast } = useToast();
@@ -135,7 +133,7 @@ export const useModuleFlow = (
   );
 
   const addNode = (selectedComponentType: ComponentType) => {
-    const newNode: NodeWithData = {
+    const newNode: FlowNode = {
       id: (nodes.length + 1).toString(),
       type: selectedComponentType,
       position: {

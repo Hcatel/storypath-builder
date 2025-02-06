@@ -9,25 +9,18 @@ import {
   MiniMap,
   useNodesState,
   useEdgesState,
-  Node,
-  Edge,
   Connection,
   Panel,
   NodeTypes,
 } from "@xyflow/react";
 import { useState } from "react";
-import { ComponentType, NodeData, FlowEdge } from "@/types/module";
+import { ComponentType, NodeData, FlowNode, FlowEdge } from "@/types/module";
 import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { nodeTypes, getInitialNode } from "@/constants/moduleComponents";
 import "@xyflow/react/dist/style.css";
 
-export interface NodeWithData extends Node {
-  data: NodeData;
-  type: ComponentType;
-}
-
-const convertToReactFlowNode = (node: any): NodeWithData => ({
+const convertToReactFlowNode = (node: any): FlowNode => ({
   id: node.id.toString(),
   type: node.data.type || "message",
   position: node.position || { x: 0, y: 0 },
@@ -73,8 +66,8 @@ export default function BuildPage() {
     },
   });
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<NodeWithData>(
-    module?.nodes || [getInitialNode() as unknown as NodeWithData]
+  const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>(
+    module?.nodes || [getInitialNode() as FlowNode]
   );
   
   const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>(

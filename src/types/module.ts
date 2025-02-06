@@ -1,3 +1,6 @@
+
+import { Edge, Node } from '@xyflow/react';
+
 export type ComponentType = 
   | 'message'
   | 'video'
@@ -83,6 +86,11 @@ export type NodeData =
   | RankingNodeData 
   | LikertScaleNodeData 
   | MatchingNodeData;
+
+export interface FlowNode extends Node {
+  type: ComponentType;
+  data: NodeData;
+}
 
 export interface FlowEdge extends Edge {
   id: string;
