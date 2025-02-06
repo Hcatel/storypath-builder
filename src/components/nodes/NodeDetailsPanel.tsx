@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Node } from "@xyflow/react";
+import { Node, useReactFlow } from "@xyflow/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NodeData } from "@/types/module";
 import { MessageNodeDetails } from "./details/MessageNodeDetails";
@@ -16,6 +16,7 @@ type NodeDetailsPanelProps = {
 
 export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPanelProps) {
   const [nodeData, setNodeData] = useState<NodeData | null>(null);
+  const { getNodes } = useReactFlow();
 
   useEffect(() => {
     if (selectedNode) {
@@ -46,6 +47,8 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
     onNodeUpdate(selectedNode.id, updatedData);
   };
 
+  const availableNodes = getNodes().filter(node => node.id !== selectedNode.id);
+
   const renderNodeDetails = () => {
     switch (nodeData.type) {
       case 'message':
@@ -53,7 +56,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
       case 'video':
         return <VideoNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       case 'router':
-        return <RouterNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+        return <RouterNodeDetails data={nodeData} onUpdate={updateNodeData} availableNodes={availableNodes} />;
       case 'text_input':
         return <TextInputNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       case 'multiple_choice':

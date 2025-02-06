@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
 import { RouterNodeData, NodeData } from "@/types/module";
-import { useReactFlow } from "@xyflow/react";
+import { Node } from "@xyflow/react";
 import {
   Select,
   SelectContent,
@@ -15,12 +15,10 @@ import {
 type RouterNodeDetailsProps = {
   data: RouterNodeData;
   onUpdate: (updates: Partial<RouterNodeData>) => void;
+  availableNodes: Node[];
 };
 
-export function RouterNodeDetails({ data, onUpdate }: RouterNodeDetailsProps) {
-  const { getNodes } = useReactFlow();
-  const availableNodes = getNodes().filter(node => node.id !== data.id);
-
+export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNodeDetailsProps) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
