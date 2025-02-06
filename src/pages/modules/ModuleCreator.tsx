@@ -16,7 +16,7 @@ export default function ModuleCreator() {
         <SidebarProvider>
           <div className="flex w-full">
             <ModuleCreatorSidebar moduleId={id} />
-            <main className="flex-1 p-6">
+            <main className="flex-1 overflow-y-auto p-6">
               <Outlet />
             </main>
           </div>

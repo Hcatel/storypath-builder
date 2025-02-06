@@ -151,7 +151,7 @@ export default function MediaPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-[1200px] mx-auto">
       <div>
         <h2 className="text-2xl font-bold mb-2">My Media</h2>
         <p className="text-muted-foreground">
@@ -202,39 +202,41 @@ export default function MediaPage() {
       ) : (
         <Card>
           <CardContent className="p-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Size</TableHead>
-                  <TableHead>Date Added</TableHead>
-                  <TableHead className="w-[60px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mediaFiles?.map((file) => (
-                  <TableRow key={file.id}>
-                    <TableCell className="font-medium">{file.filename}</TableCell>
-                    <TableCell>{file.file_type}</TableCell>
-                    <TableCell>{formatFileSize(file.file_size)}</TableCell>
-                    <TableCell>
-                      {new Date(file.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteMutation.mutate(file.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Size</TableHead>
+                    <TableHead>Date Added</TableHead>
+                    <TableHead className="w-[60px]"></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {mediaFiles?.map((file) => (
+                    <TableRow key={file.id}>
+                      <TableCell className="font-medium">{file.filename}</TableCell>
+                      <TableCell>{file.file_type}</TableCell>
+                      <TableCell>{formatFileSize(file.file_size)}</TableCell>
+                      <TableCell>
+                        {new Date(file.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => deleteMutation.mutate(file.id)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       )}
