@@ -17,6 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+type AccessType = "private" | "public" | "restricted";
+
 export default function CreatePlaylist() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ export default function CreatePlaylist() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    accessType: "private",
+    accessType: "private" as AccessType,
   });
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
@@ -70,15 +72,13 @@ export default function CreatePlaylist() {
       // Create playlist record
       const { data: playlist, error: insertError } = await supabase
         .from("playlists")
-        .insert([
-          {
-            name: formData.name,
-            description: formData.description || null,
-            access_type: formData.accessType,
-            thumbnail_url: thumbnailUrl,
-            user_id: user.id,
-          },
-        ])
+        .insert({
+          name: formData.name,
+          description: formData.description || null,
+          access_type: formData.accessType,
+          thumbnail_url: thumbnailUrl,
+          user_id: user.id,
+        })
         .select()
         .single();
 
@@ -140,7 +140,7 @@ export default function CreatePlaylist() {
               <Label htmlFor="accessType">Access Type</Label>
               <Select
                 value={formData.accessType}
-                onValueChange={(value) =>
+                onValueChange={(value: AccessType) =>
                   setFormData({ ...formData, accessType: value })
                 }
               >
