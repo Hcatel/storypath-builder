@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
@@ -35,10 +36,7 @@ const Profile = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('creator_subscriptions')
-        .select(`
-          *,
-          profiles!inner(id, username, avatar_url)
-        `)
+        .select('*, creator:creator_id(id, username, avatar_url)')
         .eq('subscriber_id', user?.id);
       
       if (error) throw error;
@@ -130,7 +128,7 @@ const Profile = () => {
                           <div className="flex items-center space-x-4">
                             <div className="flex-1">
                               <p className="font-medium">
-                                {subscription.profiles?.username || 'Anonymous'}
+                                {subscription.creator?.username || 'Anonymous'}
                               </p>
                               <p className="text-sm text-muted-foreground">
                                 Subscribed since {new Date(subscription.subscribed_at).toLocaleDateString()}
