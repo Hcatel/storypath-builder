@@ -1,5 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const NotFound = () => {
   const location = useLocation();
@@ -12,13 +14,13 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-background font-inter">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
+        <h1 className="text-6xl font-bold font-outfit mb-4 bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">404</h1>
+        <p className="text-xl text-gray-600 mb-8">Oops! This page seems to be lost in the story.</p>
+        <Button asChild>
+          <Link to="/">Return to Homepage</Link>
+        </Button>
       </div>
     </div>
   );
