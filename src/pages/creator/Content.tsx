@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -10,6 +9,7 @@ import { Loader2, Plus } from "lucide-react";
 import { CreatorSidebar } from "@/components/creator/CreatorSidebar";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import MediaPage from "@/pages/modules/MediaPage";
 
 export default function CreatorContent() {
   const { data: modules, isLoading: modulesLoading } = useQuery({
@@ -205,9 +205,7 @@ export default function CreatorContent() {
             </TabsContent>
 
             <TabsContent value="media">
-              <div className="text-center text-muted-foreground p-8">
-                Media section coming soon
-              </div>
+              <MediaPage />
             </TabsContent>
           </Tabs>
         </main>
