@@ -22,7 +22,12 @@ export function Header() {
             <Link to="/modules/create">Create</Link>
           </Button>
           {user ? (
-            <Button onClick={signOut}>Sign Out</Button>
+            <>
+              <Button variant="ghost" asChild>
+                <Link to="/profile">Profile</Link>
+              </Button>
+              <Button onClick={signOut}>Sign Out</Button>
+            </>
           ) : (
             <Button asChild>
               <Link to="/auth">Sign In</Link>
