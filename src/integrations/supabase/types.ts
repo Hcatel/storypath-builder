@@ -203,6 +203,9 @@ export type Database = {
       modules: {
         Row: {
           access_type: Database["public"]["Enums"]["module_access_type"]
+          component_types:
+            | Database["public"]["Enums"]["component_type"][]
+            | null
           created_at: string
           description: string | null
           edges: Json
@@ -217,6 +220,9 @@ export type Database = {
         }
         Insert: {
           access_type?: Database["public"]["Enums"]["module_access_type"]
+          component_types?:
+            | Database["public"]["Enums"]["component_type"][]
+            | null
           created_at?: string
           description?: string | null
           edges?: Json
@@ -231,6 +237,9 @@ export type Database = {
         }
         Update: {
           access_type?: Database["public"]["Enums"]["module_access_type"]
+          component_types?:
+            | Database["public"]["Enums"]["component_type"][]
+            | null
           created_at?: string
           description?: string | null
           edges?: Json
@@ -304,6 +313,15 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      component_type:
+        | "message"
+        | "video"
+        | "router"
+        | "text_input"
+        | "multiple_choice"
+        | "ranking"
+        | "likert_scale"
+        | "matching"
       module_access_type: "private" | "public" | "restricted"
     }
     CompositeTypes: {

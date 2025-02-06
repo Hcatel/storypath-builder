@@ -19,20 +19,27 @@ import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ComponentType, NodeData } from "@/types/module";
 import "@xyflow/react/dist/style.css";
 
 // Initial node when creating a new module
-const getInitialNode = (): Node => ({
+const getInitialNode = (): Node<NodeData> => ({
   id: "1",
   type: "default",
-  data: { label: "Start Here" },
+  data: { 
+    label: "Start Here",
+    type: "message",
+    title: "",
+    content: "" 
+  },
   position: { x: 250, y: 100 },
 });
 
 type ModuleData = {
   id: string;
-  nodes: Node[];
+  nodes: Node<NodeData>[];
   edges: Edge[];
+  component_types: ComponentType[];
   [key: string]: any;
 };
 
@@ -56,10 +63,10 @@ export default function BuildPage() {
       const convertedNodes = Array.isArray(data.nodes) 
         ? (data.nodes as any[]).map(node => ({
             id: node.id,
-            type: node.type,
+            type: node.type || "default",
             data: node.data,
             position: node.position,
-          })) as Node[]
+          })) as Node<NodeData>[]
         : [];
 
       const convertedEdges = Array.isArray(data.edges)
@@ -81,7 +88,7 @@ export default function BuildPage() {
   });
 
   // Initialize with stored nodes/edges or default node
-  const [nodes, setNodes, onNodesChange] = useNodesState(
+  const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(
     module?.nodes?.length ? module.nodes : [getInitialNode()]
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(module?.edges || []);
@@ -89,7 +96,6 @@ export default function BuildPage() {
   // Save changes mutation
   const { mutate: saveChanges } = useMutation({
     mutationFn: async () => {
-      // Convert nodes and edges to a format that Supabase accepts
       const { error } = await supabase
         .from("modules")
         .update({
@@ -124,10 +130,15 @@ export default function BuildPage() {
 
   // Add new node
   const addNode = () => {
-    const newNode: Node = {
+    const newNode: Node<NodeData> = {
       id: (nodes.length + 1).toString(),
       type: "default",
-      data: { label: `Content ${nodes.length + 1}` },
+      data: { 
+        label: `Content ${nodes.length + 1}`,
+        type: "message",
+        title: "",
+        content: ""
+      },
       position: {
         x: Math.random() * 500,
         y: Math.random() * 500,
