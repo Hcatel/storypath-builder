@@ -14,6 +14,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface MediaFile {
   id: string;
@@ -177,50 +185,59 @@ export default function MediaPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {isLoading ? (
-          <div className="col-span-full flex justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        ) : mediaFiles?.length === 0 ? (
-          <Card className="col-span-full">
-            <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-              <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No media files yet</p>
-              <p className="text-sm text-muted-foreground">
-                Upload your first file to get started
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          mediaFiles?.map((file) => (
-            <Card key={file.id}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate" title={file.filename}>
-                      {file.filename}
-                    </p>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                      <span>{formatFileSize(file.file_size)}</span>
-                      <span>•</span>
-                      <span>{new Date(file.created_at).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => deleteMutation.mutate(file.id)}
-                    disabled={deleteMutation.isPending}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : mediaFiles?.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+            <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">No media files yet</p>
+            <p className="text-sm text-muted-foreground">
+              Upload your first file to get started
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="p-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead>Date Added</TableHead>
+                  <TableHead className="w-[60px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {mediaFiles?.map((file) => (
+                  <TableRow key={file.id}>
+                    <TableCell className="font-medium">{file.filename}</TableCell>
+                    <TableCell>{file.file_type}</TableCell>
+                    <TableCell>{formatFileSize(file.file_size)}</TableCell>
+                    <TableCell>
+                      {new Date(file.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteMutation.mutate(file.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
