@@ -1,7 +1,7 @@
 
 import { useCallback } from "react";
 import { Connection, Edge, Node, addEdge } from "@xyflow/react";
-import { ComponentType, NodeData } from "@/types/module";
+import { ComponentType, NodeData, RouterNodeData } from "@/types/module";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,8 +73,8 @@ export const useModuleFlow = (
       const { error } = await supabase
         .from("modules")
         .update({
-          nodes: nodeData as JsonValue[],
-          edges: edgeData as JsonValue[],
+          nodes: nodeData as unknown as JsonValue[],
+          edges: edgeData as unknown as JsonValue[],
           updated_at: new Date().toISOString(),
         })
         .eq("id", moduleId);
@@ -100,10 +100,11 @@ export const useModuleFlow = (
     (params: Connection) => {
       const sourceNode = nodes.find(node => node.id === params.source);
       if (sourceNode?.type === 'router' && params.sourceHandle) {
+        const routerData = sourceNode.data as RouterNodeData;
         const choiceIndex = parseInt(params.sourceHandle.replace('choice-', ''));
         const updatedNodes = nodes.map(node => {
           if (node.id === params.source) {
-            const choices = [...((node.data as NodeData & { choices: any[] }).choices || [])];
+            const choices = [...routerData.choices];
             choices[choiceIndex] = {
               ...choices[choiceIndex],
               nextComponentId: params.target,
@@ -111,7 +112,7 @@ export const useModuleFlow = (
             return {
               ...node,
               data: {
-                ...node.data,
+                ...routerData,
                 choices,
               },
             };
@@ -121,7 +122,7 @@ export const useModuleFlow = (
         setNodes(updatedNodes);
       }
       
-      setEdges(eds => addEdge(params, eds));
+      setEdges(eds => addEdge(params, eds) as Edge[]);
     },
     [nodes, setNodes, setEdges]
   );
