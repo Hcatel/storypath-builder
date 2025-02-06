@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/Header";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Label } from "@/components/ui/label";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { PlaylistSidebar } from "@/components/playlist/PlaylistSidebar";
 import {
   Select,
   SelectContent,
@@ -16,6 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 type AccessType = "private" | "public" | "restricted";
 
@@ -105,91 +115,110 @@ export default function CreatePlaylist() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto p-6">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold mb-6">Create New Playlist</h1>
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                placeholder="Enter playlist name"
-                required
-              />
-            </div>
+      <SidebarProvider>
+        <div className="flex w-full">
+          <PlaylistSidebar />
+          <main className="flex-1 p-6">
+            <Breadcrumb className="mb-6">
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink as={Link} to="/creator/content?tab=playlists">
+                    Playlists
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Create New Playlist</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                placeholder="Enter playlist description"
-                className="min-h-[100px]"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="accessType">Access Type</Label>
-              <Select
-                value={formData.accessType}
-                onValueChange={(value: AccessType) =>
-                  setFormData({ ...formData, accessType: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select access type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="private">Private</SelectItem>
-                  <SelectItem value="public">Public</SelectItem>
-                  <SelectItem value="restricted">Restricted</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="thumbnail">Thumbnail</Label>
-              <div className="flex items-center gap-4">
-                {thumbnailPreview && (
-                  <img
-                    src={thumbnailPreview}
-                    alt="Thumbnail preview"
-                    className="h-20 w-20 object-cover rounded"
-                  />
-                )}
-                <div>
+            <div className="max-w-2xl">
+              <h1 className="text-3xl font-bold mb-6">Create New Playlist</h1>
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
                   <Input
-                    id="thumbnail"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleThumbnailChange}
-                    className="hidden"
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    placeholder="Enter playlist name"
+                    required
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => document.getElementById("thumbnail")?.click()}
-                  >
-                    {thumbnailPreview ? "Change" : "Upload"} Thumbnail
-                  </Button>
                 </div>
-              </div>
-            </div>
 
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create Playlist"}
-            </Button>
-          </form>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                    placeholder="Enter playlist description"
+                    className="min-h-[100px]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="accessType">Access Type</Label>
+                  <Select
+                    value={formData.accessType}
+                    onValueChange={(value: AccessType) =>
+                      setFormData({ ...formData, accessType: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select access type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="private">Private</SelectItem>
+                      <SelectItem value="public">Public</SelectItem>
+                      <SelectItem value="restricted">Restricted</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="thumbnail">Thumbnail</Label>
+                  <div className="flex items-center gap-4">
+                    {thumbnailPreview && (
+                      <img
+                        src={thumbnailPreview}
+                        alt="Thumbnail preview"
+                        className="h-20 w-20 object-cover rounded"
+                      />
+                    )}
+                    <div>
+                      <Input
+                        id="thumbnail"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleThumbnailChange}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById("thumbnail")?.click()}
+                      >
+                        {thumbnailPreview ? "Change" : "Upload"} Thumbnail
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Creating..." : "Create Playlist"}
+                </Button>
+              </form>
+            </div>
+          </main>
         </div>
-      </main>
+      </SidebarProvider>
     </div>
   );
 }
