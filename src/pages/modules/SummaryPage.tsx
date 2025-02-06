@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, CheckCircle, BarChart3, Globe2, Lock } from "lucide-react";
+import { AlertCircle, CheckCircle, BarChart3, Globe2, Lock, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function SummaryPage() {
@@ -15,7 +15,7 @@ export default function SummaryPage() {
   const { toast } = useToast();
 
   // Fetch module data
-  const { data: module, isLoading } = useQuery({
+  const { data: module, isLoading, refetch } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -47,6 +47,14 @@ export default function SummaryPage() {
       toast({
         title: "Success",
         description: "Module updated successfully",
+      });
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update module: " + error.message,
       });
     },
   });
@@ -83,10 +91,6 @@ export default function SummaryPage() {
     }
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -117,13 +121,30 @@ export default function SummaryPage() {
     }
   };
 
+  const handleSave = () => {
+    updateModule({
+      title: module?.title,
+      description: module?.description
+    });
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="container max-w-4xl mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Module Summary</h1>
-        <Button onClick={checkForErrors} variant="outline">
-          Check for Errors
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={checkForErrors} variant="outline">
+            Check for Errors
+          </Button>
+          <Button onClick={handleSave}>
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
