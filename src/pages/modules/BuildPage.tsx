@@ -22,13 +22,21 @@ import { useToast } from "@/hooks/use-toast";
 import { ComponentType, NodeData } from "@/types/module";
 import "@xyflow/react/dist/style.css";
 
+// Convert NodeData to ReactFlow Node type
+const convertToReactFlowNode = (nodeData: any): Node => ({
+  id: nodeData.id,
+  type: "default",
+  position: nodeData.position || { x: 0, y: 0 },
+  data: nodeData.data,
+});
+
 // Initial node when creating a new module
-const getInitialNode = (): Node<NodeData> => ({
+const getInitialNode = (): Node => ({
   id: "1",
   type: "default",
   data: { 
     label: "Start Here",
-    type: "message",
+    type: "message" as ComponentType,
     title: "",
     content: "" 
   },
@@ -37,7 +45,7 @@ const getInitialNode = (): Node<NodeData> => ({
 
 type ModuleData = {
   id: string;
-  nodes: Node<NodeData>[];
+  nodes: any[];
   edges: Edge[];
   component_types: ComponentType[];
   [key: string]: any;
@@ -59,24 +67,19 @@ export default function BuildPage() {
 
       if (error) throw error;
       
-      // Convert the JSON data to the correct types using a more explicit conversion
+      // Convert the JSON data to ReactFlow nodes
       const convertedNodes = Array.isArray(data.nodes) 
-        ? (data.nodes as any[]).map(node => ({
-            id: node.id,
-            type: node.type || "default",
-            data: node.data,
-            position: node.position,
-          })) as Node<NodeData>[]
+        ? data.nodes.map(convertToReactFlowNode)
         : [];
 
       const convertedEdges = Array.isArray(data.edges)
-        ? (data.edges as any[]).map(edge => ({
+        ? data.edges.map(edge => ({
             id: edge.id,
             source: edge.source,
             target: edge.target,
             type: edge.type,
             data: edge.data,
-          })) as Edge[]
+          }))
         : [];
 
       return {
@@ -88,8 +91,8 @@ export default function BuildPage() {
   });
 
   // Initialize with stored nodes/edges or default node
-  const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(
-    module?.nodes?.length ? module.nodes : [getInitialNode()]
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    module?.nodes || [getInitialNode()]
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(module?.edges || []);
 
@@ -99,8 +102,8 @@ export default function BuildPage() {
       const { error } = await supabase
         .from("modules")
         .update({
-          nodes: nodes as any,
-          edges: edges as any,
+          nodes: nodes,
+          edges: edges,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
@@ -130,12 +133,12 @@ export default function BuildPage() {
 
   // Add new node
   const addNode = () => {
-    const newNode: Node<NodeData> = {
+    const newNode: Node = {
       id: (nodes.length + 1).toString(),
       type: "default",
       data: { 
         label: `Content ${nodes.length + 1}`,
-        type: "message",
+        type: "message" as ComponentType,
         title: "",
         content: ""
       },

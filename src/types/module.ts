@@ -84,4 +84,3 @@ export type NodeData =
   | RankingNodeData 
   | LikertScaleNodeData 
   | MatchingNodeData;
-
