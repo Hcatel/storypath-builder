@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { FileUpload } from "@/components/ui/file-upload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle, CheckCircle, BarChart3, Globe2, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -60,7 +59,7 @@ export default function SummaryPage() {
       errors.push("Module title is required");
     }
 
-    if (!module?.nodes || module.nodes.length === 0) {
+    if (!module?.nodes || !Array.isArray(module.nodes) || module.nodes.length === 0) {
       errors.push("Module must have at least one content node");
     }
 
