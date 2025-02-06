@@ -17,7 +17,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
 
   useEffect(() => {
     if (selectedNode) {
-      setNodeData(selectedNode.data as NodeData);
+      setNodeData(selectedNode.data as unknown as NodeData);
     } else {
       setNodeData(null);
     }

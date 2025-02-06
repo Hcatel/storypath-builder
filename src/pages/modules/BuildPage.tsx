@@ -11,8 +11,8 @@ import {
   useEdgesState,
   Node,
   Edge,
-  Panel,
-  Connection
+  Connection,
+  Panel
 } from "@xyflow/react";
 import { useState } from "react";
 import { ComponentType, NodeData } from "@/types/module";
@@ -21,7 +21,11 @@ import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { nodeTypes, getInitialNode } from "@/constants/moduleComponents";
 import "@xyflow/react/dist/style.css";
 
-const convertToReactFlowNode = (node: any): Node => ({
+interface NodeWithData extends Node {
+  data: NodeData;
+}
+
+const convertToReactFlowNode = (node: any): NodeWithData => ({
   id: node.id.toString(),
   type: node.data.type || "message",
   position: node.position || { x: 0, y: 0 },
@@ -67,10 +71,10 @@ export default function BuildPage() {
     },
   });
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>(
+  const [nodes, setNodes, onNodesChange] = useNodesState<NodeWithData>(
     module?.nodes || [getInitialNode()]
   );
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>(
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
     module?.edges || []
   );
 

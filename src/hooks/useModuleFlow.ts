@@ -8,6 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
+interface NodeWithData extends Node {
+  data: NodeData;
+}
+
 const getInitialDataForType = (type: ComponentType, nodeCount: number): NodeData => {
   switch (type) {
     case "message":
@@ -46,9 +50,9 @@ const getInitialDataForType = (type: ComponentType, nodeCount: number): NodeData
 
 export const useModuleFlow = (
   moduleId: string,
-  nodes: Node[],
+  nodes: NodeWithData[],
   edges: Edge[],
-  setNodes: (nodes: Node[]) => void,
+  setNodes: (nodes: NodeWithData[]) => void,
   setEdges: (edges: Edge[]) => void
 ) => {
   const { toast } = useToast();
@@ -114,7 +118,7 @@ export const useModuleFlow = (
               data: {
                 ...routerData,
                 choices,
-              },
+              } as RouterNodeData,
             };
           }
           return node;
@@ -128,7 +132,7 @@ export const useModuleFlow = (
   );
 
   const addNode = (selectedComponentType: ComponentType) => {
-    const newNode: Node = {
+    const newNode: NodeWithData = {
       id: (nodes.length + 1).toString(),
       type: selectedComponentType,
       position: {
