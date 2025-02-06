@@ -66,8 +66,8 @@ export default function BuildPage() {
     },
   });
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>(
-    module?.nodes || [getInitialNode() as FlowNode]
+  const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(
+    module?.nodes || [(getInitialNode() as FlowNode)]
   );
   
   const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>(
@@ -76,9 +76,9 @@ export default function BuildPage() {
 
   const { saveChanges, onConnect, addNode } = useModuleFlow(
     id || '',
-    nodes,
+    nodes as FlowNode[],
     edges,
-    setNodes,
+    setNodes as (nodes: FlowNode[]) => void,
     setEdges
   );
 

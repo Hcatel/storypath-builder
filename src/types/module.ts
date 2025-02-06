@@ -1,4 +1,3 @@
-
 import { Edge, Node } from '@xyflow/react';
 
 export type ComponentType = 
@@ -12,6 +11,7 @@ export type ComponentType =
   | 'matching';
 
 export interface BaseNodeData {
+  [key: string]: unknown;
   label: string;
   type: ComponentType;
   nextComponentId?: string;
