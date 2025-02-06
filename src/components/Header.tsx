@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,10 +16,10 @@ export function Header() {
         </Link>
         <nav className="flex items-center space-x-4">
           <Button variant="ghost" asChild>
-            <Link to="/explore">Explore</Link>
+            <Link to="/">Explore</Link>
           </Button>
           <Button variant="ghost" asChild>
-            <Link to="/create">Create</Link>
+            <Link to="/modules/create">Create</Link>
           </Button>
           {user ? (
             <Button onClick={signOut}>Sign Out</Button>
