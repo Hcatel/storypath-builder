@@ -257,6 +257,42 @@ export type Database = {
         }
         Relationships: []
       }
+      playlist_group_access: {
+        Row: {
+          created_at: string | null
+          group_id: string | null
+          id: string
+          playlist_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          playlist_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          playlist_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_group_access_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playlist_group_access_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       playlist_modules: {
         Row: {
           created_at: string
