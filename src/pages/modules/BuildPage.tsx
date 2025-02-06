@@ -14,24 +14,29 @@ import {
   Edge,
   Connection,
   Panel,
+  NodeTypes,
 } from "@xyflow/react";
 import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { ComponentType, NodeData } from "@/types/module";
+import { ComponentType, NodeData, MessageNodeData } from "@/types/module";
 import "@xyflow/react/dist/style.css";
 
-interface ReactFlowNode extends Node {
-  data: NodeData;
-}
+// Define the node type with proper React Flow generics
+type ReactFlowNode = Node<NodeData>;
 
-// Convert NodeData to ReactFlow Node type
+// Convert data to ReactFlow Node type
 const convertToReactFlowNode = (node: any): ReactFlowNode => ({
   id: node.id.toString(),
   type: "default",
   position: node.position || { x: 0, y: 0 },
-  data: node.data as NodeData,
+  data: {
+    label: node.data.label || "",
+    type: node.data.type || "message",
+    title: node.data.title || "",
+    content: node.data.content || "",
+  } as NodeData,
 });
 
 // Initial node when creating a new module
@@ -40,10 +45,10 @@ const getInitialNode = (): ReactFlowNode => ({
   type: "default",
   data: { 
     label: "Start Here",
-    type: "message" as ComponentType,
+    type: "message" as const,
     title: "",
     content: "" 
-  },
+  } satisfies MessageNodeData,
   position: { x: 250, y: 100 },
 });
 
@@ -95,7 +100,7 @@ export default function BuildPage() {
   });
 
   // Initialize with stored nodes/edges or default node
-  const [nodes, setNodes, onNodesChange] = useNodesState<ReactFlowNode>(
+  const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(
     module?.nodes || [getInitialNode()]
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(module?.edges || []);
@@ -103,21 +108,32 @@ export default function BuildPage() {
   // Save changes mutation
   const { mutate: saveChanges } = useMutation({
     mutationFn: async () => {
+      // Convert nodes to a Supabase-compatible format
+      const nodeData = nodes.map(node => ({
+        id: node.id,
+        position: { x: node.position.x, y: node.position.y },
+        data: {
+          label: node.data.label,
+          type: node.data.type,
+          title: node.data.title,
+          content: node.data.content,
+        },
+      }));
+
+      // Convert edges to a Supabase-compatible format
+      const edgeData = edges.map(edge => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        type: edge.type || 'default',
+        data: {},
+      }));
+
       const { error } = await supabase
         .from("modules")
         .update({
-          nodes: nodes.map(node => ({
-            id: node.id,
-            position: node.position,
-            data: node.data,
-          })),
-          edges: edges.map(edge => ({
-            id: edge.id,
-            source: edge.source,
-            target: edge.target,
-            type: edge.type,
-            data: edge.data,
-          })),
+          nodes: nodeData,
+          edges: edgeData,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
@@ -152,10 +168,10 @@ export default function BuildPage() {
       type: "default",
       data: { 
         label: `Content ${nodes.length + 1}`,
-        type: "message" as ComponentType,
+        type: "message" as const,
         title: "",
         content: ""
-      },
+      } satisfies MessageNodeData,
       position: {
         x: Math.random() * 500,
         y: Math.random() * 500,
