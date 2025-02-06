@@ -12,7 +12,8 @@ import {
   Node,
   Edge,
   Connection,
-  Panel
+  Panel,
+  NodeTypes,
 } from "@xyflow/react";
 import { useState } from "react";
 import { ComponentType, NodeData } from "@/types/module";
@@ -21,7 +22,7 @@ import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { nodeTypes, getInitialNode } from "@/constants/moduleComponents";
 import "@xyflow/react/dist/style.css";
 
-interface NodeWithData extends Node {
+export interface NodeWithData extends Omit<Node, 'data'> {
   data: NodeData;
 }
 
@@ -72,7 +73,7 @@ export default function BuildPage() {
   });
 
   const [nodes, setNodes, onNodesChange] = useNodesState<NodeWithData>(
-    module?.nodes || [getInitialNode()]
+    module?.nodes || [getInitialNode() as NodeWithData]
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     module?.edges || []
@@ -93,12 +94,12 @@ export default function BuildPage() {
   return (
     <div className="h-[calc(100vh-10rem)]">
       <ReactFlow
-        nodes={nodes}
+        nodes={nodes as Node[]}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        nodeTypes={nodeTypes}
+        nodeTypes={nodeTypes as NodeTypes}
         fitView
       >
         <Background />

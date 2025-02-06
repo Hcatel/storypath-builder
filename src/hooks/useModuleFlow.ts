@@ -5,12 +5,9 @@ import { ComponentType, NodeData, RouterNodeData } from "@/types/module";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { NodeWithData } from "@/pages/modules/BuildPage";
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
-
-interface NodeWithData extends Node {
-  data: NodeData;
-}
 
 const getInitialDataForType = (type: ComponentType, nodeCount: number): NodeData => {
   switch (type) {
@@ -111,7 +108,7 @@ export const useModuleFlow = (
             const choices = [...routerData.choices];
             choices[choiceIndex] = {
               ...choices[choiceIndex],
-              nextComponentId: params.target,
+              nextComponentId: params.target || '',
             };
             return {
               ...node,
@@ -126,7 +123,7 @@ export const useModuleFlow = (
         setNodes(updatedNodes);
       }
       
-      setEdges(eds => addEdge(params, eds) as Edge[]);
+      setEdges(eds => addEdge(params, eds));
     },
     [nodes, setNodes, setEdges]
   );
