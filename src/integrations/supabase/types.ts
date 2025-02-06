@@ -83,6 +83,39 @@ export type Database = {
         }
         Relationships: []
       }
+      media: {
+        Row: {
+          created_at: string
+          file_size: number
+          file_type: string
+          file_url: string
+          filename: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_size: number
+          file_type: string
+          file_url: string
+          filename: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_size?: number
+          file_type?: string
+          file_url?: string
+          filename?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       module_completions: {
         Row: {
           completed_at: string
@@ -115,37 +148,109 @@ export type Database = {
           },
         ]
       }
+      module_group_access: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          module_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          module_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          module_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_group_access_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_group_access_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       modules: {
         Row: {
+          access_type: string
           created_at: string
           description: string | null
           edges: Json
           id: string
           nodes: Json
+          playlist_id: string | null
           published: boolean
+          thumbnail_url: string | null
           title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_type?: string
+          created_at?: string
+          description?: string | null
+          edges?: Json
+          id?: string
+          nodes?: Json
+          playlist_id?: string | null
+          published?: boolean
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_type?: string
+          created_at?: string
+          description?: string | null
+          edges?: Json
+          id?: string
+          nodes?: Json
+          playlist_id?: string | null
+          published?: boolean
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      playlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           description?: string | null
-          edges?: Json
           id?: string
-          nodes?: Json
-          published?: boolean
-          title: string
+          name: string
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           description?: string | null
-          edges?: Json
           id?: string
-          nodes?: Json
-          published?: boolean
-          title?: string
+          name?: string
           updated_at?: string
           user_id?: string
         }

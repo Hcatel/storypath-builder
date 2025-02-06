@@ -46,8 +46,8 @@ const CreateModule = () => {
         description: "Module created successfully",
       });
 
-      // Navigate to the module edit page
-      navigate(`/modules/${data.id}`);
+      // Navigate to the module summary page
+      navigate(`/modules/${data.id}/summary`);
     } catch (error) {
       console.error("Error creating module:", error);
       toast({
