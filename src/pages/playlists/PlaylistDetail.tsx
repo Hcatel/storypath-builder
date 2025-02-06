@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { useParams } from "react-router-dom";
 import { PlaylistSidebar } from "@/components/playlist/PlaylistSidebar";
@@ -23,21 +22,6 @@ export default function PlaylistDetail() {
         <div className="flex w-full">
           <PlaylistSidebar playlistId={id} />
           <main className="flex-1 p-6">
-            <div className="mb-6">
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink asChild>
-                      <Link to="/creator/content?tab=playlists">Playlists</Link>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Playlist Details</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
-            </div>
             <h1 className="text-3xl font-bold mb-6">Playlist Details</h1>
             {/* Playlist details and module management will go here */}
           </main>

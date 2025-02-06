@@ -1,6 +1,6 @@
 
-import { NavLink } from "react-router-dom";
-import { BarChart2, FileText, Layout } from "lucide-react";
+import { NavLink, Link } from "react-router-dom";
+import { BarChart2, FileText, Layout, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PlaylistSidebarProps {
@@ -31,6 +31,14 @@ export function PlaylistSidebar({ playlistId }: PlaylistSidebarProps) {
 
   return (
     <div className="w-64 border-r bg-card min-h-screen p-4 space-y-8">
+      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+        <Link to="/creator/content?tab=playlists" className="hover:text-foreground">
+          Content
+        </Link>
+        <ChevronRight className="w-4 h-4" />
+        <span className="text-foreground">Playlist Editor</span>
+      </div>
+
       <div className="space-y-2">
         <div className="flex items-center gap-2 px-2">
           <div className="w-10 h-10 rounded-full bg-primary/20" />
