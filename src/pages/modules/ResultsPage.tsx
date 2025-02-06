@@ -30,10 +30,7 @@ export default function ResultsPage() {
     queryFn: async () => {
       const { data: completions, error } = await supabase
         .from("module_completions")
-        .select(`
-          *,
-          profiles!module_completions_user_id_fkey(username)
-        `)
+        .select("*, profiles(username)")
         .eq("module_id", id)
         .order("completed_at", { ascending: false });
 
