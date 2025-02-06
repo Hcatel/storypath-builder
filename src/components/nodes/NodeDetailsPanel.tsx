@@ -18,7 +18,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
 
   useEffect(() => {
     if (selectedNode) {
-      setNodeData(selectedNode.data);
+      setNodeData(selectedNode.data as NodeData);
     } else {
       setNodeData(null);
     }
@@ -38,9 +38,9 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
   }
 
   const updateNodeData = (updates: Partial<NodeData>) => {
-    if (!selectedNode) return;
-    
-    const updatedData = { ...nodeData, ...updates };
+    if (!selectedNode || !nodeData) return;
+
+    const updatedData = { ...nodeData, ...updates } as NodeData;
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
   };
@@ -57,7 +57,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
               <label className="text-sm font-medium">Title</label>
               <Input
                 value={nodeData.title}
-                onChange={(e) => updateNodeData({ title: e.target.value })}
+                onChange={(e) => updateNodeData({ ...nodeData, title: e.target.value })}
                 placeholder="Enter message title"
               />
             </div>
@@ -65,7 +65,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
               <label className="text-sm font-medium">Content</label>
               <Textarea
                 value={nodeData.content}
-                onChange={(e) => updateNodeData({ content: e.target.value })}
+                onChange={(e) => updateNodeData({ ...nodeData, content: e.target.value })}
                 placeholder="Enter message content"
               />
             </div>
@@ -78,7 +78,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
               <label className="text-sm font-medium">Title</label>
               <Input
                 value={nodeData.title}
-                onChange={(e) => updateNodeData({ title: e.target.value })}
+                onChange={(e) => updateNodeData({ ...nodeData, title: e.target.value })}
                 placeholder="Enter video title"
               />
             </div>
@@ -86,7 +86,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
               <label className="text-sm font-medium">Video URL</label>
               <Input
                 value={nodeData.videoUrl}
-                onChange={(e) => updateNodeData({ videoUrl: e.target.value })}
+                onChange={(e) => updateNodeData({ ...nodeData, videoUrl: e.target.value })}
                 placeholder="Enter video URL"
               />
             </div>
@@ -99,7 +99,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
               <label className="text-sm font-medium">Question</label>
               <Input
                 value={nodeData.question}
-                onChange={(e) => updateNodeData({ question: e.target.value })}
+                onChange={(e) => updateNodeData({ ...nodeData, question: e.target.value })}
                 placeholder="Enter the decision question"
               />
             </div>
@@ -112,7 +112,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
                     onChange={(e) => {
                       const newChoices = [...nodeData.choices];
                       newChoices[index] = { ...choice, text: e.target.value };
-                      updateNodeData({ choices: newChoices });
+                      updateNodeData({ ...nodeData, choices: newChoices });
                     }}
                     placeholder={`Choice ${index + 1}`}
                   />
@@ -121,7 +121,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
                     size="icon"
                     onClick={() => {
                       const newChoices = nodeData.choices.filter((_, i) => i !== index);
-                      updateNodeData({ choices: newChoices });
+                      updateNodeData({ ...nodeData, choices: newChoices });
                     }}
                   >
                     <Minus className="h-4 w-4" />
@@ -133,7 +133,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
                 size="sm"
                 onClick={() => {
                   const newChoices = [...nodeData.choices, { text: '', nextComponentId: '' }];
-                  updateNodeData({ choices: newChoices });
+                  updateNodeData({ ...nodeData, choices: newChoices });
                 }}
               >
                 <Plus className="h-4 w-4 mr-2" />

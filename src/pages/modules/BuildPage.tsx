@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +14,7 @@ import {
   Connection,
   Panel,
   NodeTypes,
+  XYPosition,
 } from "@xyflow/react";
 import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -151,8 +151,8 @@ export default function BuildPage() {
       const { error } = await supabase
         .from("modules")
         .update({
-          nodes: nodeData,
-          edges: edgeData,
+          nodes: nodeData as any,
+          edges: edgeData as any,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
