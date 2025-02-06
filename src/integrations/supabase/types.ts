@@ -259,28 +259,34 @@ export type Database = {
       }
       playlists: {
         Row: {
+          completion_rate: number | null
           created_at: string
           description: string | null
           id: string
           name: string
           updated_at: string
           user_id: string
+          view_count: number | null
         }
         Insert: {
+          completion_rate?: number | null
           created_at?: string
           description?: string | null
           id?: string
           name: string
           updated_at?: string
           user_id: string
+          view_count?: number | null
         }
         Update: {
+          completion_rate?: number | null
           created_at?: string
           description?: string | null
           id?: string
           name?: string
           updated_at?: string
           user_id?: string
+          view_count?: number | null
         }
         Relationships: []
       }

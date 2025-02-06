@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 export default function CreatorContent() {
-  const { data: modules, isLoading } = useQuery({
+  const { data: modules, isLoading: modulesLoading } = useQuery({
     queryKey: ["creator-modules"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -25,6 +25,26 @@ export default function CreatorContent() {
           estimated_duration_minutes,
           updated_at,
           module_completions (count)
+        `)
+        .eq("user_id", (await supabase.auth.getUser()).data.user?.id);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: playlists, isLoading: playlistsLoading } = useQuery({
+    queryKey: ["creator-playlists"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("playlists")
+        .select(`
+          id,
+          name,
+          description,
+          view_count,
+          completion_rate,
+          updated_at
         `)
         .eq("user_id", (await supabase.auth.getUser()).data.user?.id);
 
@@ -77,7 +97,7 @@ export default function CreatorContent() {
                   </Button>
                 </Link>
               </div>
-              {isLoading ? (
+              {modulesLoading ? (
                 <div className="flex justify-center p-8">
                   <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
@@ -131,9 +151,57 @@ export default function CreatorContent() {
             </TabsContent>
 
             <TabsContent value="playlists">
-              <div className="text-center text-muted-foreground p-8">
-                Playlists section coming soon
+              <div className="flex justify-end mb-4">
+                <Link to="/playlists/create">
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Playlist
+                  </Button>
+                </Link>
               </div>
+              {playlistsLoading ? (
+                <div className="flex justify-center p-8">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Playlist Name</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead className="text-right">Views</TableHead>
+                      <TableHead className="text-right">Completion Rate</TableHead>
+                      <TableHead className="text-right">Last Modified</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {playlists?.map((playlist) => (
+                      <TableRow key={playlist.id}>
+                        <TableCell className="font-medium">
+                          <Link 
+                            to={`/playlists/${playlist.id}`}
+                            className="text-primary hover:underline"
+                          >
+                            {playlist.name}
+                          </Link>
+                        </TableCell>
+                        <TableCell>{playlist.description || '-'}</TableCell>
+                        <TableCell className="text-right">
+                          {playlist.view_count || 0}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {playlist.completion_rate 
+                            ? `${Math.round(playlist.completion_rate)}%` 
+                            : '0%'}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {format(new Date(playlist.updated_at), 'MMM d, yyyy')}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </TabsContent>
 
             <TabsContent value="media">
