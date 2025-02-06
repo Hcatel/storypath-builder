@@ -24,6 +24,7 @@ import "@xyflow/react/dist/style.css";
 
 export interface NodeWithData extends Omit<Node, 'data'> {
   data: NodeData;
+  type: string;
 }
 
 const convertToReactFlowNode = (node: any): NodeWithData => ({
@@ -73,8 +74,9 @@ export default function BuildPage() {
   });
 
   const [nodes, setNodes, onNodesChange] = useNodesState<NodeWithData>(
-    module?.nodes || [getInitialNode() as NodeWithData]
+    module?.nodes || [getInitialNode() as unknown as NodeWithData]
   );
+  
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     module?.edges || []
   );
@@ -94,9 +96,9 @@ export default function BuildPage() {
   return (
     <div className="h-[calc(100vh-10rem)]">
       <ReactFlow
-        nodes={nodes as Node[]}
+        nodes={nodes as unknown as Node[]}
         edges={edges}
-        onNodesChange={onNodesChange}
+        onNodesChange={onNodesChange as any}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={nodeTypes as NodeTypes}

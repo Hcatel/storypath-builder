@@ -1,6 +1,6 @@
 
 import { useCallback } from "react";
-import { Connection, Edge, Node, addEdge } from "@xyflow/react";
+import { Connection, Edge, addEdge } from "@xyflow/react";
 import { ComponentType, NodeData, RouterNodeData } from "@/types/module";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
@@ -123,9 +123,10 @@ export const useModuleFlow = (
         setNodes(updatedNodes);
       }
       
-      setEdges(eds => addEdge(params, eds));
+      const newEdge = addEdge(params, edges);
+      setEdges(newEdge);
     },
-    [nodes, setNodes, setEdges]
+    [nodes, setNodes, setEdges, edges]
   );
 
   const addNode = (selectedComponentType: ComponentType) => {
