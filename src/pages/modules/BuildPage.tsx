@@ -16,7 +16,7 @@ import {
   Panel,
   NodeTypes,
 } from "@xyflow/react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -88,7 +88,7 @@ export default function BuildPage() {
   const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
 
   // Fetch module data
-  const { data: module, isLoading } = useQuery<ModuleData>({
+  const { data: module, isLoading } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
       const { data, error } = await supabase
