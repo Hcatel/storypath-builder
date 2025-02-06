@@ -96,7 +96,14 @@ export default function CreatorContent() {
                   <TableBody>
                     {modules?.map((module) => (
                       <TableRow key={module.id}>
-                        <TableCell className="font-medium">{module.title}</TableCell>
+                        <TableCell className="font-medium">
+                          <Link 
+                            to={`/modules/${module.id}/summary`}
+                            className="text-primary hover:underline"
+                          >
+                            {module.title}
+                          </Link>
+                        </TableCell>
                         <TableCell>
                           <Badge 
                             variant={getAccessBadgeVariant(module.access_type, module.published)}
