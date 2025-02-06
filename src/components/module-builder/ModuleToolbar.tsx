@@ -25,12 +25,12 @@ export function ModuleToolbar({
   onSave,
 }: ModuleToolbarProps) {
   return (
-    <div className="space-x-2">
+    <div className="flex items-center gap-2 p-2">
       <Select
         value={selectedComponentType}
         onValueChange={onComponentTypeChange}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-[180px] bg-background">
           <SelectValue placeholder="Select component type" />
         </SelectTrigger>
         <SelectContent>

@@ -100,7 +100,7 @@ export default function BuildPage() {
         <Background />
         <Controls />
         <MiniMap />
-        <Panel position="top-right">
+        <Panel position="top-left">
           <ModuleToolbar
             selectedComponentType={selectedComponentType}
             onComponentTypeChange={setSelectedComponentType}
