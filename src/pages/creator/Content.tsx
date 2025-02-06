@@ -6,8 +6,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { CreatorSidebar } from "@/components/creator/CreatorSidebar";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 export default function CreatorContent() {
   const { data: modules, isLoading } = useQuery({
@@ -56,7 +58,9 @@ export default function CreatorContent() {
       <div className="flex">
         <CreatorSidebar />
         <main className="flex-1 p-8">
-          <h1 className="text-3xl font-bold mb-6">Content</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold">Content</h1>
+          </div>
           <Tabs defaultValue="modules" className="space-y-6">
             <TabsList>
               <TabsTrigger value="modules">Modules</TabsTrigger>
@@ -65,6 +69,14 @@ export default function CreatorContent() {
             </TabsList>
 
             <TabsContent value="modules">
+              <div className="flex justify-end mb-4">
+                <Link to="/modules/create">
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Module
+                  </Button>
+                </Link>
+              </div>
               {isLoading ? (
                 <div className="flex justify-center p-8">
                   <Loader2 className="h-8 w-8 animate-spin" />
