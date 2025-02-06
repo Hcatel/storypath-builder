@@ -20,6 +20,7 @@ import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { nodeTypes, getInitialNode } from "@/constants/moduleComponents";
 import { NodeDetailsPanel } from "@/components/nodes/NodeDetailsPanel";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import "@xyflow/react/dist/style.css";
 
 const convertToReactFlowNode = (node: any): FlowNode => ({
@@ -112,38 +113,38 @@ export default function BuildPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-10rem)]">
-      <div className="flex-grow">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes as NodeTypes}
-          onNodeClick={onNodeClick}
-          onPaneClick={onPaneClick}
-          fitView
-        >
-          <Background />
-          <Controls />
-          <MiniMap />
-          <Panel position="top-left">
-            <ModuleToolbar
-              selectedComponentType={selectedComponentType}
-              onComponentTypeChange={setSelectedComponentType}
-              onAddNode={() => addNode(selectedComponentType)}
-              onSave={saveChanges}
-            />
-          </Panel>
-        </ReactFlow>
-      </div>
-      <div className="w-96 border-l">
-        <NodeDetailsPanel 
-          selectedNode={selectedNode}
-          onNodeUpdate={onNodeUpdate}
-        />
-      </div>
+    <div className="h-[calc(100vh-10rem)]">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes as NodeTypes}
+        onNodeClick={onNodeClick}
+        onPaneClick={onPaneClick}
+        fitView
+      >
+        <Background />
+        <Controls />
+        <MiniMap />
+        <Panel position="top-left">
+          <ModuleToolbar
+            selectedComponentType={selectedComponentType}
+            onComponentTypeChange={setSelectedComponentType}
+            onAddNode={() => addNode(selectedComponentType)}
+            onSave={saveChanges}
+          />
+        </Panel>
+      </ReactFlow>
+      <Sheet open={selectedNode !== null} onOpenChange={() => setSelectedNode(null)}>
+        <SheetContent>
+          <NodeDetailsPanel 
+            selectedNode={selectedNode}
+            onNodeUpdate={onNodeUpdate}
+          />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
