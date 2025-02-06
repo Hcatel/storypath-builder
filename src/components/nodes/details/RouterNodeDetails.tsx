@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
-import { RouterNodeData } from "@/types/module";
+import { RouterNodeData, NodeData } from "@/types/module";
 import { useReactFlow } from "@xyflow/react";
 import {
   Select,
@@ -72,7 +72,7 @@ export function RouterNodeDetails({ data, onUpdate }: RouterNodeDetailsProps) {
                 <SelectContent>
                   {availableNodes.map((node) => (
                     <SelectItem key={node.id} value={node.id}>
-                      {node.data.label || `Component ${node.id}`}
+                      {(node.data as NodeData).label}
                     </SelectItem>
                   ))}
                 </SelectContent>
