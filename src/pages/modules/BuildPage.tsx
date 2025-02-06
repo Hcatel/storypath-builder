@@ -13,6 +13,7 @@ import {
   Panel,
   NodeTypes,
   Node,
+  useReactFlow,
 } from "@xyflow/react";
 import { useState } from "react";
 import { ComponentType, NodeData, FlowNode, FlowEdge } from "@/types/module";
@@ -121,6 +122,8 @@ export default function BuildPage() {
     return <div>Loading...</div>;
   }
 
+  const availableNodes = selectedNode ? nodes.filter(node => node.id !== selectedNode.id) : [];
+
   return (
     <div className="h-[calc(100vh-10rem)]">
       <ReactFlow
@@ -163,6 +166,7 @@ export default function BuildPage() {
               <NodeDetailsPanel 
                 selectedNode={selectedNode}
                 onNodeUpdate={onNodeUpdate}
+                availableNodes={availableNodes}
               />
             </PopoverContent>
           </Popover>

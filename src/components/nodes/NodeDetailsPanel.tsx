@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Node, useReactFlow } from "@xyflow/react";
+import { Node } from "@xyflow/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NodeData } from "@/types/module";
 import { MessageNodeDetails } from "./details/MessageNodeDetails";
@@ -12,11 +12,11 @@ import { MultipleChoiceNodeDetails } from "./details/MultipleChoiceNodeDetails";
 type NodeDetailsPanelProps = {
   selectedNode: Node | null;
   onNodeUpdate: (nodeId: string, data: NodeData) => void;
+  availableNodes: Node[];
 };
 
-export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPanelProps) {
+export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }: NodeDetailsPanelProps) {
   const [nodeData, setNodeData] = useState<NodeData | null>(null);
-  const { getNodes } = useReactFlow();
 
   useEffect(() => {
     if (selectedNode) {
@@ -46,8 +46,6 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate }: NodeDetailsPane
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
   };
-
-  const availableNodes = getNodes().filter(node => node.id !== selectedNode.id);
 
   const renderNodeDetails = () => {
     switch (nodeData.type) {
