@@ -1,88 +1,84 @@
 
-import { FileText, Code, Image, Share2, ChartBar } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from "@/components/ui/sidebar";
+import { FileText, Code, Image, Share2, ChartBar } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ModuleCreatorSidebarProps {
   moduleId: string;
 }
 
-export function ModuleCreatorSidebar({ moduleId }: ModuleCreatorSidebarProps) {
-  const items = [
-    {
-      title: "Summary",
-      icon: FileText,
-      path: `/modules/${moduleId}/summary`,
-      description: "Module overview and settings",
-    },
-    {
-      title: "Build",
-      icon: Code,
-      path: `/modules/${moduleId}/build`,
-      description: "Create your module content",
-    },
-    {
-      title: "My Media",
-      icon: Image,
-      path: `/modules/${moduleId}/media`,
-      description: "Manage your media files",
-    },
-    {
-      title: "Share & Access",
-      icon: Share2,
-      path: `/modules/${moduleId}/share`,
-      description: "Control module visibility",
-    },
-    {
-      title: "Results",
-      icon: ChartBar,
-      path: `/modules/${moduleId}/results`,
-      description: "View module analytics",
-    },
-  ];
+const navigation = [
+  {
+    name: "Summary",
+    href: (moduleId: string) => `/modules/${moduleId}/summary`,
+    icon: FileText,
+  },
+  {
+    name: "Build",
+    href: (moduleId: string) => `/modules/${moduleId}/build`,
+    icon: Code,
+  },
+  {
+    name: "My Media",
+    href: (moduleId: string) => `/modules/${moduleId}/media`,
+    icon: Image,
+  },
+  {
+    name: "Share & Access",
+    href: (moduleId: string) => `/modules/${moduleId}/share`,
+    icon: Share2,
+  },
+  {
+    name: "Results",
+    href: (moduleId: string) => `/modules/${moduleId}/results`,
+    icon: ChartBar,
+  },
+];
 
+export function ModuleCreatorSidebar({ moduleId }: ModuleCreatorSidebarProps) {
   return (
-    <Sidebar className="border-r border-border bg-sidebar-background w-56">
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent className="space-y-1 p-2">
-            {items.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <NavLink
-                    to={item.path}
-                    className={({ isActive }) =>
-                      cn(
-                        "flex flex-col space-y-1 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                        isActive
-                          ? "bg-accent/60 text-accent-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      )
-                    }
-                  >
-                    <div className="flex items-center gap-3">
-                      <item.icon className="h-4 w-4 shrink-0" />
-                      <span className="font-medium">{item.title}</span>
-                    </div>
-                    <span className="line-clamp-1 text-xs opacity-70">
-                      {item.description}
-                    </span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+    <div className="w-64 border-r bg-card min-h-screen p-4 space-y-8">
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 px-2">
+          <div className="w-10 h-10 rounded-full bg-primary/20" />
+          <div>
+            <h3 className="font-semibold">Module Creator</h3>
+            <p className="text-xs text-muted-foreground">Edit your module</p>
+          </div>
+        </div>
+      </div>
+
+      <nav className="space-y-1">
+        {navigation.map((item) => (
+          <NavLink
+            key={item.name}
+            to={item.href(moduleId)}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md",
+                "transition-colors hover:bg-accent hover:text-accent-foreground",
+                isActive
+                  ? "bg-accent/60 text-accent-foreground"
+                  : "text-muted-foreground"
+              )
+            }
+          >
+            <item.icon className="w-5 h-5" />
+            {item.name}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="pt-4 border-t">
+        <Button variant="ghost" size="sm" className="w-full justify-start">
+          <FileText className="w-4 h-4 mr-2" />
+          Documentation
+        </Button>
+        <Button variant="ghost" size="sm" className="w-full justify-start">
+          Feedback
+        </Button>
+      </div>
+    </div>
   );
 }
