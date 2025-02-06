@@ -28,7 +28,7 @@ export default function PlaylistDetail() {
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                      <Link to="/creator/content?tab=playlists">Content</Link>
+                      <Link to="/creator/content?tab=playlists">Playlists</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
