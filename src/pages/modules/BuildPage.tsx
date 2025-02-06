@@ -11,6 +11,7 @@ import {
   useEdgesState,
   Node,
   Edge,
+  Panel
 } from "@xyflow/react";
 import { useState } from "react";
 import { ComponentType } from "@/types/module";
@@ -67,10 +68,10 @@ export default function BuildPage() {
     },
   });
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>(
+  const [nodes, setNodes, onNodesChange] = useNodesState(
     module?.nodes || [getInitialNode()]
   );
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>(
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
     module?.edges || []
   );
 

@@ -17,6 +17,7 @@ export const componentOptions: { value: ComponentType; label: string }[] = [
 ];
 
 export const getInitialNode = (): Node => ({
+  id: '1',
   type: "message",
   position: { x: 250, y: 100 },
   data: { 
