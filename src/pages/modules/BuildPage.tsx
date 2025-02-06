@@ -22,16 +22,20 @@ import { useToast } from "@/hooks/use-toast";
 import { ComponentType, NodeData } from "@/types/module";
 import "@xyflow/react/dist/style.css";
 
+interface ReactFlowNode extends Node {
+  data: NodeData;
+}
+
 // Convert NodeData to ReactFlow Node type
-const convertToReactFlowNode = (nodeData: any): Node => ({
-  id: nodeData.id,
+const convertToReactFlowNode = (node: any): ReactFlowNode => ({
+  id: node.id.toString(),
   type: "default",
-  position: nodeData.position || { x: 0, y: 0 },
-  data: nodeData.data,
+  position: node.position || { x: 0, y: 0 },
+  data: node.data as NodeData,
 });
 
 // Initial node when creating a new module
-const getInitialNode = (): Node => ({
+const getInitialNode = (): ReactFlowNode => ({
   id: "1",
   type: "default",
   data: { 
@@ -45,7 +49,7 @@ const getInitialNode = (): Node => ({
 
 type ModuleData = {
   id: string;
-  nodes: any[];
+  nodes: ReactFlowNode[];
   edges: Edge[];
   component_types: ComponentType[];
   [key: string]: any;
@@ -73,12 +77,12 @@ export default function BuildPage() {
         : [];
 
       const convertedEdges = Array.isArray(data.edges)
-        ? data.edges.map(edge => ({
-            id: edge.id,
-            source: edge.source,
-            target: edge.target,
-            type: edge.type,
-            data: edge.data,
+        ? data.edges.map((edge: any) => ({
+            id: edge.id.toString(),
+            source: edge.source.toString(),
+            target: edge.target.toString(),
+            type: edge.type || 'default',
+            data: edge.data || {},
           }))
         : [];
 
@@ -91,7 +95,7 @@ export default function BuildPage() {
   });
 
   // Initialize with stored nodes/edges or default node
-  const [nodes, setNodes, onNodesChange] = useNodesState(
+  const [nodes, setNodes, onNodesChange] = useNodesState<ReactFlowNode>(
     module?.nodes || [getInitialNode()]
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(module?.edges || []);
@@ -102,8 +106,18 @@ export default function BuildPage() {
       const { error } = await supabase
         .from("modules")
         .update({
-          nodes: nodes,
-          edges: edges,
+          nodes: nodes.map(node => ({
+            id: node.id,
+            position: node.position,
+            data: node.data,
+          })),
+          edges: edges.map(edge => ({
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            type: edge.type,
+            data: edge.data,
+          })),
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
@@ -133,7 +147,7 @@ export default function BuildPage() {
 
   // Add new node
   const addNode = () => {
-    const newNode: Node = {
+    const newNode: ReactFlowNode = {
       id: (nodes.length + 1).toString(),
       type: "default",
       data: { 
