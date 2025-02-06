@@ -5,8 +5,12 @@ import { CreatorSidebar } from "@/components/creator/CreatorSidebar";
 import { ModulesTable } from "@/components/creator/content/ModulesTable";
 import { PlaylistsTable } from "@/components/creator/content/PlaylistsTable";
 import MediaPage from "@/pages/modules/MediaPage";
+import { useSearchParams } from "react-router-dom";
 
 export default function CreatorContent() {
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "modules";
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -16,7 +20,7 @@ export default function CreatorContent() {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold">Content</h1>
           </div>
-          <Tabs defaultValue="modules" className="space-y-6">
+          <Tabs defaultValue={defaultTab} className="space-y-6">
             <TabsList>
               <TabsTrigger value="modules">Modules</TabsTrigger>
               <TabsTrigger value="playlists">Playlists</TabsTrigger>
