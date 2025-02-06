@@ -20,11 +20,11 @@ import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { ComponentType, NodeData, MessageNodeData } from "@/types/module";
+import { ComponentType, NodeData } from "@/types/module";
 import "@xyflow/react/dist/style.css";
 
-// Define the node type with proper React Flow generics
-type ReactFlowNode = Node<NodeData>;
+// Define custom type for React Flow nodes with our data structure
+type ReactFlowNode = Node<{ label: string; type: ComponentType; title: string; content: string }>;
 
 // Convert data to ReactFlow Node type
 const convertToReactFlowNode = (node: any): ReactFlowNode => ({
@@ -36,20 +36,20 @@ const convertToReactFlowNode = (node: any): ReactFlowNode => ({
     type: node.data.type || "message",
     title: node.data.title || "",
     content: node.data.content || "",
-  } as NodeData,
+  },
 });
 
 // Initial node when creating a new module
 const getInitialNode = (): ReactFlowNode => ({
   id: "1",
   type: "default",
+  position: { x: 250, y: 100 },
   data: { 
     label: "Start Here",
-    type: "message" as const,
+    type: "message",
     title: "",
     content: "" 
-  } satisfies MessageNodeData,
-  position: { x: 250, y: 100 },
+  },
 });
 
 type ModuleData = {
@@ -100,7 +100,7 @@ export default function BuildPage() {
   });
 
   // Initialize with stored nodes/edges or default node
-  const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(
+  const [nodes, setNodes, onNodesChange] = useNodesState(
     module?.nodes || [getInitialNode()]
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(module?.edges || []);
@@ -166,15 +166,15 @@ export default function BuildPage() {
     const newNode: ReactFlowNode = {
       id: (nodes.length + 1).toString(),
       type: "default",
-      data: { 
-        label: `Content ${nodes.length + 1}`,
-        type: "message" as const,
-        title: "",
-        content: ""
-      } satisfies MessageNodeData,
       position: {
         x: Math.random() * 500,
         y: Math.random() * 500,
+      },
+      data: { 
+        label: `Content ${nodes.length + 1}`,
+        type: "message",
+        title: "",
+        content: ""
       },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -210,3 +210,4 @@ export default function BuildPage() {
     </div>
   );
 }
+
