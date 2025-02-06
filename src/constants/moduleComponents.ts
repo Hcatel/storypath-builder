@@ -1,9 +1,9 @@
 
 import { ComponentType } from "@/types/module";
-import { Node } from "@xyflow/react";
 import { MessageNode } from "@/components/nodes/MessageNode";
 import { VideoNode } from "@/components/nodes/VideoNode";
 import { RouterNode } from "@/components/nodes/RouterNode";
+import { TextInputNode } from "@/components/nodes/TextInputNode";
 
 export const componentOptions: { value: ComponentType; label: string }[] = [
   { value: "message", label: "Message" },
@@ -32,4 +32,5 @@ export const nodeTypes = {
   message: MessageNode,
   video: VideoNode,
   router: RouterNode,
+  text_input: TextInputNode,
 };
