@@ -209,6 +209,7 @@ export type Database = {
           created_at: string
           description: string | null
           edges: Json
+          estimated_duration_minutes: number | null
           id: string
           nodes: Json
           playlist_id: string | null
@@ -226,6 +227,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           edges?: Json
+          estimated_duration_minutes?: number | null
           id?: string
           nodes?: Json
           playlist_id?: string | null
@@ -243,6 +245,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           edges?: Json
+          estimated_duration_minutes?: number | null
           id?: string
           nodes?: Json
           playlist_id?: string | null
