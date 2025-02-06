@@ -10,18 +10,16 @@ export default function ModuleCreator() {
   if (!id) return null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <div className="flex min-h-[calc(100vh-4rem)]">
-        <SidebarProvider>
-          <div className="flex w-full">
-            <ModuleCreatorSidebar moduleId={id} />
-            <main className="flex-1 overflow-y-auto p-6">
-              <Outlet />
-            </main>
-          </div>
-        </SidebarProvider>
-      </div>
+      <SidebarProvider>
+        <div className="flex w-full flex-1">
+          <ModuleCreatorSidebar moduleId={id} />
+          <main className="flex-1 overflow-y-auto p-6">
+            <Outlet />
+          </main>
+        </div>
+      </SidebarProvider>
     </div>
   );
 }

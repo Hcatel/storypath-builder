@@ -50,7 +50,7 @@ export function ModuleCreatorSidebar({ moduleId }: ModuleCreatorSidebarProps) {
   ];
 
   return (
-    <Sidebar className="border-r border-border bg-sidebar-background pt-2">
+    <Sidebar className="border-r border-border bg-sidebar-background w-72">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent className="space-y-1 p-2">
