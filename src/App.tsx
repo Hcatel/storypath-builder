@@ -21,6 +21,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            {/* We'll implement these routes next */}
+            <Route path="/modules/create" element={<div>Create Module</div>} />
+            <Route path="/modules/:id" element={<div>View Module</div>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
