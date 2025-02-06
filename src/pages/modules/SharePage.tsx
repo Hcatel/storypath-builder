@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Globe2, Lock, Users } from "lucide-react";
 
+type ModuleAccessType = 'private' | 'public' | 'restricted';
+
 export default function SharePage() {
   const { id } = useParams();
   const { toast } = useToast();
@@ -42,7 +44,7 @@ export default function SharePage() {
 
   // Update access type mutation
   const { mutate: updateAccessType } = useMutation({
-    mutationFn: async (accessType: string) => {
+    mutationFn: async (accessType: ModuleAccessType) => {
       const { error } = await supabase
         .from("modules")
         .update({ access_type: accessType })
@@ -87,7 +89,7 @@ export default function SharePage() {
           <div className="space-y-4">
             <Select
               value={module?.access_type || "private"}
-              onValueChange={updateAccessType}
+              onValueChange={(value: ModuleAccessType) => updateAccessType(value)}
             >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Select access type" />

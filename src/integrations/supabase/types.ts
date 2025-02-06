@@ -186,7 +186,7 @@ export type Database = {
       }
       modules: {
         Row: {
-          access_type: string
+          access_type: Database["public"]["Enums"]["module_access_type"]
           created_at: string
           description: string | null
           edges: Json
@@ -200,7 +200,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          access_type?: string
+          access_type?: Database["public"]["Enums"]["module_access_type"]
           created_at?: string
           description?: string | null
           edges?: Json
@@ -214,7 +214,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          access_type?: string
+          access_type?: Database["public"]["Enums"]["module_access_type"]
           created_at?: string
           description?: string | null
           edges?: Json
@@ -288,7 +288,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      module_access_type: "private" | "public" | "restricted"
     }
     CompositeTypes: {
       [_ in never]: never
