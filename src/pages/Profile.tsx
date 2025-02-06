@@ -37,11 +37,7 @@ const Profile = () => {
         .from('creator_subscriptions')
         .select(`
           *,
-          creator:profiles!creator_subscriptions_creator_id_fkey(
-            id,
-            username,
-            avatar_url
-          )
+          profiles!inner(id, username, avatar_url)
         `)
         .eq('subscriber_id', user?.id);
       
@@ -134,7 +130,7 @@ const Profile = () => {
                           <div className="flex items-center space-x-4">
                             <div className="flex-1">
                               <p className="font-medium">
-                                {subscription.creator?.username || 'Anonymous'}
+                                {subscription.profiles?.username || 'Anonymous'}
                               </p>
                               <p className="text-sm text-muted-foreground">
                                 Subscribed since {new Date(subscription.subscribed_at).toLocaleDateString()}
