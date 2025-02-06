@@ -1,7 +1,7 @@
 
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { FileText, Code, Image, Share2, ChartBar } from "lucide-react";
+import { FileText, Code, Image, Share2, ChartBar, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ModuleCreatorSidebarProps {
@@ -39,6 +39,14 @@ const navigation = [
 export function ModuleCreatorSidebar({ moduleId }: ModuleCreatorSidebarProps) {
   return (
     <div className="w-64 border-r bg-card min-h-screen p-4 space-y-8">
+      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+        <Link to="/creator/content?tab=modules" className="hover:text-foreground">
+          Content
+        </Link>
+        <ChevronRight className="w-4 h-4" />
+        <span className="text-foreground">Module Editor</span>
+      </div>
+
       <div className="space-y-2">
         <div className="flex items-center gap-2 px-2">
           <div className="w-10 h-10 rounded-full bg-primary/20" />
