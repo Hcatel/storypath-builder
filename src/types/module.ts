@@ -1,3 +1,4 @@
+
 import { Edge, Node } from '@xyflow/react';
 
 export type ComponentType = 
@@ -88,7 +89,9 @@ export type NodeData =
   | MatchingNodeData;
 
 export interface FlowNode extends Node {
+  id: string;
   type: ComponentType;
+  position: { x: number; y: number };
   data: NodeData;
 }
 
