@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import CreateModule from "./pages/CreateModule";
 import ModuleCreator from "./pages/modules/ModuleCreator";
 import MediaPage from "./pages/modules/MediaPage";
+import SummaryPage from "./pages/modules/SummaryPage";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +29,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/modules/create" element={<CreateModule />} />
             <Route path="/modules/:id" element={<ModuleCreator />}>
-              <Route path="summary" element={<div>Summary Page</div>} />
+              <Route path="summary" element={<SummaryPage />} />
               <Route path="build" element={<div>Build Page</div>} />
               <Route path="media" element={<MediaPage />} />
               <Route path="share" element={<div>Share & Access Page</div>} />
