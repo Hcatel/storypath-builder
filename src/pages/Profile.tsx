@@ -36,7 +36,7 @@ const Profile = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('creator_subscriptions')
-        .select('*, creator:creator_id(id, username, avatar_url)')
+        .select('*, profiles!creator_subscriptions_creator_id_fkey(id, username, avatar_url)')
         .eq('subscriber_id', user?.id);
       
       if (error) throw error;
@@ -128,7 +128,7 @@ const Profile = () => {
                           <div className="flex items-center space-x-4">
                             <div className="flex-1">
                               <p className="font-medium">
-                                {subscription.creator?.username || 'Anonymous'}
+                                {subscription.profiles?.username || 'Anonymous'}
                               </p>
                               <p className="text-sm text-muted-foreground">
                                 Subscribed since {new Date(subscription.subscribed_at).toLocaleDateString()}
