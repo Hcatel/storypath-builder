@@ -120,22 +120,31 @@ export type Database = {
         Row: {
           completed_at: string
           decisions: Json
+          feedback: string | null
           id: string
           module_id: string
+          score: number | null
+          time_spent_seconds: number | null
           user_id: string
         }
         Insert: {
           completed_at?: string
           decisions?: Json
+          feedback?: string | null
           id?: string
           module_id: string
+          score?: number | null
+          time_spent_seconds?: number | null
           user_id: string
         }
         Update: {
           completed_at?: string
           decisions?: Json
+          feedback?: string | null
           id?: string
           module_id?: string
+          score?: number | null
+          time_spent_seconds?: number | null
           user_id?: string
         }
         Relationships: [
