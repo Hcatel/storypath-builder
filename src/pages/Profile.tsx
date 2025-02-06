@@ -1,19 +1,26 @@
 import { Header } from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useNavigate } from "react-router-dom";
 
 type ProfileView = "learner" | "creator";
 
 const Profile = () => {
   const { user } = useAuth();
   const [view, setView] = useState<ProfileView>("learner");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (view === "creator") {
+      navigate("/creator/dashboard");
+    }
+  }, [view, navigate]);
 
   const { data: completions, isLoading: completionsLoading } = useQuery({
     queryKey: ['module_completions', user?.id],
@@ -190,20 +197,7 @@ const Profile = () => {
               </CardContent>
             </Card>
           </div>
-        ) : (
-          <div className="grid gap-6">
-            {/* Creator Stats - To be implemented */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Creator Dashboard</CardTitle>
-                <CardDescription>Track your module performance and engagement</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Creator view features coming soon!</p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        ) : null}
       </main>
     </div>
   );
