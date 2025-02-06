@@ -122,8 +122,8 @@ export default function CreatePlaylist() {
             <Breadcrumb className="mb-6">
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink as={Link} to="/creator/content?tab=playlists">
-                    Playlists
+                  <BreadcrumbLink asChild>
+                    <Link to="/creator/content?tab=playlists">Playlists</Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
