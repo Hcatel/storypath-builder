@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -17,6 +18,8 @@ import CreatorContent from "@/pages/creator/Content";
 import CreatorAnalytics from "@/pages/creator/Analytics";
 import CreatorLearners from "@/pages/creator/Learners";
 import CreatorSettings from "@/pages/creator/Settings";
+import CreatePlaylist from "@/pages/playlists/CreatePlaylist";
+import PlaylistDetail from "@/pages/playlists/PlaylistDetail";
 
 function App() {
   return (
@@ -45,6 +48,10 @@ function App() {
             <Route path="results" element={<ResultsPage />} />
             <Route path="summary" element={<SummaryPage />} />
           </Route>
+
+          {/* Playlist routes */}
+          <Route path="/playlists/create" element={<CreatePlaylist />} />
+          <Route path="/playlists/:id" element={<PlaylistDetail />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

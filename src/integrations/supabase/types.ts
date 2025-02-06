@@ -257,38 +257,94 @@ export type Database = {
         }
         Relationships: []
       }
+      playlist_modules: {
+        Row: {
+          created_at: string
+          id: string
+          module_id: string | null
+          playlist_id: string | null
+          position: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_id?: string | null
+          playlist_id?: string | null
+          position: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_id?: string | null
+          playlist_id?: string | null
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_modules_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playlist_modules_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       playlists: {
         Row: {
+          access_type: Database["public"]["Enums"]["module_access_type"] | null
           completion_rate: number | null
           created_at: string
           description: string | null
           id: string
           name: string
+          parent_playlist_id: string | null
+          thumbnail_url: string | null
           updated_at: string
           user_id: string
           view_count: number | null
         }
         Insert: {
+          access_type?: Database["public"]["Enums"]["module_access_type"] | null
           completion_rate?: number | null
           created_at?: string
           description?: string | null
           id?: string
           name: string
+          parent_playlist_id?: string | null
+          thumbnail_url?: string | null
           updated_at?: string
           user_id: string
           view_count?: number | null
         }
         Update: {
+          access_type?: Database["public"]["Enums"]["module_access_type"] | null
           completion_rate?: number | null
           created_at?: string
           description?: string | null
           id?: string
           name?: string
+          parent_playlist_id?: string | null
+          thumbnail_url?: string | null
           updated_at?: string
           user_id?: string
           view_count?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "playlists_parent_playlist_id_fkey"
+            columns: ["parent_playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
