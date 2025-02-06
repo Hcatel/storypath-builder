@@ -15,6 +15,7 @@ import MediaPage from "./pages/modules/MediaPage";
 import SummaryPage from "./pages/modules/SummaryPage";
 import SharePage from "./pages/modules/SharePage";
 import ResultsPage from "./pages/modules/ResultsPage";
+import BuildPage from "./pages/modules/BuildPage";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +33,7 @@ const App = () => (
             <Route path="/modules/create" element={<CreateModule />} />
             <Route path="/modules/:id" element={<ModuleCreator />}>
               <Route path="summary" element={<SummaryPage />} />
-              <Route path="build" element={<div>Build Page</div>} />
+              <Route path="build" element={<BuildPage />} />
               <Route path="media" element={<MediaPage />} />
               <Route path="share" element={<SharePage />} />
               <Route path="results" element={<ResultsPage />} />
