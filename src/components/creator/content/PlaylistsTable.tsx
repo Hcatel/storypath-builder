@@ -3,9 +3,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { PlaylistTableRow } from "./PlaylistTableRow";
 
 export function PlaylistsTable() {
   const { data: playlists, isLoading: playlistsLoading } = useQuery({
@@ -55,28 +55,7 @@ export function PlaylistsTable() {
           </TableHeader>
           <TableBody>
             {playlists?.map((playlist) => (
-              <TableRow key={playlist.id}>
-                <TableCell className="font-medium">
-                  <Link 
-                    to={`/playlists/${playlist.id}`}
-                    className="text-primary hover:underline"
-                  >
-                    {playlist.name}
-                  </Link>
-                </TableCell>
-                <TableCell>{playlist.description || '-'}</TableCell>
-                <TableCell className="text-right">
-                  {playlist.view_count || 0}
-                </TableCell>
-                <TableCell className="text-right">
-                  {playlist.completion_rate 
-                    ? `${Math.round(playlist.completion_rate)}%` 
-                    : '0%'}
-                </TableCell>
-                <TableCell className="text-right">
-                  {format(new Date(playlist.updated_at), 'MMM d, yyyy')}
-                </TableCell>
-              </TableRow>
+              <PlaylistTableRow key={playlist.id} playlist={playlist} />
             ))}
           </TableBody>
         </Table>

@@ -1,12 +1,11 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { ModuleTableRow } from "./ModuleTableRow";
 
 export function ModulesTable() {
   const { data: modules, isLoading: modulesLoading } = useQuery({
@@ -29,25 +28,6 @@ export function ModulesTable() {
       return data;
     },
   });
-
-  const getAccessBadgeVariant = (accessType: string, published: boolean) => {
-    if (!published) return "secondary";
-    switch (accessType) {
-      case "public":
-        return "default";
-      case "private":
-        return "secondary";
-      case "restricted":
-        return "destructive";
-      default:
-        return "secondary";
-    }
-  };
-
-  const getAccessLabel = (accessType: string, published: boolean) => {
-    if (!published) return "Draft";
-    return accessType.charAt(0).toUpperCase() + accessType.slice(1);
-  };
 
   return (
     <>
@@ -77,35 +57,7 @@ export function ModulesTable() {
           </TableHeader>
           <TableBody>
             {modules?.map((module) => (
-              <TableRow key={module.id}>
-                <TableCell className="font-medium">
-                  <Link 
-                    to={`/modules/${module.id}/summary`}
-                    className="text-primary hover:underline"
-                  >
-                    {module.title}
-                  </Link>
-                </TableCell>
-                <TableCell>
-                  <Badge 
-                    variant={getAccessBadgeVariant(module.access_type, module.published)}
-                  >
-                    {getAccessLabel(module.access_type, module.published)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">-</TableCell>
-                <TableCell className="text-right">
-                  {module.module_completions?.[0]?.count || 0} completions
-                </TableCell>
-                <TableCell className="text-right">
-                  {module.estimated_duration_minutes 
-                    ? `${module.estimated_duration_minutes} mins` 
-                    : '-'}
-                </TableCell>
-                <TableCell className="text-right">
-                  {format(new Date(module.updated_at), 'MMM d, yyyy')}
-                </TableCell>
-              </TableRow>
+              <ModuleTableRow key={module.id} module={module} />
             ))}
           </TableBody>
         </Table>
