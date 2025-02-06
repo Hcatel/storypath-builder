@@ -1,11 +1,9 @@
-
 import { Header } from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
@@ -41,9 +39,10 @@ const Profile = () => {
         .from('creator_subscriptions')
         .select(`
           *,
-          creator:creator_id(
+          creator_profile:creator_id(
             id,
-            profiles:profiles(*)
+            username,
+            avatar_url
           )
         `)
         .eq('subscriber_id', user?.id);
@@ -143,7 +142,7 @@ const Profile = () => {
                           <div className="flex items-center space-x-4">
                             <div className="flex-1">
                               <p className="font-medium">
-                                {subscription.creator.profiles?.username || 'Anonymous'}
+                                {subscription.creator_profile?.username || 'Anonymous'}
                               </p>
                               <p className="text-sm text-muted-foreground">
                                 Subscribed since {new Date(subscription.subscribed_at).toLocaleDateString()}
