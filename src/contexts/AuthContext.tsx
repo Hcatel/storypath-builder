@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.success("Successfully signed in!");
     } catch (error: any) {
       toast.error(error.message);
+      throw error;
     }
   };
 
@@ -70,6 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.success("Successfully signed up! Please check your email.");
     } catch (error: any) {
       toast.error(error.message);
+      throw error;
     }
   };
 
@@ -81,6 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.success("Successfully signed out!");
     } catch (error: any) {
       toast.error(error.message);
+      throw error;
     }
   };
 

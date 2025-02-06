@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { z } from "zod";
+import { toast } from "sonner";
 
 const Auth = () => {
   const { signIn, signUp, user } = useAuth();
@@ -45,13 +46,17 @@ const Auth = () => {
 
       if (isSignUp) {
         await signUp(email, password, username);
+        toast.success("Account created! Please check your email to verify your account.");
       } else {
         await signIn(email, password);
+        toast.success("Welcome back!");
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errorMessage = error.errors[0]?.message || "Validation error";
-        console.error(errorMessage);
+        toast.error(errorMessage);
+      } else {
+        toast.error("An error occurred. Please try again.");
       }
     } finally {
       setLoading(false);
