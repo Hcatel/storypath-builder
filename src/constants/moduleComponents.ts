@@ -4,6 +4,7 @@ import { MessageNode } from "@/components/nodes/MessageNode";
 import { VideoNode } from "@/components/nodes/VideoNode";
 import { RouterNode } from "@/components/nodes/RouterNode";
 import { TextInputNode } from "@/components/nodes/TextInputNode";
+import { FlowNode } from "@/types/module";
 
 export const componentOptions: { value: ComponentType; label: string }[] = [
   { value: "message", label: "Message" },
@@ -16,7 +17,7 @@ export const componentOptions: { value: ComponentType; label: string }[] = [
   { value: "matching", label: "Matching" },
 ];
 
-export const getInitialNode = (): Node => ({
+export const getInitialNode = (): FlowNode => ({
   id: '1',
   type: "message",
   position: { x: 250, y: 100 },

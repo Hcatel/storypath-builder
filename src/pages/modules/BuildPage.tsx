@@ -37,7 +37,7 @@ const convertToReactFlowNode = (node: any): FlowNode => ({
 export default function BuildPage() {
   const { id } = useParams();
   const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
   const [popoverAnchor, setPopoverAnchor] = useState<{ x: number; y: number } | null>(null);
 
   const { data: module, isLoading } = useQuery({
@@ -76,7 +76,7 @@ export default function BuildPage() {
   });
 
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>(
-    module?.nodes || [getInitialNode() as FlowNode]
+    module?.nodes || [getInitialNode()]
   );
   
   const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>(
@@ -95,7 +95,7 @@ export default function BuildPage() {
     event.stopPropagation();
     const bounds = (event.target as HTMLElement).getBoundingClientRect();
     setPopoverAnchor({ x: bounds.right, y: bounds.top });
-    setSelectedNode(node);
+    setSelectedNode(node as FlowNode);
   };
 
   const onPaneClick = () => {
