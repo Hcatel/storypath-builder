@@ -22,19 +22,26 @@ import { useToast } from "@/hooks/use-toast";
 import "@xyflow/react/dist/style.css";
 
 // Initial node when creating a new module
-const getInitialNode = () => ({
+const getInitialNode = (): Node => ({
   id: "1",
   type: "default",
   data: { label: "Start Here" },
   position: { x: 250, y: 100 },
 });
 
+type ModuleData = {
+  id: string;
+  nodes: Node[];
+  edges: Edge[];
+  [key: string]: any;
+};
+
 export default function BuildPage() {
   const { id } = useParams();
   const { toast } = useToast();
 
   // Fetch module data
-  const { data: module, isLoading } = useQuery({
+  const { data: module, isLoading } = useQuery<ModuleData>({
     queryKey: ["module", id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -44,7 +51,13 @@ export default function BuildPage() {
         .single();
 
       if (error) throw error;
-      return data;
+      
+      // Ensure nodes and edges are properly typed when coming from the database
+      return {
+        ...data,
+        nodes: (data.nodes as Node[]) || [],
+        edges: (data.edges as Edge[]) || [],
+      };
     },
   });
 
@@ -57,11 +70,12 @@ export default function BuildPage() {
   // Save changes mutation
   const { mutate: saveChanges } = useMutation({
     mutationFn: async () => {
+      // Convert nodes and edges to a format that Supabase accepts
       const { error } = await supabase
         .from("modules")
         .update({
-          nodes,
-          edges,
+          nodes: nodes as any,
+          edges: edges as any,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
