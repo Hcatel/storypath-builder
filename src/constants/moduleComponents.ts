@@ -1,5 +1,9 @@
 
 import { ComponentType } from "@/types/module";
+import { Node } from "@xyflow/react";
+import { MessageNode } from "@/components/nodes/MessageNode";
+import { VideoNode } from "@/components/nodes/VideoNode";
+import { RouterNode } from "@/components/nodes/RouterNode";
 
 export const componentOptions: { value: ComponentType; label: string }[] = [
   { value: "message", label: "Message" },
@@ -13,7 +17,6 @@ export const componentOptions: { value: ComponentType; label: string }[] = [
 ];
 
 export const getInitialNode = (): Node => ({
-  id: "1",
   type: "message",
   position: { x: 250, y: 100 },
   data: { 

@@ -9,20 +9,19 @@ import {
   MiniMap,
   useNodesState,
   useEdgesState,
-  Panel,
+  Node,
+  Edge,
 } from "@xyflow/react";
 import { useState } from "react";
 import { ComponentType } from "@/types/module";
-import { MessageNode } from "@/components/nodes/MessageNode";
-import { VideoNode } from "@/components/nodes/VideoNode";
-import { RouterNode } from "@/components/nodes/RouterNode";
 import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { nodeTypes, getInitialNode } from "@/constants/moduleComponents";
 import "@xyflow/react/dist/style.css";
 
-// Convert data to ReactFlow Node type
-const convertToReactFlowNode = (node: any) => ({
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
+const convertToReactFlowNode = (node: any): Node => ({
   id: node.id.toString(),
   type: node.data.type || "message",
   position: node.position || { x: 0, y: 0 },
@@ -33,7 +32,6 @@ export default function BuildPage() {
   const { id } = useParams();
   const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
 
-  // Fetch module data
   const { data: module, isLoading } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
@@ -69,10 +67,10 @@ export default function BuildPage() {
     },
   });
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>(
     module?.nodes || [getInitialNode()]
   );
-  const [edges, setEdges, onEdgesChange] = useEdgesState(
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>(
     module?.edges || []
   );
 
@@ -107,7 +105,7 @@ export default function BuildPage() {
             selectedComponentType={selectedComponentType}
             onComponentTypeChange={setSelectedComponentType}
             onAddNode={() => addNode(selectedComponentType)}
-            onSave={() => saveChanges()}
+            onSave={saveChanges}
           />
         </Panel>
       </ReactFlow>

@@ -6,7 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-// Helper to get initial data for each component type
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
 const getInitialDataForType = (type: ComponentType, nodeCount: number): NodeData => {
   switch (type) {
     case "message":
@@ -59,7 +60,7 @@ export const useModuleFlow = (
         position: node.position,
         data: node.data,
         type: node.type,
-      }));
+      })) as JsonValue[];
 
       const edgeData = edges.map(edge => ({
         id: edge.id,
@@ -67,7 +68,7 @@ export const useModuleFlow = (
         target: edge.target,
         type: edge.type || 'default',
         data: edge.data || {},
-      }));
+      })) as JsonValue[];
 
       const { error } = await supabase
         .from("modules")
@@ -102,16 +103,16 @@ export const useModuleFlow = (
         const choiceIndex = parseInt(params.sourceHandle.replace('choice-', ''));
         const updatedNodes = nodes.map(node => {
           if (node.id === params.source) {
-            const updatedChoices = [...(node.data.choices || [])];
-            updatedChoices[choiceIndex] = {
-              ...updatedChoices[choiceIndex],
+            const choices = [...(node.data.choices || [])];
+            choices[choiceIndex] = {
+              ...choices[choiceIndex],
               nextComponentId: params.target,
             };
             return {
               ...node,
               data: {
                 ...node.data,
-                choices: updatedChoices,
+                choices,
               },
             };
           }
@@ -120,7 +121,7 @@ export const useModuleFlow = (
         setNodes(updatedNodes);
       }
       
-      setEdges((eds) => addEdge(params, eds));
+      setEdges(eds => addEdge(params, eds));
     },
     [nodes, setNodes, setEdges]
   );
@@ -135,7 +136,7 @@ export const useModuleFlow = (
       },
       data: getInitialDataForType(selectedComponentType, nodes.length),
     };
-    setNodes((nds) => [...nds, newNode]);
+    setNodes([...nodes, newNode]);
   };
 
   return {
