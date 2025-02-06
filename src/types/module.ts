@@ -1,4 +1,3 @@
-
 export type ComponentType = 
   | 'message'
   | 'video'
@@ -84,3 +83,11 @@ export type NodeData =
   | RankingNodeData 
   | LikertScaleNodeData 
   | MatchingNodeData;
+
+export interface FlowEdge extends Edge {
+  id: string;
+  source: string;
+  target: string;
+  type?: string;
+  data?: Record<string, unknown>;
+}

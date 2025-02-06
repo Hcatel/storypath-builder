@@ -16,15 +16,15 @@ import {
   NodeTypes,
 } from "@xyflow/react";
 import { useState } from "react";
-import { ComponentType, NodeData } from "@/types/module";
+import { ComponentType, NodeData, FlowEdge } from "@/types/module";
 import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { nodeTypes, getInitialNode } from "@/constants/moduleComponents";
 import "@xyflow/react/dist/style.css";
 
-export interface NodeWithData extends Omit<Node, 'data'> {
+export interface NodeWithData extends Node {
   data: NodeData;
-  type: string;
+  type: ComponentType;
 }
 
 const convertToReactFlowNode = (node: any): NodeWithData => ({
@@ -77,7 +77,7 @@ export default function BuildPage() {
     module?.nodes || [getInitialNode() as unknown as NodeWithData]
   );
   
-  const [edges, setEdges, onEdgesChange] = useEdgesState(
+  const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>(
     module?.edges || []
   );
 
@@ -96,9 +96,9 @@ export default function BuildPage() {
   return (
     <div className="h-[calc(100vh-10rem)]">
       <ReactFlow
-        nodes={nodes as unknown as Node[]}
+        nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange as any}
+        onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={nodeTypes as NodeTypes}

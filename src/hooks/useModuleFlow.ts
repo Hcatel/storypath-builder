@@ -1,7 +1,7 @@
 
 import { useCallback } from "react";
-import { Connection, Edge, addEdge } from "@xyflow/react";
-import { ComponentType, NodeData, RouterNodeData } from "@/types/module";
+import { Connection, Edge } from "@xyflow/react";
+import { ComponentType, NodeData, RouterNodeData, FlowEdge } from "@/types/module";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,9 +48,9 @@ const getInitialDataForType = (type: ComponentType, nodeCount: number): NodeData
 export const useModuleFlow = (
   moduleId: string,
   nodes: NodeWithData[],
-  edges: Edge[],
+  edges: FlowEdge[],
   setNodes: (nodes: NodeWithData[]) => void,
-  setEdges: (edges: Edge[]) => void
+  setEdges: (edges: FlowEdge[]) => void
 ) => {
   const { toast } = useToast();
 
@@ -123,10 +123,15 @@ export const useModuleFlow = (
         setNodes(updatedNodes);
       }
       
-      const newEdge = addEdge(params, edges);
-      setEdges(newEdge);
+      const newEdge: FlowEdge = {
+        id: `e${params.source}-${params.target}`,
+        source: params.source,
+        target: params.target || '',
+        type: 'default',
+      };
+      setEdges([...edges, newEdge]);
     },
-    [nodes, setNodes, setEdges, edges]
+    [nodes, edges, setNodes, setEdges]
   );
 
   const addNode = (selectedComponentType: ComponentType) => {
