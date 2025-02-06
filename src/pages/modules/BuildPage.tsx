@@ -52,11 +52,30 @@ export default function BuildPage() {
 
       if (error) throw error;
       
-      // Ensure nodes and edges are properly typed when coming from the database
+      // Convert the JSON data to the correct types using a more explicit conversion
+      const convertedNodes = Array.isArray(data.nodes) 
+        ? (data.nodes as any[]).map(node => ({
+            id: node.id,
+            type: node.type,
+            data: node.data,
+            position: node.position,
+          })) as Node[]
+        : [];
+
+      const convertedEdges = Array.isArray(data.edges)
+        ? (data.edges as any[]).map(edge => ({
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            type: edge.type,
+            data: edge.data,
+          })) as Edge[]
+        : [];
+
       return {
         ...data,
-        nodes: (data.nodes as Node[]) || [],
-        edges: (data.edges as Edge[]) || [],
+        nodes: convertedNodes,
+        edges: convertedEdges,
       };
     },
   });
