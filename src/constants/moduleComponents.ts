@@ -1,10 +1,12 @@
-
 import { ComponentType } from "@/types/module";
 import { MessageNode } from "@/components/nodes/MessageNode";
 import { VideoNode } from "@/components/nodes/VideoNode";
 import { RouterNode } from "@/components/nodes/RouterNode";
 import { TextInputNode } from "@/components/nodes/TextInputNode";
 import { MultipleChoiceNode } from "@/components/nodes/MultipleChoiceNode";
+import { RankingNode } from "@/components/nodes/RankingNode";
+import { LikertScaleNode } from "@/components/nodes/LikertScaleNode";
+import { MatchingNode } from "@/components/nodes/MatchingNode";
 import { FlowNode } from "@/types/module";
 
 export const componentOptions: { value: ComponentType; label: string }[] = [
@@ -36,4 +38,7 @@ export const nodeTypes = {
   router: RouterNode,
   text_input: TextInputNode,
   multiple_choice: MultipleChoiceNode,
+  ranking: RankingNode,
+  likert_scale: LikertScaleNode,
+  matching: MatchingNode,
 };

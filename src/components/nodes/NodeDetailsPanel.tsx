@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Node } from "@xyflow/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +7,9 @@ import { VideoNodeDetails } from "./details/VideoNodeDetails";
 import { RouterNodeDetails } from "./details/RouterNodeDetails";
 import { TextInputNodeDetails } from "./details/TextInputNodeDetails";
 import { MultipleChoiceNodeDetails } from "./details/MultipleChoiceNodeDetails";
+import { RankingNodeDetails } from "./details/RankingNodeDetails";
+import { LikertScaleNodeDetails } from "./details/LikertScaleNodeDetails";
+import { MatchingNodeDetails } from "./details/MatchingNodeDetails";
 
 type NodeDetailsPanelProps = {
   selectedNode: Node | null;
@@ -59,6 +61,12 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
         return <TextInputNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       case 'multiple_choice':
         return <MultipleChoiceNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'ranking':
+        return <RankingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'likert_scale':
+        return <LikertScaleNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'matching':
+        return <MatchingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       default:
         return null;
     }
