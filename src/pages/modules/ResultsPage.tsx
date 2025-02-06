@@ -32,9 +32,7 @@ export default function ResultsPage() {
         .from("module_completions")
         .select(`
           *,
-          user:user_id (
-            profiles:profiles(username)
-          )
+          profiles!module_completions_user_id_fkey(username)
         `)
         .eq("module_id", id)
         .order("completed_at", { ascending: false });
@@ -169,7 +167,7 @@ export default function ResultsPage() {
               {analytics?.completions?.map((completion) => (
                 <TableRow key={completion.id}>
                   <TableCell>
-                    {completion.user?.profiles?.username || "Anonymous"}
+                    {completion.profiles?.username || "Anonymous"}
                   </TableCell>
                   <TableCell>{completion.score || "N/A"}%</TableCell>
                   <TableCell>
