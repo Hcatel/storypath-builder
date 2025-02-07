@@ -7,10 +7,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const { data: modules, isLoading } = useQuery({
     queryKey: ['modules'],
@@ -26,6 +29,38 @@ const Index = () => {
     enabled: !!user,
   });
 
+  const handleCreateModule = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("modules")
+        .insert([
+          {
+            title: "Untitled Module",
+            description: "",
+            user_id: user.id,
+            nodes: [],
+            edges: [],
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Navigate directly to the module summary page
+      navigate(`/modules/${data.id}/summary`);
+    } catch (error: any) {
+      console.error("Error creating module:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create module",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background font-inter">
       <Header />
@@ -36,9 +71,7 @@ const Index = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Your Modules</h2>
-              <Link to="/modules/create">
-                <Button>Create New Module</Button>
-              </Link>
+              <Button onClick={handleCreateModule}>Create New Module</Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {isLoading ? (
@@ -59,7 +92,7 @@ const Index = () => {
                     <h3 className="text-lg font-semibold mb-2">{module.title}</h3>
                     <p className="text-sm text-gray-600 mb-4">{module.description}</p>
                     <div className="flex justify-end">
-                      <Link to={`/modules/${module.id}`}>
+                      <Link to={`/modules/${module.id}/summary`}>
                         <Button variant="outline">View Module</Button>
                       </Link>
                     </div>

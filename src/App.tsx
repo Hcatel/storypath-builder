@@ -6,7 +6,6 @@ import Index from "@/pages/index";
 import Auth from "@/pages/Auth";
 import Profile from "@/pages/Profile";
 import NotFound from "@/pages/NotFound";
-import CreateModule from "@/pages/CreateModule";
 import ModuleCreator from "@/pages/modules/ModuleCreator";
 import BuildPage from "@/pages/modules/BuildPage";
 import MediaPage from "@/pages/modules/MediaPage";
@@ -29,7 +28,6 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/modules/create" element={<CreateModule />} />
           
           {/* Creator routes */}
           <Route path="/creator">
