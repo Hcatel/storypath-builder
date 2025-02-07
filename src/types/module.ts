@@ -1,3 +1,4 @@
+
 import { Edge, Node } from '@xyflow/react';
 
 export type ComponentType = 
@@ -6,9 +7,7 @@ export type ComponentType =
   | 'router'
   | 'text_input'
   | 'multiple_choice'
-  | 'ranking'
-  | 'likert_scale'
-  | 'matching';
+  | 'ranking';
 
 export interface BaseNodeData {
   [key: string]: unknown;
@@ -60,40 +59,13 @@ export interface RankingNodeData extends BaseNodeData {
   options: string[];
 }
 
-export type LikertDisplayType = 'numbers' | 'slider' | 'stars';
-
-export interface LikertScaleNodeData extends BaseNodeData {
-  type: 'likert_scale';
-  question: string;
-  scaleStart: number;
-  scaleEnd: number;
-  labels: { [key: number]: string };
-  displayType: LikertDisplayType;
-  startText?: string;
-  middleText?: string;
-  endText?: string;
-}
-
-export interface MatchingPair {
-  left: string;
-  right: string;
-}
-
-export interface MatchingNodeData extends BaseNodeData {
-  type: 'matching';
-  title: string;
-  pairs: MatchingPair[];
-}
-
 export type NodeData = 
   | MessageNodeData 
   | VideoNodeData 
   | RouterNodeData 
   | TextInputNodeData 
   | MultipleChoiceNodeData 
-  | RankingNodeData 
-  | LikertScaleNodeData 
-  | MatchingNodeData;
+  | RankingNodeData;
 
 export interface FlowNode extends Node {
   id: string;

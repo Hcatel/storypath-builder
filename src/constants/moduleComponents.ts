@@ -6,8 +6,6 @@ import { RouterNode } from "@/components/nodes/RouterNode";
 import { TextInputNode } from "@/components/nodes/TextInputNode";
 import { MultipleChoiceNode } from "@/components/nodes/MultipleChoiceNode";
 import { RankingNode } from "@/components/nodes/RankingNode";
-import { LikertScaleNode } from "@/components/nodes/LikertScaleNode";
-import { MatchingNode } from "@/components/nodes/MatchingNode";
 import { FlowNode } from "@/types/module";
 
 export const componentOptions: { value: ComponentType; label: string }[] = [
@@ -17,8 +15,6 @@ export const componentOptions: { value: ComponentType; label: string }[] = [
   { value: "text_input", label: "Text Input" },
   { value: "multiple_choice", label: "Multiple Choice" },
   { value: "ranking", label: "Ranking" },
-  { value: "likert_scale", label: "Scale" },
-  { value: "matching", label: "Matching" },
 ];
 
 export const getInitialNode = (): FlowNode => ({
@@ -40,6 +36,4 @@ export const nodeTypes = {
   text_input: TextInputNode,
   multiple_choice: MultipleChoiceNode,
   ranking: RankingNode,
-  likert_scale: LikertScaleNode,
-  matching: MatchingNode,
 };
