@@ -62,7 +62,7 @@ export function ModuleContent({ currentNode, onRouterChoice }: ModuleContentProp
               data={node.data as RankingNodeData}
               onRankingChange={(ranking) => {
                 // For now, we'll just use the first item's index as the choice
-                const index = (data.options as string[]).indexOf(ranking[0]);
+                const index = (node.data as RankingNodeData).options.indexOf(ranking[0]);
                 onRouterChoice?.(index);
               }}
             />
