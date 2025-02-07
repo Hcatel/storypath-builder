@@ -60,6 +60,9 @@ export function NodeDetailsPopover({
         x: e.clientX - localPosition.x,
         y: e.clientY - localPosition.y
       });
+
+      // Set a global flag on the window object
+      (window as any).isPopoverDragging = true;
     }
   };
 
@@ -72,6 +75,8 @@ export function NodeDetailsPopover({
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    // Clear the global flag
+    (window as any).isPopoverDragging = false;
   };
 
   useEffect(() => {
@@ -83,6 +88,7 @@ export function NodeDetailsPopover({
 
       const handleGlobalMouseUp = () => {
         setIsDragging(false);
+        (window as any).isPopoverDragging = false;
       };
 
       window.addEventListener('mousemove', handleGlobalMouseMove);

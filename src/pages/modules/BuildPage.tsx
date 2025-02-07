@@ -35,7 +35,6 @@ export default function BuildPage() {
         };
       }
       
-      console.log("Fetching module with ID:", id);
       const { data, error } = await supabase
         .from("modules")
         .select("*")
@@ -87,6 +86,8 @@ export default function BuildPage() {
   );
 
   const onNodeClick = (event: React.MouseEvent, node: Node) => {
+    if ((window as any).isPopoverDragging) return;
+    
     event.stopPropagation();
     const bounds = (event.target as HTMLElement).getBoundingClientRect();
     setPopoverPosition({ x: bounds.right + 10, y: bounds.top });
@@ -94,6 +95,8 @@ export default function BuildPage() {
   };
 
   const onPaneClick = () => {
+    if ((window as any).isPopoverDragging) return;
+    
     setSelectedNode(null);
     setPopoverPosition(null);
   };

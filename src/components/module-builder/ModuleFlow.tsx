@@ -1,3 +1,4 @@
+
 import {
   ReactFlow,
   Background,
@@ -47,18 +48,12 @@ export function ModuleFlow({
   const [history, setHistory] = useState<FlowNode[][]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
+  const [isDraggingPopover, setIsDraggingPopover] = useState(false);
 
   useModuleFlowKeyboard(setNodes, history, currentIndex, setCurrentIndex, nodes, setHistory);
   useModuleFlowHistory(nodes, setHistory, setCurrentIndex, history);
 
   const handleNodeContextMenu = (event: React.MouseEvent, node: Node) => {
-    console.log('Context menu event triggered:', { 
-      eventType: event.type,
-      nodeId: node.id,
-      clientX: event.clientX,
-      clientY: event.clientY
-    });
-    
     event.preventDefault();
     event.stopPropagation();
     
@@ -80,7 +75,6 @@ export function ModuleFlow({
   };
 
   const handleDeleteNode = () => {
-    console.log('Delete node triggered', { contextMenu });
     if (contextMenu) {
       const newNodes = nodes.filter(n => n.id !== contextMenu.nodeId);
       setNodes(newNodes);
@@ -90,11 +84,12 @@ export function ModuleFlow({
     }
   };
 
-  const handlePaneClick = () => {
-    console.log('Pane click - closing context menu');
-    setContextMenu(null);
-    onPaneClick();
-  };
+  const handlePaneClick = useCallback((event: React.MouseEvent) => {
+    if (!isDraggingPopover) {
+      setContextMenu(null);
+      onPaneClick();
+    }
+  }, [isDraggingPopover, onPaneClick]);
 
   const nodeColor = useCallback((node: Node) => {
     switch (node.type) {
@@ -117,7 +112,6 @@ export function ModuleFlow({
 
   useEffect(() => {
     const handleDeleteEvent = (event: CustomEvent) => {
-      console.log('Delete event received:', event.detail);
       const nodeId = event.detail.id;
       const newNodes = nodes.filter(n => n.id !== nodeId);
       setNodes(newNodes);
