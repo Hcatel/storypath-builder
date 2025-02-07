@@ -10,11 +10,15 @@ export function useRouterConditionMutations(nodeId: string) {
 
   const createCondition = useMutation({
     mutationFn: async (condition: Omit<Condition, "id" | "created_at" | "updated_at">) => {
+      if (!nodeId) {
+        throw new Error("Node ID is required");
+      }
+
       const { data, error } = await supabase
         .from("module_conditions")
         .insert([{
           ...condition,
-          source_node_id: nodeId // Explicitly set the source_node_id
+          source_node_id: nodeId
         }])
         .select()
         .single();
