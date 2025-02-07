@@ -109,3 +109,14 @@ export interface FlowEdge extends Edge {
   type?: string;
   data?: Record<string, unknown>;
 }
+
+export interface ModuleVariable {
+  id: string;
+  module_id: string;
+  name: string;
+  var_type: "string" | "number" | "boolean" | "array";
+  description?: string;
+  default_value?: any;
+  created_at?: string;
+  updated_at?: string;
+}

@@ -1,22 +1,16 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Minus, Settings } from "lucide-react";
+import { Plus } from "lucide-react";
 import { RouterNodeData, NodeData } from "@/types/module";
 import { Node } from "@xyflow/react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Condition, ConditionType, ActionType } from "@/types/conditions";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Condition } from "@/types/conditions";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { RouterChoice } from "./router/RouterChoice";
+import { RouterConditions } from "./router/RouterConditions";
 
 type RouterNodeDetailsProps = {
   data: RouterNodeData;
@@ -30,7 +24,6 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [showConditionDialog, setShowConditionDialog] = useState(false);
 
-  // Fetch module variables for the current module
   const { data: variables } = useQuery({
     queryKey: ["module-variables", data.moduleId],
     queryFn: async () => {
@@ -44,7 +37,6 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
     },
   });
 
-  // Fetch conditions for this router node
   const { data: conditions } = useQuery({
     queryKey: ["module-conditions", data.id],
     queryFn: async () => {
@@ -105,6 +97,27 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
     },
   });
 
+  const handleChoiceUpdate = (index: number, updates: { text?: string; nextComponentId?: string }) => {
+    const newChoices = [...data.choices];
+    newChoices[index] = { ...newChoices[index], ...updates };
+    onUpdate({ ...data, choices: newChoices });
+  };
+
+  const handleAddCondition = () => {
+    if (selectedChoice !== null && variables && variables.length > 0) {
+      createCondition({
+        module_id: data.moduleId,
+        source_node_id: data.id,
+        target_variable_id: variables[0].id,
+        condition_type: 'equals',
+        condition_value: "",
+        action_type: 'set_variable',
+        action_value: "",
+        priority: conditions?.length || 0,
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -118,61 +131,21 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
       <div className="space-y-2">
         <label className="text-sm font-medium">Choices</label>
         {data.choices.map((choice, index) => (
-          <div key={index} className="space-y-2 border rounded-lg p-3">
-            <div className="flex gap-2">
-              <Input
-                value={choice.text}
-                onChange={(e) => {
-                  const newChoices = [...data.choices];
-                  newChoices[index] = { ...choice, text: e.target.value };
-                  onUpdate({ ...data, choices: newChoices });
-                }}
-                placeholder={`Choice ${index + 1}`}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  const newChoices = data.choices.filter((_, i) => i !== index);
-                  onUpdate({ ...data, choices: newChoices });
-                }}
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  setSelectedChoice(index);
-                  setShowConditionDialog(true);
-                }}
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-            </div>
-            <div>
-              <label className="text-sm font-medium">Connect to component</label>
-              <Select
-                value={choice.nextComponentId}
-                onValueChange={(value) => {
-                  const newChoices = [...data.choices];
-                  newChoices[index] = { ...choice, nextComponentId: value };
-                  onUpdate({ ...data, choices: newChoices });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a component" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableNodes.map((node) => (
-                    <SelectItem key={node.id} value={node.id}>
-                      {(node.data as NodeData).label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <RouterChoice
+            key={index}
+            choice={choice}
+            index={index}
+            availableNodes={availableNodes}
+            onUpdate={handleChoiceUpdate}
+            onDelete={() => {
+              const newChoices = data.choices.filter((_, i) => i !== index);
+              onUpdate({ ...data, choices: newChoices });
+            }}
+            onConfigureConditions={() => {
+              setSelectedChoice(index);
+              setShowConditionDialog(true);
+            }}
+          />
         ))}
         <Button
           variant="outline"
@@ -190,57 +163,16 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
       <Dialog open={showConditionDialog} onOpenChange={setShowConditionDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Configure Conditions for Choice {selectedChoice !== null ? selectedChoice + 1 : ''}</DialogTitle>
+            <DialogTitle>
+              Configure Conditions for Choice {selectedChoice !== null ? selectedChoice + 1 : ''}
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            {variables && variables.length > 0 ? (
-              <div>
-                <h3 className="font-medium mb-2">Existing Conditions</h3>
-                <div className="space-y-2">
-                  {conditions?.filter(c => c.source_node_id === data.id).map((condition) => (
-                    <div key={condition.id} className="flex items-center justify-between p-2 border rounded">
-                      <span className="text-sm">
-                        {variables.find(v => v.id === condition.target_variable_id)?.name} 
-                        {' '}{condition.condition_type}{' '}
-                        {JSON.stringify(condition.condition_value)}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteCondition(condition.id)}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4">
-                  <Button
-                    onClick={() => {
-                      if (selectedChoice !== null && variables.length > 0) {
-                        createCondition({
-                          module_id: data.moduleId,
-                          source_node_id: data.id,
-                          target_variable_id: variables[0].id,
-                          condition_type: 'equals',
-                          condition_value: "",
-                          action_type: 'set_variable',
-                          action_value: "",
-                          priority: conditions?.length || 0,
-                        });
-                      }
-                    }}
-                  >
-                    Add Condition
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center text-muted-foreground">
-                No variables available. Create variables first to add conditions.
-              </div>
-            )}
-          </div>
+          <RouterConditions
+            conditions={conditions || []}
+            variables={variables || []}
+            onAddCondition={handleAddCondition}
+            onDeleteCondition={deleteCondition}
+          />
         </DialogContent>
       </Dialog>
     </div>
