@@ -22,9 +22,9 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
   const [showConditionDialog, setShowConditionDialog] = useState(false);
   const { toast } = useToast();
 
-  // Access the IDs directly from the data prop
-  const nodeId = data.id;
-  const moduleId = data.moduleId;
+  // Ensure we have valid string IDs
+  const nodeId = typeof data.id === 'string' ? data.id : null;
+  const moduleId = typeof data.moduleId === 'string' ? data.moduleId : null;
 
   // Check if both IDs exist and are strings
   if (!nodeId || !moduleId) {
