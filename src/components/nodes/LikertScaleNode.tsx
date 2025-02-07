@@ -35,11 +35,13 @@ export function LikertScaleNode({ data, selected, id }: LikertScaleNodeProps) {
       
       case 'stars':
         return (
-          <div className="flex justify-between">
+          <div className="flex justify-center gap-4">
             {Array.from({ length: data.scaleEnd - data.scaleStart + 1 }, (_, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
-                <Star className="w-6 h-6 text-muted-foreground" />
-                <span className="text-xs">{data.labels?.[data.scaleStart + i] || ""}</span>
+                <Star className="w-6 h-6 text-muted-foreground hover:text-yellow-400 cursor-pointer" />
+                <span className="text-xs text-muted-foreground">
+                  {data.labels?.[data.scaleStart + i] || (data.scaleStart + i)}
+                </span>
               </div>
             ))}
           </div>
@@ -47,13 +49,13 @@ export function LikertScaleNode({ data, selected, id }: LikertScaleNodeProps) {
       
       default: // 'numbers'
         return (
-          <div className="flex justify-between">
+          <div className="flex justify-center gap-4">
             {Array.from({ length: data.scaleEnd - data.scaleStart + 1 }, (_, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
-                <div className="w-8 h-8 rounded-full border flex items-center justify-center bg-muted">
+                <div className="w-8 h-8 rounded-full border flex items-center justify-center bg-muted hover:bg-muted/80 cursor-pointer">
                   <span className="text-sm font-medium">{data.scaleStart + i}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
                   {data.labels?.[data.scaleStart + i] || ""}
                 </span>
               </div>
