@@ -56,6 +56,7 @@ export interface MultipleChoiceNodeData extends BaseNodeData {
 export interface RankingNodeData extends BaseNodeData {
   type: 'ranking';
   title: string;
+  instructions: string;
   options: string[];
 }
 
