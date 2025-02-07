@@ -35,7 +35,7 @@ export function ModuleNavigation({
 
         <Button
           onClick={onNext}
-          disabled={currentIndex === totalNodes - 1}
+          disabled={!isLastNode && currentIndex === totalNodes - 1}
           className={isLastNode ? "bg-green-500 hover:bg-green-600" : ""}
         >
           {isLastNode ? (
