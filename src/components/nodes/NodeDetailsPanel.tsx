@@ -24,7 +24,7 @@ import { LikertScaleNodeDetails } from "./details/LikertScaleNodeDetails";
 import { MatchingNodeDetails } from "./details/MatchingNodeDetails";
 
 type NodeDetailsPanelProps = {
-  selectedNode: Node | null;
+  selectedNode: Node<NodeData> | null;
   onNodeUpdate: (nodeId: string, data: NodeData) => void;
   availableNodes: Node[];
 };
@@ -34,8 +34,9 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   const [nodeType, setNodeType] = useState<ComponentType | null>(null);
 
   useEffect(() => {
-    if (selectedNode) {
-      const data = selectedNode.data as NodeData;
+    if (selectedNode && selectedNode.data) {
+      const data = selectedNode.data;
+      
       if (!data.type) {
         console.error("Node data is missing type:", data);
         return;
