@@ -85,9 +85,27 @@ const LearnModule = () => {
   };
 
   const handleRouterChoice = (choiceIndex: number) => {
-    if (overlayRouter) {
-      setOverlayRouter(null);
-      setCurrentNodeIndex(currentNodeIndex + 1);
+    if (!module?.nodes || overlayRouter === null) return;
+    
+    const currentRouterIndex = currentNodeIndex + 1;
+    const nextIndex = currentRouterIndex + 1;
+    
+    // Clear the current overlay
+    setOverlayRouter(null);
+    
+    if (nextIndex < module.nodes.length) {
+      const nextNode = module.nodes[nextIndex];
+      
+      // If the next node is also an overlay router, show it without advancing
+      if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+        pauseAllMedia();
+        setOverlayRouter(nextNode.data as RouterNodeData);
+        updateProgress(nextNode.id);
+      } else {
+        // If it's not an overlay router, advance to the next page
+        setCurrentNodeIndex(nextIndex);
+        updateProgress(nextNode.id);
+      }
     }
   };
 
