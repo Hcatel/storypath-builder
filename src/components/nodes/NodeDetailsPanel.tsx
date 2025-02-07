@@ -25,7 +25,43 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   useEffect(() => {
     if (selectedNode) {
       const data = selectedNode.data as NodeData;
-      setNodeData(data);
+      if (!data.type) {
+        console.error("Node data is missing type:", data);
+        return;
+      }
+      
+      let typedData: NodeData;
+      switch (data.type) {
+        case 'message':
+          typedData = { ...data, type: 'message' } as MessageNodeData;
+          break;
+        case 'video':
+          typedData = { ...data, type: 'video' } as VideoNodeData;
+          break;
+        case 'router':
+          typedData = { ...data, type: 'router' } as RouterNodeData;
+          break;
+        case 'text_input':
+          typedData = { ...data, type: 'text_input' } as TextInputNodeData;
+          break;
+        case 'multiple_choice':
+          typedData = { ...data, type: 'multiple_choice' } as MultipleChoiceNodeData;
+          break;
+        case 'ranking':
+          typedData = { ...data, type: 'ranking' } as RankingNodeData;
+          break;
+        case 'likert_scale':
+          typedData = { ...data, type: 'likert_scale' } as LikertScaleNodeData;
+          break;
+        case 'matching':
+          typedData = { ...data, type: 'matching' } as MatchingNodeData;
+          break;
+        default:
+          console.error("Unknown node type:", data.type);
+          return;
+      }
+      
+      setNodeData(typedData);
       setNodeType(data.type);
     } else {
       setNodeData(null);
@@ -47,7 +83,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   }
 
   const updateNodeData = (updates: Partial<NodeData>) => {
-    if (!selectedNode || !nodeData) return;
+    if (!selectedNode || !nodeData || !nodeType) return;
 
     const updatedData = {
       ...nodeData,
@@ -64,21 +100,21 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
     switch (nodeType) {
       case 'message':
-        return <MessageNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+        return <MessageNodeDetails data={nodeData as MessageNodeData} onUpdate={updateNodeData} />;
       case 'video':
-        return <VideoNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+        return <VideoNodeDetails data={nodeData as VideoNodeData} onUpdate={updateNodeData} />;
       case 'router':
-        return <RouterNodeDetails data={nodeData} onUpdate={updateNodeData} availableNodes={availableNodes} />;
+        return <RouterNodeDetails data={nodeData as RouterNodeData} onUpdate={updateNodeData} availableNodes={availableNodes} />;
       case 'text_input':
-        return <TextInputNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+        return <TextInputNodeDetails data={nodeData as TextInputNodeData} onUpdate={updateNodeData} />;
       case 'multiple_choice':
-        return <MultipleChoiceNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+        return <MultipleChoiceNodeDetails data={nodeData as MultipleChoiceNodeData} onUpdate={updateNodeData} />;
       case 'ranking':
-        return <RankingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+        return <RankingNodeDetails data={nodeData as RankingNodeData} onUpdate={updateNodeData} />;
       case 'likert_scale':
-        return <LikertScaleNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+        return <LikertScaleNodeDetails data={nodeData as LikertScaleNodeData} onUpdate={updateNodeData} />;
       case 'matching':
-        return <MatchingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+        return <MatchingNodeDetails data={nodeData as MatchingNodeData} onUpdate={updateNodeData} />;
       default: {
         // This helps TypeScript know that we've handled all possible cases
         const _exhaustiveCheck: never = nodeType;
