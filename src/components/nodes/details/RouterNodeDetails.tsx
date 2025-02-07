@@ -108,7 +108,7 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
     if (selectedChoice !== null && variables && variables.length > 0) {
       createCondition({
         module_id: data.moduleId as string,
-        source_node_id: data.id,
+        source_node_id: data.id as string,
         target_variable_id: variables[0].id,
         condition_type: 'equals',
         condition_value: "",
