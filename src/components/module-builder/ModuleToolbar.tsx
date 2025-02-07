@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useParams } from "react-router-dom";
+import { ModuleVariablesPanel } from "./ModuleVariablesPanel";
 
 interface ModuleToolbarProps {
   selectedComponentType: ComponentType;
@@ -50,7 +51,7 @@ export function ModuleToolbar({
       if (error) throw error;
       return data;
     },
-    enabled: !!id && !isCreateMode, // Only run query if we have a valid module ID
+    enabled: !!id && !isCreateMode,
   });
 
   const handleVersionChange = async (versionId: string) => {
@@ -80,59 +81,62 @@ export function ModuleToolbar({
   };
 
   return (
-    <div className="flex items-center gap-2 p-2 border-b">
-      <div className="flex items-center gap-2 flex-1">
-        <Select
-          value={selectedComponentType}
-          onValueChange={onComponentTypeChange}
-        >
-          <SelectTrigger className="w-[180px] bg-background">
-            <SelectValue placeholder="Select component type" />
-          </SelectTrigger>
-          <SelectContent>
-            {componentOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button onClick={onAddNode} size="sm">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Node
-        </Button>
-        <Button onClick={onSave} size="sm" variant="secondary">
-          Save Changes
-        </Button>
-      </div>
+    <div className="flex flex-col border-b">
+      <div className="flex items-center gap-2 p-2">
+        <div className="flex items-center gap-2 flex-1">
+          <Select
+            value={selectedComponentType}
+            onValueChange={onComponentTypeChange}
+          >
+            <SelectTrigger className="w-[180px] bg-background">
+              <SelectValue placeholder="Select component type" />
+            </SelectTrigger>
+            <SelectContent>
+              {componentOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button onClick={onAddNode} size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Node
+          </Button>
+          <Button onClick={onSave} size="sm" variant="secondary">
+            Save Changes
+          </Button>
+        </div>
 
-      <div className="flex items-center gap-2 border-l pl-2">
-        <History className="w-4 h-4 text-muted-foreground" />
-        <Select 
-          onValueChange={handleVersionChange} 
-          disabled={isCreateMode || !versions?.length}
-        >
-          <SelectTrigger 
-            className="w-[180px] bg-background"
+        <div className="flex items-center gap-2 border-l pl-2">
+          <History className="w-4 h-4 text-muted-foreground" />
+          <Select 
+            onValueChange={handleVersionChange} 
             disabled={isCreateMode || !versions?.length}
           >
-            <SelectValue placeholder={isCreateMode ? "No versions available" : "Version history"} />
-          </SelectTrigger>
-          <SelectContent>
-            {versions && versions.length > 0 ? (
-              versions.map((version) => (
-                <SelectItem key={version.id} value={version.id}>
-                  Version {version.version_number} ({new Date(version.created_at).toLocaleDateString()})
+            <SelectTrigger 
+              className="w-[180px] bg-background"
+              disabled={isCreateMode || !versions?.length}
+            >
+              <SelectValue placeholder={isCreateMode ? "No versions available" : "Version history"} />
+            </SelectTrigger>
+            <SelectContent>
+              {versions && versions.length > 0 ? (
+                versions.map((version) => (
+                  <SelectItem key={version.id} value={version.id}>
+                    Version {version.version_number} ({new Date(version.created_at).toLocaleDateString()})
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem value="no-versions" disabled>
+                  No versions available
                 </SelectItem>
-              ))
-            ) : (
-              <SelectItem value="no-versions" disabled>
-                No versions available
-              </SelectItem>
-            )}
-          </SelectContent>
-        </Select>
+              )}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
+      {!isCreateMode && <ModuleVariablesPanel moduleId={id} />}
     </div>
   );
 }
