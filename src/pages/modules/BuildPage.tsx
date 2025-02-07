@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNodesState, useEdgesState, Node } from "@xyflow/react";
+import { useNodesState, useEdgesState, Node, ReactFlowProvider } from "@xyflow/react";
 import { useState } from "react";
 import { ComponentType, NodeData, FlowNode, FlowEdge } from "@/types/module";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
@@ -29,7 +29,6 @@ export default function BuildPage() {
     queryKey: ["module", id],
     queryFn: async () => {
       if (isCreateMode) {
-        // Return empty module data for create mode
         return {
           nodes: [],
           edges: [],
@@ -117,7 +116,6 @@ export default function BuildPage() {
     setPopoverPosition(position);
   };
 
-  // Only show loading state when we're fetching an existing module
   if (isLoading && !isCreateMode) {
     return <div>Loading...</div>;
   }
@@ -126,27 +124,29 @@ export default function BuildPage() {
 
   return (
     <div className="h-[calc(100vh-10rem)]">
-      <ModuleFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeClick={onNodeClick}
-        onPaneClick={onPaneClick}
-        selectedComponentType={selectedComponentType}
-        onComponentTypeChange={setSelectedComponentType}
-        onAddNode={() => addNode(selectedComponentType)}
-        onSave={saveChanges}
-      />
-      <NodeDetailsPopover
-        selectedNode={selectedNode}
-        popoverPosition={popoverPosition}
-        onNodeUpdate={onNodeUpdate}
-        onClose={() => setSelectedNode(null)}
-        availableNodes={availableNodes}
-        onPositionChange={handlePositionChange}
-      />
+      <ReactFlowProvider>
+        <ModuleFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onNodeClick={onNodeClick}
+          onPaneClick={onPaneClick}
+          selectedComponentType={selectedComponentType}
+          onComponentTypeChange={setSelectedComponentType}
+          onAddNode={() => addNode(selectedComponentType)}
+          onSave={saveChanges}
+        />
+        <NodeDetailsPopover
+          selectedNode={selectedNode}
+          popoverPosition={popoverPosition}
+          onNodeUpdate={onNodeUpdate}
+          onClose={() => setSelectedNode(null)}
+          availableNodes={availableNodes}
+          onPositionChange={handlePositionChange}
+        />
+      </ReactFlowProvider>
     </div>
   );
 }
