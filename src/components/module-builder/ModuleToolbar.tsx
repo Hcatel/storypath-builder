@@ -1,3 +1,5 @@
+
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Undo2, Redo2 } from "lucide-react";
 import {
@@ -10,6 +12,7 @@ import {
 import { ComponentType } from "@/types/module";
 import { componentOptions } from "@/constants/moduleComponents";
 import { useReactFlow } from "@xyflow/react";
+import type { FlowNode } from "@/types/module";
 
 interface ModuleToolbarProps {
   selectedComponentType: ComponentType;
@@ -24,11 +27,9 @@ export function ModuleToolbar({
   onAddNode,
   onSave,
 }: ModuleToolbarProps) {
-  const { addNodes, getNodes, setNodes } = useReactFlow();
-  
-  // Keep track of history states
-  const [history, setHistory] = React.useState<FlowNode[][]>([]);
-  const [currentIndex, setCurrentIndex] = React.useState(-1);
+  const { getNodes, setNodes } = useReactFlow();
+  const [history, setHistory] = useState<FlowNode[][]>([]);
+  const [currentIndex, setCurrentIndex] = useState(-1);
 
   const onUndo = () => {
     if (currentIndex > 0) {
