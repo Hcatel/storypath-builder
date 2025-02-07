@@ -33,7 +33,7 @@ export function PlaylistSidebar({ playlistId }: PlaylistSidebarProps) {
     <div className="w-64 border-r bg-card min-h-screen p-4 space-y-8">
       <div className="flex items-center gap-1 text-sm text-muted-foreground">
         <Link to="/creator/content?tab=playlists" className="hover:text-foreground">
-          Content
+          Playlists
         </Link>
         <ChevronRight className="w-4 h-4" />
         <span className="text-foreground">Playlist Editor</span>

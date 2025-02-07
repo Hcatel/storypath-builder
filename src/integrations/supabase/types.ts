@@ -426,7 +426,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_playlist_access: {
+        Args: {
+          playlist_id: string
+          user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       component_type:
