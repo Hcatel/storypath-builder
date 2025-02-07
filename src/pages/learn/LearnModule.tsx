@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,11 +6,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ComponentType, FlowNode, FlowEdge, MessageNodeData, TextInputNodeData, VideoNodeData } from "@/types/module";
+import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { MessageNodeRenderer } from "@/components/nodes/learn/MessageNodeRenderer";
+import { TextInputNodeRenderer } from "@/components/nodes/learn/TextInputNodeRenderer";
+import { VideoNodeRenderer } from "@/components/nodes/learn/VideoNodeRenderer";
+import { ModuleNavigation } from "@/components/learn/ModuleNavigation";
 
 const LearnModule = () => {
   const { id } = useParams();
@@ -132,44 +134,12 @@ const LearnModule = () => {
 
   const renderNodeContent = (node: FlowNode) => {
     switch (node.type) {
-      case "message": {
-        const messageData = node.data as MessageNodeData;
-        return (
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-4">{messageData.title}</h2>
-            <p className="text-lg text-gray-700">{messageData.content}</p>
-          </div>
-        );
-      }
-      case "text_input": {
-        const textInputData = node.data as TextInputNodeData;
-        return (
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-xl font-semibold mb-4">{textInputData.question}</h2>
-            <textarea
-              className="w-full h-32 p-4 border rounded-lg"
-              placeholder="Type your answer here..."
-            />
-          </div>
-        );
-      }
-      case "video": {
-        const videoData = node.data as VideoNodeData;
-        return (
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl font-semibold mb-4">{videoData.title}</h2>
-            <div className="aspect-video">
-              <iframe
-                src={videoData.videoUrl}
-                className="w-full h-full rounded-lg"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          </div>
-        );
-      }
-      // Add other node types here
+      case "message":
+        return <MessageNodeRenderer data={node.data} />;
+      case "text_input":
+        return <TextInputNodeRenderer data={node.data} />;
+      case "video":
+        return <VideoNodeRenderer data={node.data} />;
       default:
         return <div>Unsupported node type: {node.type}</div>;
     }
@@ -220,30 +190,12 @@ const LearnModule = () => {
           {renderNodeContent(currentNode)}
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentNodeIndex === 0}
-            >
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
-
-            <div className="text-sm text-gray-500">
-              {currentNodeIndex + 1} of {module.nodes.length}
-            </div>
-
-            <Button
-              onClick={handleNext}
-              disabled={currentNodeIndex === module.nodes.length - 1}
-            >
-              Next
-              <ChevronRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
-        </div>
+        <ModuleNavigation
+          currentIndex={currentNodeIndex}
+          totalNodes={module.nodes.length}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+        />
       </main>
     </div>
   );
