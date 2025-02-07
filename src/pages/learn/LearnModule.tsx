@@ -37,12 +37,15 @@ const LearnModule = () => {
         throw error;
       }
 
-      // Type assertion to ensure nodes and edges are properly typed
       if (data) {
+        // First convert to unknown, then assert the specific types
+        const nodes = (data.nodes as unknown) as FlowNode[];
+        const edges = (data.edges as unknown) as FlowEdge[];
+
         return {
           ...data,
-          nodes: data.nodes as FlowNode[],
-          edges: data.edges as FlowEdge[]
+          nodes,
+          edges,
         };
       }
 
