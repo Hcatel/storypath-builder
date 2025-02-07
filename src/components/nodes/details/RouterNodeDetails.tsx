@@ -23,12 +23,12 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
   const { toast } = useToast();
 
   // Ensure we have valid string IDs
-  const nodeId = typeof data.id === 'string' ? data.id : null;
-  const moduleId = typeof data.moduleId === 'string' ? data.moduleId : null;
+  const nodeId = data?.id;
+  const moduleId = data?.moduleId;
 
-  // Check if both IDs exist and are strings
+  // Check if both IDs exist
   if (!nodeId || !moduleId) {
-    console.error("Missing required IDs:", { nodeId, moduleId });
+    console.error("Missing required IDs:", { nodeId, moduleId, data });
     return (
       <div className="p-4 text-red-500">
         Error: Missing required node or module ID
