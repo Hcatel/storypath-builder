@@ -33,12 +33,13 @@ export function ModuleToolbar({
   const { id } = useParams();
   const { setNodes, setEdges } = useReactFlow();
   const { toast } = useToast();
+  const isCreateMode = !id || id === 'create';
 
-  // Fetch module versions
+  // Fetch module versions only if we have a valid module ID
   const { data: versions } = useQuery({
     queryKey: ["module-versions", id],
     queryFn: async () => {
-      if (!id) return [];
+      if (!id || isCreateMode) return [];
       
       const { data, error } = await supabase
         .from("module_versions")
@@ -49,7 +50,7 @@ export function ModuleToolbar({
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: !!id && !isCreateMode, // Only run query if we have a valid module ID
   });
 
   const handleVersionChange = async (versionId: string) => {
