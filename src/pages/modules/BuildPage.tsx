@@ -9,11 +9,9 @@ import {
   MiniMap,
   useNodesState,
   useEdgesState,
-  Connection,
   Panel,
   NodeTypes,
   Node,
-  useReactFlow,
 } from "@xyflow/react";
 import { useState } from "react";
 import { ComponentType, NodeData, FlowNode, FlowEdge } from "@/types/module";
@@ -40,25 +38,30 @@ export default function BuildPage() {
   const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
   const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
   const [popoverAnchor, setPopoverAnchor] = useState<{ x: number; y: number } | null>(null);
+  const isCreateMode = !id || id === 'create';
 
   const { data: module, isLoading } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
-      if (!id) throw new Error("No module ID provided");
+      if (!id || isCreateMode) throw new Error("No module ID provided");
       
+      console.log("Fetching module with ID:", id);
       const { data, error } = await supabase
         .from("modules")
         .select("*")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching module:", error);
+        throw error;
+      }
       
-      const convertedNodes = Array.isArray(data.nodes) 
+      const convertedNodes = Array.isArray(data?.nodes) 
         ? data.nodes.map(convertToReactFlowNode)
         : [];
 
-      const convertedEdges = Array.isArray(data.edges)
+      const convertedEdges = Array.isArray(data?.edges)
         ? data.edges.map((edge: any) => ({
             id: edge.id.toString(),
             source: edge.source.toString(),
@@ -74,6 +77,7 @@ export default function BuildPage() {
         edges: convertedEdges,
       };
     },
+    enabled: !isCreateMode && !!id,
   });
 
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>(
@@ -118,7 +122,7 @@ export default function BuildPage() {
     );
   };
 
-  if (isLoading || !id) {
+  if (isLoading && !isCreateMode) {
     return <div>Loading...</div>;
   }
 

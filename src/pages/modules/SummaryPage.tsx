@@ -18,8 +18,9 @@ export default function SummaryPage() {
   const { data: module, isLoading, refetch } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
-      console.log("Fetching module with ID:", id);
+      if (!id || isCreateMode) throw new Error("No module ID provided");
       
+      console.log("Fetching module with ID:", id);
       const { data, error } = await supabase
         .from("modules")
         .select("*")
@@ -34,7 +35,7 @@ export default function SummaryPage() {
       console.log("Fetched module data:", data);
       return data;
     },
-    enabled: !isCreateMode && !!id, // Only run query if we're not in create mode and have a valid ID
+    enabled: !isCreateMode && !!id,
   });
 
   // Update module mutation
