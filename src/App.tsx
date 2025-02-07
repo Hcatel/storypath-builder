@@ -18,6 +18,7 @@ import CreatorAnalytics from "@/pages/creator/Analytics";
 import CreatorLearners from "@/pages/creator/Learners";
 import CreatorSettings from "@/pages/creator/Settings";
 import PlaylistDetail from "@/pages/playlists/PlaylistDetail";
+import LearnModule from "@/pages/learn/LearnModule";
 
 function App() {
   return (
@@ -56,7 +57,7 @@ function App() {
               } 
             />
             
-            {/* Edit existing module - use regex to match only valid UUIDs */}
+            {/* Edit existing module */}
             <Route 
               path=":id"
               element={<ModuleCreator />}
@@ -69,6 +70,9 @@ function App() {
               <Route path="results" element={<ResultsPage />} />
             </Route>
           </Route>
+
+          {/* Learner routes */}
+          <Route path="/learn/:id" element={<LearnModule />} />
 
           {/* Playlist routes */}
           <Route path="/playlists/:id/*" element={<PlaylistDetail />} />
