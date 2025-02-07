@@ -35,46 +35,47 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
   useEffect(() => {
     if (selectedNode && selectedNode.data) {
-      const data = selectedNode.data;
-      
-      if (!data.type) {
-        console.error("Node data is missing type:", data);
+      // Explicitly check if data.type exists and is a valid ComponentType
+      if (!selectedNode.data.type) {
+        console.error("Node data is missing type:", selectedNode.data);
         return;
       }
       
+      const currentType = selectedNode.data.type as ComponentType;
       let typedData: NodeData;
-      switch (data.type) {
+      
+      switch (currentType) {
         case 'message':
-          typedData = { ...data, type: 'message' } as MessageNodeData;
+          typedData = { ...selectedNode.data, type: 'message' } as MessageNodeData;
           break;
         case 'video':
-          typedData = { ...data, type: 'video' } as VideoNodeData;
+          typedData = { ...selectedNode.data, type: 'video' } as VideoNodeData;
           break;
         case 'router':
-          typedData = { ...data, type: 'router' } as RouterNodeData;
+          typedData = { ...selectedNode.data, type: 'router' } as RouterNodeData;
           break;
         case 'text_input':
-          typedData = { ...data, type: 'text_input' } as TextInputNodeData;
+          typedData = { ...selectedNode.data, type: 'text_input' } as TextInputNodeData;
           break;
         case 'multiple_choice':
-          typedData = { ...data, type: 'multiple_choice' } as MultipleChoiceNodeData;
+          typedData = { ...selectedNode.data, type: 'multiple_choice' } as MultipleChoiceNodeData;
           break;
         case 'ranking':
-          typedData = { ...data, type: 'ranking' } as RankingNodeData;
+          typedData = { ...selectedNode.data, type: 'ranking' } as RankingNodeData;
           break;
         case 'likert_scale':
-          typedData = { ...data, type: 'likert_scale' } as LikertScaleNodeData;
+          typedData = { ...selectedNode.data, type: 'likert_scale' } as LikertScaleNodeData;
           break;
         case 'matching':
-          typedData = { ...data, type: 'matching' } as MatchingNodeData;
+          typedData = { ...selectedNode.data, type: 'matching' } as MatchingNodeData;
           break;
         default:
-          console.error("Unknown node type:", data.type);
+          console.error("Unknown node type:", selectedNode.data.type);
           return;
       }
       
       setNodeData(typedData);
-      setNodeType(data.type);
+      setNodeType(currentType);
     } else {
       setNodeData(null);
       setNodeType(null);
@@ -108,7 +109,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   };
 
   const renderNodeDetails = () => {
-    console.log("Rendering details for node type:", nodeType);
+    if (!nodeType) return null;
 
     switch (nodeType) {
       case 'message':
