@@ -25,28 +25,29 @@ interface FormData {
 }
 
 interface EditPlaylistFormProps {
-  playlist: {
+  playlist?: {
     id: string;
     name: string;
     description: string | null;
     access_type: AccessType | null;
     thumbnail_url: string | null;
-  };
+  } | null;
+  isCreateMode?: boolean;
 }
 
-export function EditPlaylistForm({ playlist }: EditPlaylistFormProps) {
+export function EditPlaylistForm({ playlist, isCreateMode = false }: EditPlaylistFormProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    name: playlist.name,
-    description: playlist.description || "",
-    accessType: playlist.access_type || "private",
+    name: playlist?.name || "",
+    description: playlist?.description || "",
+    accessType: playlist?.access_type || "private",
   });
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
-    playlist.thumbnail_url
+    playlist?.thumbnail_url || null
   );
 
   const handleThumbnailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +66,7 @@ export function EditPlaylistForm({ playlist }: EditPlaylistFormProps) {
     try {
       setIsSubmitting(true);
 
-      let thumbnailUrl = playlist.thumbnail_url;
+      let thumbnailUrl = playlist?.thumbnail_url;
       if (thumbnail) {
         const fileExt = thumbnail.name.split(".").pop();
         const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
@@ -83,26 +84,49 @@ export function EditPlaylistForm({ playlist }: EditPlaylistFormProps) {
         thumbnailUrl = publicUrl;
       }
 
-      const { error: updateError } = await supabase
-        .from("playlists")
-        .update({
-          name: formData.name,
-          description: formData.description || null,
-          access_type: formData.accessType,
-          thumbnail_url: thumbnailUrl,
-        })
-        .eq("id", playlist.id);
+      if (isCreateMode) {
+        const { data: newPlaylist, error: insertError } = await supabase
+          .from("playlists")
+          .insert({
+            name: formData.name,
+            description: formData.description || null,
+            access_type: formData.accessType,
+            thumbnail_url: thumbnailUrl,
+            user_id: user.id,
+          })
+          .select()
+          .single();
 
-      if (updateError) throw updateError;
+        if (insertError) throw insertError;
 
-      toast({
-        title: "Success",
-        description: "Playlist updated successfully",
-      });
+        toast({
+          title: "Success",
+          description: "Playlist created successfully",
+        });
+
+        navigate(`/playlists/${newPlaylist.id}`);
+      } else {
+        const { error: updateError } = await supabase
+          .from("playlists")
+          .update({
+            name: formData.name,
+            description: formData.description || null,
+            access_type: formData.accessType,
+            thumbnail_url: thumbnailUrl,
+          })
+          .eq("id", playlist?.id);
+
+        if (updateError) throw updateError;
+
+        toast({
+          title: "Success",
+          description: "Playlist updated successfully",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to update playlist: " + error.message,
+        description: `Failed to ${isCreateMode ? 'create' : 'update'} playlist: ${error.message}`,
         variant: "destructive",
       });
     } finally {
@@ -187,7 +211,7 @@ export function EditPlaylistForm({ playlist }: EditPlaylistFormProps) {
       </div>
 
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Saving..." : "Save Changes"}
+        {isSubmitting ? (isCreateMode ? "Creating..." : "Saving...") : (isCreateMode ? "Create Playlist" : "Save Changes")}
       </Button>
     </form>
   );

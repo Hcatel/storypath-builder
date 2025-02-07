@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export default function PlaylistDetail() {
   const { id } = useParams();
+  const isCreateMode = id === "create";
 
   const { data: playlist, isLoading } = useQuery({
     queryKey: ["playlist", id],
@@ -18,12 +19,12 @@ export default function PlaylistDetail() {
         .from("playlists")
         .select("*")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: !!id && !isCreateMode,
   });
 
   return (
@@ -33,12 +34,14 @@ export default function PlaylistDetail() {
         <div className="flex w-full">
           <PlaylistSidebar playlistId={id} />
           <main className="flex-1 p-6">
-            <PlaylistBreadcrumb currentPage={playlist?.name || "Loading..."} />
-            {isLoading ? (
+            <PlaylistBreadcrumb 
+              currentPage={isCreateMode ? "Create Playlist" : (playlist?.name || "Loading...")} 
+            />
+            {!isCreateMode && isLoading ? (
               <div>Loading...</div>
             ) : (
               <div className="max-w-2xl">
-                <EditPlaylistForm playlist={playlist} />
+                <EditPlaylistForm playlist={playlist} isCreateMode={isCreateMode} />
               </div>
             )}
           </main>

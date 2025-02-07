@@ -17,7 +17,6 @@ import CreatorContent from "@/pages/creator/Content";
 import CreatorAnalytics from "@/pages/creator/Analytics";
 import CreatorLearners from "@/pages/creator/Learners";
 import CreatorSettings from "@/pages/creator/Settings";
-import CreatePlaylist from "@/pages/playlists/CreatePlaylist";
 import PlaylistDetail from "@/pages/playlists/PlaylistDetail";
 
 function App() {
@@ -72,7 +71,6 @@ function App() {
           </Route>
 
           {/* Playlist routes */}
-          <Route path="/playlists/create" element={<CreatePlaylist />} />
           <Route path="/playlists/:id" element={<PlaylistDetail />} />
 
           <Route path="*" element={<NotFound />} />
