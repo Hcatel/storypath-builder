@@ -15,8 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
-const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB in bytes
-const CHUNK_SIZE = 1024 * 1024 * 5; // 5MB chunks
+const MAX_FILE_SIZE = 1024 * 1024 * 50; // 50MB in bytes - Supabase limit for direct upload
 
 export function MediaUploadCard() {
   const { user } = useAuth();
@@ -25,51 +24,6 @@ export function MediaUploadCard() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const queryClient = useQueryClient();
 
-  const uploadLargeFile = async (file: File, uniqueFileName: string, userId: string) => {
-    let offset = 0;
-    let partNumber = 1;
-    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-
-    try {
-      // Start multipart upload
-      const { data: { uploadId }, error: initError } = await supabase.storage
-        .from('media')
-        .createMultipartUpload(`${userId}/${uniqueFileName}`);
-
-      if (initError) throw initError;
-
-      const uploadPromises = [];
-      
-      // Upload parts
-      while (offset < file.size) {
-        const chunk = file.slice(offset, offset + CHUNK_SIZE);
-        const { error: uploadPartError } = await supabase.storage
-          .from('media')
-          .uploadPart(`${userId}/${uniqueFileName}`, uploadId, partNumber, chunk);
-
-        if (uploadPartError) throw uploadPartError;
-
-        setUploadProgress(Math.min(((partNumber) / totalChunks) * 100, 99));
-        
-        offset += CHUNK_SIZE;
-        partNumber++;
-      }
-
-      // Complete multipart upload
-      const { error: completeError } = await supabase.storage
-        .from('media')
-        .completeMultipartUpload(`${userId}/${uniqueFileName}`, uploadId);
-
-      if (completeError) throw completeError;
-
-      setUploadProgress(100);
-      return true;
-    } catch (error) {
-      console.error('Multipart upload error:', error);
-      throw error;
-    }
-  };
-
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const file = event.target.files?.[0];
@@ -77,7 +31,7 @@ export function MediaUploadCard() {
 
       // Check file size before attempting upload
       if (file.size > MAX_FILE_SIZE) {
-        throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
+        throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB due to current limitations`);
       }
 
       setUploading(true);
@@ -87,21 +41,20 @@ export function MediaUploadCard() {
       const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
       const uniqueFileName = `${Date.now()}-${sanitizedFileName}`;
 
-      // Use multipart upload for large files (> 50MB)
-      if (file.size > 50 * 1024 * 1024) {
-        await uploadLargeFile(file, uniqueFileName, user.id);
-      } else {
-        // Regular upload for smaller files
-        const { error: uploadError } = await supabase.storage
-          .from("media")
-          .upload(`${user.id}/${uniqueFileName}`, file, {
-            cacheControl: "3600",
-            upsert: true,
-            contentType: file.type
-          });
+      // Upload file
+      const { error: uploadError, data } = await supabase.storage
+        .from("media")
+        .upload(`${user.id}/${uniqueFileName}`, file, {
+          cacheControl: "3600",
+          upsert: true,
+          contentType: file.type,
+          onUploadProgress: (progress) => {
+            const percent = (progress.loaded / progress.total) * 100;
+            setUploadProgress(Math.round(percent));
+          },
+        });
 
-        if (uploadError) throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
