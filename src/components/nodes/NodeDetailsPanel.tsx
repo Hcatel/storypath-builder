@@ -46,11 +46,12 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   const updateNodeData = (updates: Partial<NodeData>) => {
     if (!selectedNode || !nodeData) return;
     
-    const updatedData: NodeData = {
+    // Create updated data based on the node type
+    const updatedData = {
       ...nodeData,
       ...updates,
-      type: nodeData.type // Ensure type remains constant
-    };
+      type: nodeData.type, // Preserve the original type
+    } as NodeData; // Assert as NodeData to ensure type safety
     
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
