@@ -18,16 +18,23 @@ export default function SummaryPage() {
   const { data: module, isLoading, refetch } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
+      console.log("Fetching module with ID:", id);
+      
       const { data, error } = await supabase
         .from("modules")
         .select("*")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching module:", error);
+        throw error;
+      }
+
+      console.log("Fetched module data:", data);
       return data;
     },
-    enabled: !isCreateMode && !!id, // Only run query if we're not in create mode
+    enabled: !isCreateMode && !!id, // Only run query if we're not in create mode and have a valid ID
   });
 
   // Update module mutation
@@ -37,7 +44,12 @@ export default function SummaryPage() {
       description?: string;
       thumbnail_url?: string;
     }) => {
-      if (isCreateMode) return; // Don't update in create mode
+      if (isCreateMode) {
+        console.log("Create mode - skipping update");
+        return;
+      }
+      
+      console.log("Updating module with values:", values);
       
       const { error } = await supabase
         .from("modules")
@@ -54,6 +66,7 @@ export default function SummaryPage() {
       refetch();
     },
     onError: (error: any) => {
+      console.error("Error updating module:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -95,10 +108,12 @@ export default function SummaryPage() {
   };
 
   const handleSave = () => {
-    updateModule({
-      title: module?.title,
-      description: module?.description
-    });
+    if (module) {
+      updateModule({
+        title: module.title,
+        description: module.description
+      });
+    }
   };
 
   if (isLoading && !isCreateMode) {
