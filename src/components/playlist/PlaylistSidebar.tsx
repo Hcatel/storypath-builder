@@ -18,7 +18,7 @@ export function PlaylistSidebar({ playlistId }: PlaylistSidebarProps) {
     {
       title: "Content",
       icon: Layout,
-      path: playlistId ? `/playlists/${playlistId}/content` : "#",
+      path: playlistId ? `/playlists/${playlistId}` : "#",
       description: "Manage modules",
     },
     {
@@ -54,6 +54,7 @@ export function PlaylistSidebar({ playlistId }: PlaylistSidebarProps) {
           <NavLink
             key={item.title}
             to={item.path}
+            end={item.title === "Details"}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md",

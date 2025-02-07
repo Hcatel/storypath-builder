@@ -71,7 +71,7 @@ function App() {
           </Route>
 
           {/* Playlist routes */}
-          <Route path="/playlists/:id" element={<PlaylistDetail />} />
+          <Route path="/playlists/:id/*" element={<PlaylistDetail />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

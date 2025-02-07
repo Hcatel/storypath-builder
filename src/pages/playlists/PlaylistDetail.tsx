@@ -1,6 +1,6 @@
 
 import { Header } from "@/components/Header";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { PlaylistSidebar } from "@/components/playlist/PlaylistSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { EditPlaylistForm } from "@/components/playlist/EditPlaylistForm";
@@ -11,7 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function PlaylistDetail() {
   const { id } = useParams();
+  const location = useLocation();
   const isCreateMode = id === "create";
+  const showContent = location.pathname.includes("/content");
 
   const { data: playlist, isLoading } = useQuery({
     queryKey: ["playlist", id],
@@ -40,7 +42,7 @@ export default function PlaylistDetail() {
               <div>Loading...</div>
             ) : (
               <div className="space-y-6">
-                <Tabs defaultValue="details">
+                <Tabs defaultValue={showContent ? "content" : "details"}>
                   <TabsList>
                     <TabsTrigger value="details">Details</TabsTrigger>
                     <TabsTrigger value="content" disabled={isCreateMode}>
