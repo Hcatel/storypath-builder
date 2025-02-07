@@ -24,7 +24,11 @@ interface MediaFile {
   created_at: string;
 }
 
-export function MediaTable() {
+interface MediaTableProps {
+  onSelect?: (fileUrl: string) => void;
+}
+
+export function MediaTable({ onSelect }: MediaTableProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -113,6 +117,10 @@ export function MediaTable() {
     );
   }
 
+  const isVideoFile = (fileType: string) => {
+    return fileType.startsWith('video/') || fileType.includes('video');
+  };
+
   return (
     <Card>
       <CardContent className="p-4">
@@ -124,12 +132,20 @@ export function MediaTable() {
                 <TableHead>Type</TableHead>
                 <TableHead>Size</TableHead>
                 <TableHead>Date Added</TableHead>
-                <TableHead className="w-[60px]"></TableHead>
+                <TableHead className="w-[120px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {mediaFiles.map((file) => (
-                <TableRow key={file.id}>
+                <TableRow 
+                  key={file.id}
+                  className={onSelect && isVideoFile(file.file_type) ? "cursor-pointer hover:bg-accent" : undefined}
+                  onClick={() => {
+                    if (onSelect && isVideoFile(file.file_type)) {
+                      onSelect(file.file_url);
+                    }
+                  }}
+                >
                   <TableCell className="font-medium">{file.filename}</TableCell>
                   <TableCell>{file.file_type}</TableCell>
                   <TableCell>{formatFileSize(file.file_size)}</TableCell>
@@ -137,14 +153,31 @@ export function MediaTable() {
                     {new Date(file.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteMutation.mutate(file.id)}
-                      disabled={deleteMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      {onSelect && isVideoFile(file.file_type) && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelect(file.file_url);
+                          }}
+                        >
+                          Select
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteMutation.mutate(file.id);
+                        }}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
