@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Undo2, Redo2 } from "lucide-react";
+import { Plus, History } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,7 +12,10 @@ import {
 import { ComponentType } from "@/types/module";
 import { componentOptions } from "@/constants/moduleComponents";
 import { useReactFlow } from "@xyflow/react";
-import type { FlowNode } from "@/types/module";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useParams } from "react-router-dom";
 
 interface ModuleToolbarProps {
   selectedComponentType: ComponentType;
@@ -27,46 +30,48 @@ export function ModuleToolbar({
   onAddNode,
   onSave,
 }: ModuleToolbarProps) {
-  const { getNodes, setNodes } = useReactFlow();
-  const [history, setHistory] = useState<FlowNode[][]>([]);
-  const [currentIndex, setCurrentIndex] = useState(-1);
+  const { id } = useParams();
+  const { setNodes, setEdges } = useReactFlow();
+  const { toast } = useToast();
 
-  // Initialize history with current nodes
-  useEffect(() => {
-    const currentNodes = getNodes() as FlowNode[];
-    if (history.length === 0) {
-      setHistory([currentNodes]);
-      setCurrentIndex(0);
-    }
-  }, []);
+  // Fetch module versions
+  const { data: versions } = useQuery({
+    queryKey: ["module-versions", id],
+    queryFn: async () => {
+      if (!id) return [];
+      
+      const { data, error } = await supabase
+        .from("module_versions")
+        .select("*")
+        .eq("module_id", id)
+        .order("version_number", { ascending: false });
 
-  const onUndo = () => {
-    if (currentIndex > 0) {
-      const previousState = history[currentIndex - 1];
-      setNodes(previousState);
-      setCurrentIndex(currentIndex - 1);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  const handleVersionChange = async (versionId: string) => {
+    const version = versions?.find(v => v.id === versionId);
+    if (!version) return;
+
+    try {
+      setNodes(version.nodes);
+      setEdges(version.edges);
+      toast({
+        title: "Version restored",
+        description: `Restored version ${version.version_number}`,
+      });
+    } catch (error) {
+      console.error("Error restoring version:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to restore version",
+      });
     }
   };
-
-  const onRedo = () => {
-    if (currentIndex < history.length - 1) {
-      const nextState = history[currentIndex + 1];
-      setNodes(nextState);
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
-
-  // Save state to history when nodes change
-  useEffect(() => {
-    const currentNodes = getNodes() as FlowNode[];
-    const lastState = history[currentIndex];
-    
-    if (!lastState || JSON.stringify(lastState) !== JSON.stringify(currentNodes)) {
-      const newHistory = [...history.slice(0, currentIndex + 1), currentNodes];
-      setHistory(newHistory);
-      setCurrentIndex(currentIndex + 1);
-    }
-  }, [getNodes()]);
 
   return (
     <div className="flex items-center gap-2 p-2">
@@ -92,24 +97,21 @@ export function ModuleToolbar({
       <Button onClick={onSave} size="sm">
         Save Changes
       </Button>
-      <div className="flex items-center gap-1">
-        <Button 
-          onClick={onUndo} 
-          size="sm" 
-          variant="outline"
-          disabled={currentIndex <= 0}
-        >
-          <Undo2 className="w-4 h-4" />
-        </Button>
-        <Button 
-          onClick={onRedo} 
-          size="sm" 
-          variant="outline"
-          disabled={currentIndex >= history.length - 1}
-        >
-          <Redo2 className="w-4 h-4" />
-        </Button>
-      </div>
+      {versions && versions.length > 0 && (
+        <Select onValueChange={handleVersionChange}>
+          <SelectTrigger className="w-[180px] bg-background">
+            <History className="w-4 h-4 mr-2" />
+            <SelectValue placeholder="Restore version" />
+          </SelectTrigger>
+          <SelectContent>
+            {versions.map((version) => (
+              <SelectItem key={version.id} value={version.id}>
+                Version {version.version_number}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 }

@@ -215,6 +215,44 @@ export type Database = {
           },
         ]
       }
+      module_versions: {
+        Row: {
+          created_at: string
+          created_by: string
+          edges: Json
+          id: string
+          module_id: string
+          nodes: Json
+          version_number: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          edges?: Json
+          id?: string
+          module_id: string
+          nodes?: Json
+          version_number: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          edges?: Json
+          id?: string
+          module_id?: string
+          nodes?: Json
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_versions_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       modules: {
         Row: {
           access_type: Database["public"]["Enums"]["module_access_type"]
