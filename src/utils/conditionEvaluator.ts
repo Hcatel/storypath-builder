@@ -63,9 +63,6 @@ export function evaluateChoiceConditions(
 
   // Evaluate each group
   return Object.values(groupedConditions).every(groupConditions => {
-    // Get the operator from the first condition in the group
-    const groupOperator = groupConditions[0]?.condition_operator || 'AND';
-    
     return groupConditions.reduce((result, currentCondition) => {
       const variable = variables?.find(v => v.id === currentCondition.target_variable_id);
       if (!variable) return false;
@@ -78,6 +75,6 @@ export function evaluateChoiceConditions(
       } else {
         return result || conditionResult;
       }
-    }, groupOperator === 'AND'); // Use the group's operator type for the initial value
+    }, currentCondition.condition_operator === 'AND');
   });
 }
