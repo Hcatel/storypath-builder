@@ -28,7 +28,13 @@ export default function BuildPage() {
   const { data: module, isLoading } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
-      if (!id || isCreateMode) throw new Error("No module ID provided");
+      if (isCreateMode) {
+        // Return empty module data for create mode
+        return {
+          nodes: [],
+          edges: [],
+        };
+      }
       
       console.log("Fetching module with ID:", id);
       const { data, error } = await supabase
@@ -62,7 +68,7 @@ export default function BuildPage() {
         edges: convertedEdges,
       };
     },
-    enabled: !isCreateMode && !!id,
+    enabled: !isCreateMode,
   });
 
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>(
@@ -111,6 +117,7 @@ export default function BuildPage() {
     setPopoverPosition(position);
   };
 
+  // Only show loading state when we're fetching an existing module
   if (isLoading && !isCreateMode) {
     return <div>Loading...</div>;
   }
