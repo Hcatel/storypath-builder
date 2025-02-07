@@ -42,8 +42,6 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
     );
   }
 
-  const thumbnailUrl = data.thumbnailUrl || "/placeholder.svg";
-
   const handlePlayPause = () => {
     if (videoRef.current) {
       if (isPlaying) {
@@ -109,32 +107,10 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
           className="aspect-video rounded-lg overflow-hidden bg-black relative cursor-pointer group"
           onClick={() => !isPlaying && (!data.autoplay || data.showPlayPause) && handlePlayPause()}
         >
-          {!isPlaying && (
-            <>
-              <img 
-                src={thumbnailUrl} 
-                alt={data.title} 
-                className="w-full h-full object-cover transition-opacity group-hover:opacity-80"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = "/placeholder.svg";
-                }}
-              />
-              {(!data.autoplay || data.showPlayPause) && (
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-90 group-hover:opacity-100 transition-opacity"
-                >
-                  <Play className="h-6 w-6" />
-                </Button>
-              )}
-            </>
-          )}
           <video
             ref={videoRef}
             src={data.videoUrl}
-            className={`w-full h-full ${!isPlaying ? 'hidden' : ''}`}
+            className="w-full h-full"
             autoPlay={data.autoplay}
             muted={isMuted}
             playsInline
@@ -142,6 +118,15 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
           >
             {showSubtitles && <track kind="captions" />}
           </video>
+          {!isPlaying && (!data.autoplay || data.showPlayPause) && (
+            <Button
+              variant="secondary"
+              size="lg"
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-90 group-hover:opacity-100 transition-opacity"
+            >
+              <Play className="h-6 w-6" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
