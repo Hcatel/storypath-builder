@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Minus, Settings } from "lucide-react";
-import { RouterNodeData, NodeData } from "@/types/module";
+import { NodeData } from "@/types/module";
 import { Node } from "@xyflow/react";
 import {
   Select,
@@ -73,3 +73,4 @@ export function RouterChoice({
     </div>
   );
 }
+
