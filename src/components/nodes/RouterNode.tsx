@@ -23,6 +23,16 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
+  // Get current user
+  const { data: user } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      return user;
+    },
+  });
+  
   // Fetch conditions for this router node
   const { data: conditions } = useQuery({
     queryKey: ["module-conditions", id],
@@ -56,10 +66,13 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
   const { data: learnerState, isLoading: isStateLoading } = useQuery({
     queryKey: ["learner-state", moduleId],
     queryFn: async () => {
+      if (!user?.id || !moduleId) throw new Error("User or module ID not available");
+
       const { data: existingState, error: fetchError } = await supabase
         .from("learner_module_states")
         .select("*")
-        .eq("module_id", moduleId as string)
+        .eq("module_id", moduleId)
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (fetchError) throw fetchError;
@@ -67,11 +80,12 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
       if (!existingState) {
         const { data: newState, error: insertError } = await supabase
           .from("learner_module_states")
-          .insert([{
+          .insert({
             module_id: moduleId,
+            user_id: user.id,
             variables_state: {},
             history: [],
-          }])
+          })
           .select()
           .single();
 
@@ -81,16 +95,19 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
 
       return existingState;
     },
-    enabled: !!moduleId,
+    enabled: !!moduleId && !!user?.id,
   });
 
   // Update learner state mutation
   const { mutate: updateLearnerState } = useMutation({
     mutationFn: async (updates: { variables_state: any }) => {
+      if (!user?.id || !moduleId) throw new Error("User or module ID not available");
+      
       const { error } = await supabase
         .from("learner_module_states")
         .update(updates)
-        .eq("module_id", moduleId as string);
+        .eq("module_id", moduleId)
+        .eq("user_id", user.id);
 
       if (error) throw error;
     },
