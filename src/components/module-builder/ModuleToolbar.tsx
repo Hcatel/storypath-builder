@@ -106,23 +106,33 @@ export function ModuleToolbar({
         </Button>
       </div>
 
-      {versions && versions.length > 0 && (
-        <div className="flex items-center gap-2 border-l pl-2">
-          <History className="w-4 h-4 text-muted-foreground" />
-          <Select onValueChange={handleVersionChange}>
-            <SelectTrigger className="w-[180px] bg-background">
-              <SelectValue placeholder="Version history" />
-            </SelectTrigger>
-            <SelectContent>
-              {versions.map((version) => (
+      <div className="flex items-center gap-2 border-l pl-2">
+        <History className="w-4 h-4 text-muted-foreground" />
+        <Select 
+          onValueChange={handleVersionChange} 
+          disabled={isCreateMode || !versions?.length}
+        >
+          <SelectTrigger 
+            className="w-[180px] bg-background"
+            disabled={isCreateMode || !versions?.length}
+          >
+            <SelectValue placeholder={isCreateMode ? "No versions available" : "Version history"} />
+          </SelectTrigger>
+          <SelectContent>
+            {versions && versions.length > 0 ? (
+              versions.map((version) => (
                 <SelectItem key={version.id} value={version.id}>
                   Version {version.version_number} ({new Date(version.created_at).toLocaleDateString()})
                 </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+              ))
+            ) : (
+              <SelectItem value="no-versions" disabled>
+                No versions available
+              </SelectItem>
+            )}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }
