@@ -46,8 +46,19 @@ export default function SummaryPage() {
       thumbnail_url?: string;
     }) => {
       if (isCreateMode) {
-        console.log("Create mode - skipping update");
-        return;
+        console.log("Create mode - creating new module");
+        const { data, error } = await supabase
+          .from("modules")
+          .insert([{
+            ...values,
+            nodes: [],
+            edges: [],
+          }])
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
       }
       
       console.log("Updating module with values:", values);
@@ -62,7 +73,7 @@ export default function SummaryPage() {
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "Module updated successfully",
+        description: "Module saved successfully",
       });
       refetch();
     },
@@ -71,7 +82,7 @@ export default function SummaryPage() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update module: " + error.message,
+        description: "Failed to save module: " + error.message,
       });
     },
   });
@@ -109,10 +120,11 @@ export default function SummaryPage() {
   };
 
   const handleSave = () => {
-    if (module) {
+    const currentData = isCreateMode ? {} : module;
+    if (currentData || isCreateMode) {
       updateModule({
-        title: module.title,
-        description: module.description
+        title: currentData?.title || "",
+        description: currentData?.description || ""
       });
     }
   };
@@ -129,12 +141,10 @@ export default function SummaryPage() {
           <Button onClick={checkForErrors} variant="outline">
             Check for Errors
           </Button>
-          {!isCreateMode && (
-            <Button onClick={handleSave}>
-              <Save className="w-4 h-4 mr-2" />
-              Save Changes
-            </Button>
-          )}
+          <Button onClick={handleSave}>
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
+          </Button>
         </div>
       </div>
 
