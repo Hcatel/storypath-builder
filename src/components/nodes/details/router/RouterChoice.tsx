@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Minus, Settings } from "lucide-react";
 import { RouterNodeData, NodeData } from "@/types/module";
+import { Node } from "@xyflow/react";
 import {
   Select,
   SelectContent,
@@ -14,7 +15,7 @@ import {
 interface RouterChoiceProps {
   choice: { text: string; nextComponentId: string };
   index: number;
-  availableNodes: Node[];
+  availableNodes: Node<NodeData>[];
   onUpdate: (index: number, updates: { text?: string; nextComponentId?: string }) => void;
   onDelete: (index: number) => void;
   onConfigureConditions: (index: number) => void;
@@ -63,7 +64,7 @@ export function RouterChoice({
           <SelectContent>
             {availableNodes.map((node) => (
               <SelectItem key={node.id} value={node.id}>
-                {(node.data as NodeData).label}
+                {node.data.label}
               </SelectItem>
             ))}
           </SelectContent>

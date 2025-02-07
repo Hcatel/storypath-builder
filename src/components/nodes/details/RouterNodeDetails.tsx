@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -15,7 +16,7 @@ import { RouterConditions } from "./router/RouterConditions";
 type RouterNodeDetailsProps = {
   data: RouterNodeData;
   onUpdate: (updates: Partial<RouterNodeData>) => void;
-  availableNodes: Node[];
+  availableNodes: Node<NodeData>[];
 };
 
 export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNodeDetailsProps) {
@@ -30,7 +31,7 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
       const { data: variables, error } = await supabase
         .from("module_variables")
         .select("*")
-        .eq("module_id", data.moduleId);
+        .eq("module_id", data.moduleId as string);
 
       if (error) throw error;
       return variables;
@@ -43,7 +44,7 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
       const { data: conditions, error } = await supabase
         .from("module_conditions")
         .select("*")
-        .eq("source_node_id", data.id)
+        .eq("source_node_id", data.id as string)
         .order("priority", { ascending: true });
 
       if (error) throw error;
@@ -106,7 +107,7 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
   const handleAddCondition = () => {
     if (selectedChoice !== null && variables && variables.length > 0) {
       createCondition({
-        module_id: data.moduleId,
+        module_id: data.moduleId as string,
         source_node_id: data.id,
         target_variable_id: variables[0].id,
         condition_type: 'equals',
