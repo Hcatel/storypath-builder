@@ -23,7 +23,6 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
   useEffect(() => {
     if (selectedNode) {
-      // Cast the selected node's data directly as NodeData since it's already correctly typed
       setNodeData(selectedNode.data as NodeData);
     } else {
       setNodeData(null);
@@ -46,10 +45,12 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   const updateNodeData = (updates: Partial<NodeData>) => {
     if (!selectedNode || !nodeData) return;
 
+    // Ensure we preserve the node type when updating
     const updatedData = {
       ...nodeData,
-      ...updates
-    };
+      ...updates,
+      type: nodeData.type // Explicitly preserve the type
+    } as NodeData; // Cast the result as NodeData to ensure type safety
 
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
