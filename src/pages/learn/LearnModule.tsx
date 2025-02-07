@@ -1,8 +1,9 @@
+
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ModuleNavigation } from "@/components/learn/ModuleNavigation";
 import { ModuleContent } from "@/components/learn/ModuleContent";
 import { ModuleNotFound } from "@/components/learn/ModuleNotFound";
@@ -15,6 +16,8 @@ const LearnModule = () => {
   const { user } = useAuth();
   const [currentNodeIndex, setCurrentNodeIndex] = useState(0);
   const [overlayRouter, setOverlayRouter] = useState<RouterNodeData | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const {
     module,
@@ -36,6 +39,25 @@ const LearnModule = () => {
     }
   }, [isProgressLoading, progress, user, module]);
 
+  // Function to pause all media content
+  const pauseAllMedia = () => {
+    // Pause video if it exists and is playing
+    const videoElements = document.querySelectorAll('video');
+    videoElements.forEach(video => {
+      if (!video.paused) {
+        video.pause();
+      }
+    });
+
+    // Pause audio if it exists and is playing
+    const audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+      if (!audio.paused) {
+        audio.pause();
+      }
+    });
+  };
+
   const handleNext = () => {
     if (!module?.nodes) return;
 
@@ -45,6 +67,7 @@ const LearnModule = () => {
       
       // If next node is a router with overlay, show it without changing the page
       if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+        pauseAllMedia(); // Pause all media before showing overlay
         setOverlayRouter(nextNode.data as RouterNodeData);
         updateProgress(nextNode.id);
         return;
@@ -110,3 +133,4 @@ const LearnModule = () => {
 };
 
 export default LearnModule;
+
