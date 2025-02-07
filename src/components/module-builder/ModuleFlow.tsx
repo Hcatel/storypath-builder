@@ -13,7 +13,7 @@ import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { Panel } from "@xyflow/react";
 import { nodeTypes } from "@/constants/moduleComponents";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type ModuleFlowProps = {
   nodes: FlowNode[];
@@ -46,25 +46,38 @@ export function ModuleFlow({
   const isCPressed = useKeyPress('c');
   const isVPressed = useKeyPress('v');
   const isXPressed = useKeyPress('x');
+  const [history, setHistory] = useState<FlowNode[][]>([]);
+  const [currentIndex, setCurrentIndex] = useState(-1);
 
-  // Handle clipboard operations
+  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyboard = async (event: KeyboardEvent) => {
       const selectedNodes = getNodes().filter(node => node.selected);
       
-      // Only proceed if we have selected nodes and Control/Command is pressed
+      // Only proceed if Control/Command is pressed
       if ((event.ctrlKey || event.metaKey)) {
         // Handle undo/redo
         if (event.key === 'z') {
-          const currentNodes = getNodes();
-          if (currentNodes.length > 0) {
-            setNodes(currentNodes.slice(0, -1));
+          if (event.shiftKey) {
+            // Redo
+            if (currentIndex < history.length - 1) {
+              const nextState = history[currentIndex + 1];
+              setNodes(nextState);
+              setCurrentIndex(currentIndex + 1);
+            }
+          } else {
+            // Undo
+            if (currentIndex > 0) {
+              const previousState = history[currentIndex - 1];
+              setNodes(previousState);
+              setCurrentIndex(currentIndex - 1);
+            }
           }
+          event.preventDefault();
         }
 
         // Copy/Cut/Paste operations
         if (selectedNodes.length > 0) {
-          // Copy
           if (event.key === 'c') {
             const nodesToCopy = selectedNodes.map(node => ({
               ...node,
@@ -77,14 +90,16 @@ export function ModuleFlow({
             await navigator.clipboard.writeText(JSON.stringify(nodesToCopy));
           }
           
-          // Cut
           if (event.key === 'x') {
             await navigator.clipboard.writeText(JSON.stringify(selectedNodes));
-            setNodes(nodes => nodes.filter(node => !selectedNodes.find(n => n.id === node.id)));
+            const newNodes = nodes.filter(node => !selectedNodes.find(n => n.id === node.id));
+            setNodes(newNodes);
+            // Add to history
+            setHistory(prev => [...prev.slice(0, currentIndex + 1), newNodes]);
+            setCurrentIndex(prev => prev + 1);
           }
         }
         
-        // Paste
         if (event.key === 'v') {
           try {
             const clipboardText = await navigator.clipboard.readText();
@@ -100,7 +115,11 @@ export function ModuleFlow({
               }
             }));
             
-            setNodes(nodes => [...nodes, ...newNodes]);
+            const updatedNodes = [...getNodes(), ...newNodes];
+            setNodes(updatedNodes);
+            // Add to history
+            setHistory(prev => [...prev.slice(0, currentIndex + 1), updatedNodes]);
+            setCurrentIndex(prev => prev + 1);
           } catch (error) {
             console.error('Failed to paste nodes:', error);
           }
@@ -110,7 +129,15 @@ export function ModuleFlow({
 
     document.addEventListener('keydown', handleKeyboard);
     return () => document.removeEventListener('keydown', handleKeyboard);
-  }, [getNodes, setNodes]);
+  }, [getNodes, setNodes, history, currentIndex]);
+
+  // Save initial state
+  useEffect(() => {
+    if (nodes.length > 0 && history.length === 0) {
+      setHistory([nodes]);
+      setCurrentIndex(0);
+    }
+  }, [nodes]);
 
   return (
     <ReactFlow

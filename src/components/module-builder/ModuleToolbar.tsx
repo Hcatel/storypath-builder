@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus, Undo2, Redo2 } from "lucide-react";
 import {
@@ -26,20 +25,35 @@ export function ModuleToolbar({
   onSave,
 }: ModuleToolbarProps) {
   const { addNodes, getNodes, setNodes } = useReactFlow();
+  
+  // Keep track of history states
+  const [history, setHistory] = React.useState<FlowNode[][]>([]);
+  const [currentIndex, setCurrentIndex] = React.useState(-1);
 
   const onUndo = () => {
-    // Get the current nodes and revert to previous state
-    const currentNodes = getNodes();
-    if (currentNodes.length > 0) {
-      // Remove the last node
-      setNodes(currentNodes.slice(0, -1));
+    if (currentIndex > 0) {
+      const previousState = history[currentIndex - 1];
+      setNodes(previousState);
+      setCurrentIndex(currentIndex - 1);
     }
   };
 
   const onRedo = () => {
-    // For now, redo is disabled as we need to implement a proper history stack
-    return;
+    if (currentIndex < history.length - 1) {
+      const nextState = history[currentIndex + 1];
+      setNodes(nextState);
+      setCurrentIndex(currentIndex + 1);
+    }
   };
+
+  // Save state to history when nodes change
+  React.useEffect(() => {
+    const currentNodes = getNodes();
+    if (currentNodes.length > 0) {
+      setHistory(prev => [...prev.slice(0, currentIndex + 1), currentNodes]);
+      setCurrentIndex(prev => prev + 1);
+    }
+  }, [getNodes]);
 
   return (
     <div className="flex items-center gap-2 p-2">
@@ -70,6 +84,7 @@ export function ModuleToolbar({
           onClick={onUndo} 
           size="sm" 
           variant="outline"
+          disabled={currentIndex <= 0}
         >
           <Undo2 className="w-4 h-4" />
         </Button>
@@ -77,7 +92,7 @@ export function ModuleToolbar({
           onClick={onRedo} 
           size="sm" 
           variant="outline"
-          disabled={true}
+          disabled={currentIndex >= history.length - 1}
         >
           <Redo2 className="w-4 h-4" />
         </Button>
