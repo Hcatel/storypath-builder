@@ -49,6 +49,21 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
     },
   });
 
+  // Fetch current learner state
+  const { data: learnerState } = useQuery({
+    queryKey: ["learner-state", moduleId],
+    queryFn: async () => {
+      const { data: state, error } = await supabase
+        .from("learner_module_states")
+        .select("*")
+        .eq("module_id", moduleId as string)
+        .maybeSingle();
+
+      if (error) throw error;
+      return state;
+    },
+  });
+
   useEffect(() => {
     if (!data.moduleId && moduleId) {
       setNodes(nodes => 
@@ -104,7 +119,8 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
       const variable = variables?.find(v => v.id === condition.target_variable_id);
       if (!variable) return false;
 
-      const variableValue = variable.default_value; // In the future, this should come from the current state
+      // Get variable value from learner state if available, otherwise use default
+      const variableValue = learnerState?.variables_state?.[variable.id] ?? variable.default_value;
       return evaluateCondition(condition, variableValue);
     });
   };
