@@ -2,6 +2,18 @@
 import { Condition } from "@/types/conditions";
 
 export function evaluateCondition(condition: Condition, variableValue: any): boolean {
+  // If it's an advanced expression, evaluate it differently
+  if (condition.expression_type === 'advanced' && condition.custom_expression) {
+    try {
+      // For now, we'll use a simple evaluation. In the future, this could be expanded
+      // to use a proper expression evaluator
+      return Boolean(eval(condition.custom_expression));
+    } catch (error) {
+      console.error('Failed to evaluate custom expression:', error);
+      return false;
+    }
+  }
+
   const value = condition.condition_value;
   
   switch (condition.condition_type) {
@@ -36,18 +48,33 @@ export function evaluateChoiceConditions(
 ): boolean {
   if (!conditions) return true;
 
-  const choiceConditions = conditions.filter(c => 
-    c.action_type === 'set_variable' && 
-    c.action_value === choiceIndex.toString()
-  );
+  // Group conditions by their group ID
+  const groupedConditions = conditions.reduce((acc, condition) => {
+    if (condition.action_type === 'set_variable' && 
+        condition.action_value === choiceIndex.toString()) {
+      const groupId = condition.condition_group_id || 'default';
+      if (!acc[groupId]) {
+        acc[groupId] = [];
+      }
+      acc[groupId].push(condition);
+    }
+    return acc;
+  }, {} as Record<string, Condition[]>);
 
-  if (choiceConditions.length === 0) return true;
+  // Evaluate each group
+  return Object.values(groupedConditions).every(group => {
+    return group.reduce((result, condition) => {
+      const variable = variables?.find(v => v.id === condition.target_variable_id);
+      if (!variable) return false;
 
-  return choiceConditions.every(condition => {
-    const variable = variables?.find(v => v.id === condition.target_variable_id);
-    if (!variable) return false;
+      const variableValue = learnerState?.variables_state?.[variable.id] ?? variable.default_value;
+      const conditionResult = evaluateCondition(condition, variableValue);
 
-    const variableValue = learnerState?.variables_state?.[variable.id] ?? variable.default_value;
-    return evaluateCondition(condition, variableValue);
+      if (condition.condition_operator === 'AND') {
+        return result && conditionResult;
+      } else {
+        return result || conditionResult;
+      }
+    }, condition.condition_operator === 'AND');
   });
 }

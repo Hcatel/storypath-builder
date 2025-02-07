@@ -18,7 +18,9 @@ export function useRouterConditionMutations(nodeId: string) {
         .from("module_conditions")
         .insert([{
           ...condition,
-          source_node_id: nodeId
+          source_node_id: nodeId,
+          expression_type: condition.expression_type || 'simple',
+          condition_operator: condition.condition_operator || 'AND'
         }])
         .select()
         .single();

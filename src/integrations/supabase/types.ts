@@ -227,12 +227,19 @@ export type Database = {
         Row: {
           action_type: string
           action_value: Json
+          condition_group_id: string | null
+          condition_operator: string | null
           condition_type: string
           condition_value: Json
           created_at: string | null
+          custom_expression: string | null
+          description: string | null
+          expression_type: string | null
           id: string
           module_id: string | null
           priority: number | null
+          reference_module_id: string | null
+          reference_variable_id: string | null
           source_node_id: string
           target_variable_id: string | null
           updated_at: string | null
@@ -240,12 +247,19 @@ export type Database = {
         Insert: {
           action_type: string
           action_value: Json
+          condition_group_id?: string | null
+          condition_operator?: string | null
           condition_type: string
           condition_value: Json
           created_at?: string | null
+          custom_expression?: string | null
+          description?: string | null
+          expression_type?: string | null
           id?: string
           module_id?: string | null
           priority?: number | null
+          reference_module_id?: string | null
+          reference_variable_id?: string | null
           source_node_id: string
           target_variable_id?: string | null
           updated_at?: string | null
@@ -253,12 +267,19 @@ export type Database = {
         Update: {
           action_type?: string
           action_value?: Json
+          condition_group_id?: string | null
+          condition_operator?: string | null
           condition_type?: string
           condition_value?: Json
           created_at?: string | null
+          custom_expression?: string | null
+          description?: string | null
+          expression_type?: string | null
           id?: string
           module_id?: string | null
           priority?: number | null
+          reference_module_id?: string | null
+          reference_variable_id?: string | null
           source_node_id?: string
           target_variable_id?: string | null
           updated_at?: string | null
