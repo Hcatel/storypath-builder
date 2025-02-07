@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Plus, GripVertical, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface RankingNodeDetailsProps {
   data: RankingNodeData;
@@ -44,6 +46,16 @@ export function RankingNodeDetails({ data, onUpdate }: RankingNodeDetailsProps) 
           onChange={(e) => onUpdate({ instructions: e.target.value })}
           placeholder="Enter instructions for ranking"
         />
+      </div>
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="horizontal-mode"
+          checked={data.displayOrientation === 'horizontal'}
+          onCheckedChange={(checked) => 
+            onUpdate({ displayOrientation: checked ? 'horizontal' : 'vertical' })
+          }
+        />
+        <Label htmlFor="horizontal-mode">Horizontal Layout</Label>
       </div>
       <div>
         <label className="text-sm font-medium">Options</label>
