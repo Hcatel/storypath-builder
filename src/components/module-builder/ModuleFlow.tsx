@@ -8,7 +8,6 @@ import {
   NodeTypes,
   useReactFlow,
   useKeyPress,
-  useUndoRedo,
 } from "@xyflow/react";
 import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
@@ -44,7 +43,6 @@ export function ModuleFlow({
   onSave,
 }: ModuleFlowProps) {
   const { getNodes, setNodes } = useReactFlow();
-  const { undo, redo } = useUndoRedo();
   const isCPressed = useKeyPress('c');
   const isVPressed = useKeyPress('v');
   const isXPressed = useKeyPress('x');
@@ -56,14 +54,12 @@ export function ModuleFlow({
       
       // Only proceed if we have selected nodes and Control/Command is pressed
       if ((event.ctrlKey || event.metaKey)) {
-        // Undo
+        // Handle undo/redo
         if (event.key === 'z') {
-          undo();
-        }
-        
-        // Redo
-        if (event.key === 'y' || (event.shiftKey && event.key === 'z')) {
-          redo();
+          const currentNodes = getNodes();
+          if (currentNodes.length > 0) {
+            setNodes(currentNodes.slice(0, -1));
+          }
         }
 
         // Copy/Cut/Paste operations
@@ -114,7 +110,7 @@ export function ModuleFlow({
 
     document.addEventListener('keydown', handleKeyboard);
     return () => document.removeEventListener('keydown', handleKeyboard);
-  }, [getNodes, setNodes, undo, redo]);
+  }, [getNodes, setNodes]);
 
   return (
     <ReactFlow

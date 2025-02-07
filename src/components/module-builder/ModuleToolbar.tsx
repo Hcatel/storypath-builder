@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { ComponentType } from "@/types/module";
 import { componentOptions } from "@/constants/moduleComponents";
-import { useReactFlow, useUndoRedo } from "@xyflow/react";
+import { useReactFlow } from "@xyflow/react";
 
 interface ModuleToolbarProps {
   selectedComponentType: ComponentType;
@@ -25,7 +25,21 @@ export function ModuleToolbar({
   onAddNode,
   onSave,
 }: ModuleToolbarProps) {
-  const { undo, redo, canUndo, canRedo } = useUndoRedo();
+  const { addNodes, getNodes, setNodes } = useReactFlow();
+
+  const onUndo = () => {
+    // Get the current nodes and revert to previous state
+    const currentNodes = getNodes();
+    if (currentNodes.length > 0) {
+      // Remove the last node
+      setNodes(currentNodes.slice(0, -1));
+    }
+  };
+
+  const onRedo = () => {
+    // For now, redo is disabled as we need to implement a proper history stack
+    return;
+  };
 
   return (
     <div className="flex items-center gap-2 p-2">
@@ -53,18 +67,17 @@ export function ModuleToolbar({
       </Button>
       <div className="flex items-center gap-1">
         <Button 
-          onClick={undo} 
+          onClick={onUndo} 
           size="sm" 
           variant="outline"
-          disabled={!canUndo}
         >
           <Undo2 className="w-4 h-4" />
         </Button>
         <Button 
-          onClick={redo} 
+          onClick={onRedo} 
           size="sm" 
           variant="outline"
-          disabled={!canRedo}
+          disabled={true}
         >
           <Redo2 className="w-4 h-4" />
         </Button>
