@@ -32,18 +32,23 @@ export function NodeDetailsPopover({
   const [currentPosition, setCurrentPosition] = useState(popoverPosition);
 
   useEffect(() => {
+    console.log('Popover position updated:', { popoverPosition, currentPosition });
     setCurrentPosition(popoverPosition);
   }, [popoverPosition]);
 
+  useEffect(() => {
+    console.log('Current position state updated:', currentPosition);
+  }, [currentPosition]);
+
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
+      e.preventDefault();
       console.log('Mouse down on header:', { 
         clientX: e.clientX, 
         clientY: e.clientY,
         currentPos: currentPosition 
       });
       
-      e.preventDefault();
       setIsDragging(true);
       setStartDragPos({
         x: e.clientX - (currentPosition?.x || 0),
@@ -52,26 +57,31 @@ export function NodeDetailsPopover({
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || !currentPosition) return;
+  const updatePosition = (clientX: number, clientY: number) => {
+    if (!currentPosition) return;
+    
+    const newX = clientX - startDragPos.x;
+    const newY = clientY - startDragPos.y;
 
-    e.preventDefault();
-    const newX = e.clientX - startDragPos.x;
-    const newY = e.clientY - startDragPos.y;
-
-    console.log('Mouse move:', { 
-      isDragging,
+    console.log('Updating position:', { 
       newX,
       newY,
       startDragPos,
-      clientX: e.clientX,
-      clientY: e.clientY
+      clientX,
+      clientY,
+      isDragging
     });
 
     setCurrentPosition({ x: newX, y: newY });
     if (onPositionChange) {
       onPositionChange({ x: newX, y: newY });
     }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    updatePosition(e.clientX, e.clientY);
   };
 
   const handleMouseUp = () => {
@@ -82,23 +92,9 @@ export function NodeDetailsPopover({
   useEffect(() => {
     if (isDragging) {
       const handleGlobalMouseMove = (e: MouseEvent) => {
-        if (!currentPosition) return;
-        
-        const newX = e.clientX - startDragPos.x;
-        const newY = e.clientY - startDragPos.y;
-
-        console.log('Global mouse move:', { 
-          newX,
-          newY,
-          startDragPos,
-          clientX: e.clientX,
-          clientY: e.clientY
-        });
-
-        setCurrentPosition({ x: newX, y: newY });
-        if (onPositionChange) {
-          onPositionChange({ x: newX, y: newY });
-        }
+        if (!isDragging) return;
+        e.preventDefault();
+        updatePosition(e.clientX, e.clientY);
       };
 
       const handleGlobalMouseUp = () => {
@@ -114,19 +110,23 @@ export function NodeDetailsPopover({
         document.removeEventListener('mouseup', handleGlobalMouseUp);
       };
     }
-  }, [isDragging, startDragPos, currentPosition, onPositionChange]);
+  }, [isDragging]);
 
-  if (!selectedNode || !currentPosition) return null;
+  if (!selectedNode || !currentPosition) {
+    console.log('Not rendering popover:', { selectedNode, currentPosition });
+    return null;
+  }
 
   return (
     <div 
       className="fixed"
       style={{ 
-        left: currentPosition.x, 
-        top: currentPosition.y,
+        left: `${currentPosition.x}px`, 
+        top: `${currentPosition.y}px`,
         zIndex: 1000,
         cursor: isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none'
+        userSelect: 'none',
+        transform: 'translate(0, 0)'
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
