@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ModuleDetailsProps {
   moduleId: string;
@@ -17,15 +19,19 @@ interface ModuleDetailsProps {
 
 export function ModuleDetails({ moduleId, title, description, thumbnailUrl, onUpdate }: ModuleDetailsProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) return;
 
     try {
       const fileExt = file.name.split('.').pop();
-      const filePath = `${moduleId}/thumbnail.${fileExt}`;
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
 
+      // Upload to unified media storage
       const { error: uploadError } = await supabase.storage
         .from('media')
         .upload(filePath, file, {
@@ -34,11 +40,34 @@ export function ModuleDetails({ moduleId, title, description, thumbnailUrl, onUp
 
       if (uploadError) throw uploadError;
 
+      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('media')
         .getPublicUrl(filePath);
 
+      // Save to media table
+      const { error: mediaError } = await supabase
+        .from('media')
+        .insert({
+          user_id: user.id,
+          filename: file.name,
+          file_url: publicUrl,
+          file_type: file.type,
+          file_size: file.size,
+        });
+
+      if (mediaError) throw mediaError;
+
+      // Update module with new thumbnail
       onUpdate({ thumbnail_url: publicUrl });
+      
+      // Refresh media files list
+      queryClient.invalidateQueries({ queryKey: ["media-files"] });
+
+      toast({
+        title: "Success",
+        description: "Thumbnail uploaded successfully",
+      });
     } catch (error: any) {
       toast({
         variant: "destructive",

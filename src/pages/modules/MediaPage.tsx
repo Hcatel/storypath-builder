@@ -156,7 +156,7 @@ export default function MediaPage() {
         <h2 className="text-2xl font-bold mb-2">My Media</h2>
         <p className="text-muted-foreground">
           Upload and manage your media files here. They can be used in your
-          modules.
+          modules and playlists.
         </p>
       </div>
 
