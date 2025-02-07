@@ -10,6 +10,19 @@ import { ModuleDetails } from "@/components/modules/ModuleDetails";
 import { ModuleStatus } from "@/components/modules/ModuleStatus";
 import { useAuth } from "@/contexts/AuthContext";
 
+type ModuleAccessType = 'private' | 'public' | 'restricted';
+
+interface LocalModuleState {
+  title: string;
+  description: string;
+  thumbnail_url: string | null;
+  access_type: ModuleAccessType;
+  nodes: any[];
+  edges: any[];
+  published: boolean;
+  component_types: string[];
+}
+
 export default function SummaryPage() {
   const { id } = useParams();
   const { toast } = useToast();
@@ -17,16 +30,16 @@ export default function SummaryPage() {
   const navigate = useNavigate();
   const isCreateMode = !id || id === 'create';
   
-  // Local state for module data
-  const [localModule, setLocalModule] = useState({
+  // Local state for module data with proper typing
+  const [localModule, setLocalModule] = useState<LocalModuleState>({
     title: "",
     description: "",
-    thumbnail_url: null as string | null,
-    access_type: "private" as const,
-    nodes: [] as any[],
-    edges: [] as any[],
+    thumbnail_url: null,
+    access_type: "private",
+    nodes: [],
+    edges: [],
     published: false,
-    component_types: [] as string[],
+    component_types: [],
   });
 
   // Fetch module data only in edit mode
@@ -34,16 +47,7 @@ export default function SummaryPage() {
     queryKey: ["module", id],
     queryFn: async () => {
       if (!id || isCreateMode) {
-        return {
-          title: "",
-          description: "",
-          thumbnail_url: null,
-          access_type: "private" as const,
-          nodes: [],
-          edges: [],
-          published: false,
-          component_types: [],
-        };
+        return null;
       }
       
       const { data, error } = await supabase
@@ -65,7 +69,16 @@ export default function SummaryPage() {
   // Update local state when module data changes
   useEffect(() => {
     if (module) {
-      setLocalModule(module);
+      setLocalModule({
+        title: module.title || "",
+        description: module.description || "",
+        thumbnail_url: module.thumbnail_url,
+        access_type: module.access_type || "private",
+        nodes: module.nodes || [],
+        edges: module.edges || [],
+        published: module.published || false,
+        component_types: module.component_types || [],
+      });
     }
   }, [module]);
 
