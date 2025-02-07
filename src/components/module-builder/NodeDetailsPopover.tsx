@@ -30,15 +30,24 @@ export function NodeDetailsPopover({
   const [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log('Mouse down on popover header:', {
+      target: e.target,
+      isHeader: e.target instanceof HTMLElement && e.target.closest('.popover-header')
+    });
+
     if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
       setIsDragging(true);
       
       const startX = e.clientX - (popoverPosition?.x || 0);
       const startY = e.clientY - (popoverPosition?.y || 0);
 
+      console.log('Starting drag:', { startX, startY, currentPosition: popoverPosition });
+
       const handleMouseMove = (moveEvent: MouseEvent) => {
         const newX = moveEvent.clientX - startX;
         const newY = moveEvent.clientY - startY;
+        
+        console.log('Dragging:', { newX, newY, clientX: moveEvent.clientX, clientY: moveEvent.clientY });
         
         if (onPositionChange) {
           onPositionChange({ x: newX, y: newY });
@@ -46,6 +55,7 @@ export function NodeDetailsPopover({
       };
 
       const handleMouseUp = () => {
+        console.log('Drag ended');
         setIsDragging(false);
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);

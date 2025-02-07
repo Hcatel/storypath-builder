@@ -13,6 +13,8 @@ type ModuleFlowContextMenuProps = {
 };
 
 export function ModuleFlowContextMenu({ contextMenu, onDeleteNode }: ModuleFlowContextMenuProps) {
+  console.log('Rendering context menu with props:', { contextMenu });
+  
   if (!contextMenu) return null;
 
   return (
@@ -23,7 +25,10 @@ export function ModuleFlowContextMenu({ contextMenu, onDeleteNode }: ModuleFlowC
         top: contextMenu.y,
         zIndex: 1000,
       }}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        console.log('Context menu clicked');
+        e.stopPropagation();
+      }}
     >
       <ContextMenu modal={false}>
         <ContextMenuTrigger>
@@ -31,7 +36,10 @@ export function ModuleFlowContextMenu({ contextMenu, onDeleteNode }: ModuleFlowC
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem 
-            onClick={onDeleteNode}
+            onClick={() => {
+              console.log('Delete menu item clicked');
+              onDeleteNode();
+            }}
             className="text-destructive focus:text-destructive flex items-center gap-2"
           >
             <Trash2 className="w-4 h-4" />
