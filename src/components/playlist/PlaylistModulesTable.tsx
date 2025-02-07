@@ -67,7 +67,6 @@ export function PlaylistModulesTable({ modules, isLoading, playlistId }: Playlis
   };
 
   const handleDelete = async (moduleId: string) => {
-    // Add validation to ensure moduleId exists
     if (!moduleId) {
       toast({
         title: "Error",
@@ -108,6 +107,14 @@ export function PlaylistModulesTable({ modules, isLoading, playlistId }: Playlis
     );
   }
 
+  if (!modules || modules.length === 0) {
+    return (
+      <div className="text-center p-8 text-muted-foreground">
+        No modules added to this playlist yet.
+      </div>
+    );
+  }
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <Table>
@@ -125,64 +132,69 @@ export function PlaylistModulesTable({ modules, isLoading, playlistId }: Playlis
         <Droppable droppableId="modules">
           {(provided) => (
             <TableBody {...provided.droppableProps} ref={provided.innerRef}>
-              {modules.map((item, index) => (
-                <Draggable 
-                  key={item.id} 
-                  draggableId={item.id.toString()} 
-                  index={index}
-                >
-                  {(provided) => (
-                    <TableRow 
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                    >
-                      <TableCell>
-                        <div {...provided.dragHandleProps}>
-                          <GripVertical className="h-4 w-4" />
-                        </div>
-                      </TableCell>
-                      <TableCell className="flex items-center gap-3">
-                        {item.module?.thumbnail_url && (
-                          <img 
-                            src={item.module.thumbnail_url} 
-                            alt={item.module?.title || 'Module thumbnail'}
-                            className="h-12 w-12 object-cover rounded"
-                          />
-                        )}
-                        <span>{item.module?.title || 'Untitled Module'}</span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {item.module?.module_completions?.[0]?.count || 0}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        -
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {item.module?.estimated_duration_minutes 
-                          ? `${item.module.estimated_duration_minutes} mins`
-                          : '-'
-                        }
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {item.module?.updated_at 
-                          ? format(new Date(item.module.updated_at), 'MMM d, yyyy')
-                          : '-'
-                        }
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(item.id)}
-                          className="hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </Draggable>
-              ))}
+              {modules.map((item, index) => {
+                // Skip rendering if item or item.id is undefined
+                if (!item?.id) return null;
+                
+                return (
+                  <Draggable 
+                    key={item.id} 
+                    draggableId={item.id} 
+                    index={index}
+                  >
+                    {(provided) => (
+                      <TableRow 
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                      >
+                        <TableCell>
+                          <div {...provided.dragHandleProps}>
+                            <GripVertical className="h-4 w-4" />
+                          </div>
+                        </TableCell>
+                        <TableCell className="flex items-center gap-3">
+                          {item.module?.thumbnail_url && (
+                            <img 
+                              src={item.module.thumbnail_url} 
+                              alt={item.module?.title || 'Module thumbnail'}
+                              className="h-12 w-12 object-cover rounded"
+                            />
+                          )}
+                          <span>{item.module?.title || 'Untitled Module'}</span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {item.module?.module_completions?.[0]?.count || 0}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          -
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {item.module?.estimated_duration_minutes 
+                            ? `${item.module.estimated_duration_minutes} mins`
+                            : '-'
+                          }
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {item.module?.updated_at 
+                            ? format(new Date(item.module.updated_at), 'MMM d, yyyy')
+                            : '-'
+                          }
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(item.id)}
+                            className="hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </Draggable>
+                );
+              })}
               {provided.placeholder}
             </TableBody>
           )}
