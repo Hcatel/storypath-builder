@@ -24,6 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import "@xyflow/react/dist/style.css";
 
 const convertToReactFlowNode = (node: any): FlowNode => ({
@@ -166,12 +167,17 @@ export default function BuildPage() {
             <PopoverTrigger asChild>
               <div className="w-0 h-0" />
             </PopoverTrigger>
-            <PopoverContent side="right" className="w-80">
-              <NodeDetailsPanel 
-                selectedNode={selectedNode}
-                onNodeUpdate={onNodeUpdate}
-                availableNodes={availableNodes}
-              />
+            <PopoverContent side="right" className="p-0">
+              <ResizablePanelGroup direction="horizontal">
+                <ResizablePanel defaultSize={100}>
+                  <NodeDetailsPanel 
+                    selectedNode={selectedNode}
+                    onNodeUpdate={onNodeUpdate}
+                    availableNodes={availableNodes}
+                  />
+                </ResizablePanel>
+                <ResizableHandle />
+              </ResizablePanelGroup>
             </PopoverContent>
           </Popover>
         </div>

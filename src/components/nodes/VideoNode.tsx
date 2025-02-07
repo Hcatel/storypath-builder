@@ -2,6 +2,7 @@
 import { Handle, Position } from "@xyflow/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VideoNodeData } from "@/types/module";
+import { Video } from "lucide-react";
 
 type VideoNodeProps = {
   data: VideoNodeData;
@@ -10,11 +11,14 @@ type VideoNodeProps = {
 
 export function VideoNode({ data, selected }: VideoNodeProps) {
   return (
-    <Card className={`w-[300px] ${selected ? 'border-primary' : ''}`}>
-      <CardHeader>
-        <CardTitle className="text-sm">{data.title || "Video"}</CardTitle>
+    <Card className={`w-[200px] ${selected ? 'border-primary' : ''}`}>
+      <CardHeader className="p-3">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <Video className="w-4 h-4" />
+          {data.title || "Video"}
+        </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-3">
         <div className="aspect-video bg-muted rounded-md">
           {data.videoUrl ? (
             <iframe 
@@ -25,13 +29,13 @@ export function VideoNode({ data, selected }: VideoNodeProps) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              No video URL set
+              <Video className="w-4 h-4" />
             </div>
           )}
         </div>
       </CardContent>
-      <Handle type="target" position={Position.Top} />
-      <Handle type="source" position={Position.Bottom} />
+      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Right} />
     </Card>
   );
 }

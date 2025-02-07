@@ -2,6 +2,7 @@
 import { Handle, Position } from "@xyflow/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TextInputNodeData } from "@/types/module";
+import { FormInput } from "lucide-react";
 
 type TextInputNodeProps = {
   data: TextInputNodeData;
@@ -10,15 +11,18 @@ type TextInputNodeProps = {
 
 export function TextInputNode({ data, selected }: TextInputNodeProps) {
   return (
-    <Card className={`w-[300px] ${selected ? 'border-primary' : ''}`}>
-      <CardHeader>
-        <CardTitle className="text-sm">Text Input</CardTitle>
+    <Card className={`w-[200px] ${selected ? 'border-primary' : ''}`}>
+      <CardHeader className="p-3">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <FormInput className="w-4 h-4" />
+          Text Input
+        </CardTitle>
       </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground">{data.question || "Enter your question"}</p>
+      <CardContent className="p-3">
+        <p className="text-xs text-muted-foreground truncate">{data.question || "Enter your question"}</p>
       </CardContent>
-      <Handle type="target" position={Position.Top} />
-      <Handle type="source" position={Position.Bottom} />
+      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Right} />
     </Card>
   );
 }
