@@ -25,7 +25,12 @@ export interface VideoNodeData extends BaseNodeData {
   type: 'video';
   title: string;
   videoUrl: string;
-  thumbnailUrl?: string; // Optional custom thumbnail URL
+  thumbnailUrl?: string;
+  autoplay?: boolean;
+  showPlayPause?: boolean;
+  showVolume?: boolean;
+  showSeeking?: boolean;
+  showSubtitles?: boolean;
 }
 
 export interface RouterChoice {

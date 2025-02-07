@@ -7,6 +7,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { MediaTable } from "@/components/media/MediaTable";
 import { MediaUploadCard } from "@/components/media/MediaUploadCard";
 import { Video, Image } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 type VideoNodeDetailsProps = {
   data: VideoNodeData;
@@ -87,6 +90,60 @@ export function VideoNodeDetails({ data, onUpdate }: VideoNodeDetailsProps) {
           </div>
         </div>
       </div>
+
+      <Separator className="my-4" />
+
+      <div className="space-y-4">
+        <h3 className="text-sm font-medium">Video Controls</h3>
+        
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="autoplay"
+            checked={data.autoplay}
+            onCheckedChange={(checked) => onUpdate({ ...data, autoplay: checked })}
+          />
+          <Label htmlFor="autoplay">Autoplay video when user arrives</Label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="play-pause"
+            checked={data.showPlayPause}
+            onCheckedChange={(checked) => onUpdate({ ...data, showPlayPause: checked })}
+          />
+          <Label htmlFor="play-pause">Show play/pause button</Label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="volume"
+            checked={data.showVolume}
+            onCheckedChange={(checked) => onUpdate({ ...data, showVolume: checked })}
+          />
+          <Label htmlFor="volume">Show volume controls</Label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="seeking"
+            checked={data.showSeeking}
+            onCheckedChange={(checked) => onUpdate({ ...data, showSeeking: checked })}
+          />
+          <Label htmlFor="seeking">Allow video seeking</Label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="subtitles"
+            checked={data.showSubtitles}
+            onCheckedChange={(checked) => onUpdate({ ...data, showSubtitles: checked })}
+          />
+          <Label htmlFor="subtitles">Show subtitles control</Label>
+        </div>
+      </div>
+
+      <Separator className="my-4" />
+
       <div className="space-y-2">
         <label className="text-sm font-medium">Custom Thumbnail</label>
         <div className="flex flex-col gap-4">
