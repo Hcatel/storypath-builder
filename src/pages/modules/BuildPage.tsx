@@ -2,9 +2,9 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNodesState, useEdgesState } from "@xyflow/react";
+import { useNodesState, useEdgesState, Node } from "@xyflow/react";
 import { useState } from "react";
-import { ComponentType, NodeData, FlowNode } from "@/types/module";
+import { ComponentType, NodeData, FlowNode, FlowEdge } from "@/types/module";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { getInitialNode } from "@/constants/moduleComponents";
 import { ModuleFlow } from "@/components/module-builder/ModuleFlow";
@@ -69,7 +69,7 @@ export default function BuildPage() {
     module?.nodes || [getInitialNode()]
   );
   
-  const [edges, setEdges, onEdgesChange] = useEdgesState(
+  const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>(
     module?.edges || []
   );
 
@@ -78,14 +78,14 @@ export default function BuildPage() {
     nodes,
     edges,
     setNodes,
-    setEdges
+    edges => setEdges(edges as FlowEdge[])
   );
 
   const onNodeClick = (event: React.MouseEvent, node: Node) => {
     event.stopPropagation();
     const bounds = (event.target as HTMLElement).getBoundingClientRect();
     setPopoverPosition({ x: bounds.right + 10, y: bounds.top });
-    setSelectedNode(node as FlowNode);
+    setSelectedNode(node as unknown as FlowNode);
   };
 
   const onPaneClick = () => {
@@ -105,6 +105,10 @@ export default function BuildPage() {
         return node;
       })
     );
+  };
+
+  const handlePositionChange = (position: { x: number; y: number }) => {
+    setPopoverPosition(position);
   };
 
   if (isLoading && !isCreateMode) {
@@ -134,6 +138,7 @@ export default function BuildPage() {
         onNodeUpdate={onNodeUpdate}
         onClose={() => setSelectedNode(null)}
         availableNodes={availableNodes}
+        onPositionChange={handlePositionChange}
       />
     </div>
   );

@@ -16,6 +16,7 @@ type NodeDetailsPopoverProps = {
   onNodeUpdate: (nodeId: string, data: NodeData) => void;
   onClose: () => void;
   availableNodes: Node[];
+  onPositionChange?: (position: { x: number; y: number }) => void;
 };
 
 export function NodeDetailsPopover({
@@ -24,6 +25,7 @@ export function NodeDetailsPopover({
   onNodeUpdate,
   onClose,
   availableNodes,
+  onPositionChange,
 }: NodeDetailsPopoverProps) {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -38,7 +40,6 @@ export function NodeDetailsPopover({
         const newX = moveEvent.clientX - startX;
         const newY = moveEvent.clientY - startY;
         
-        // Update position via the parent component
         if (onPositionChange) {
           onPositionChange({ x: newX, y: newY });
         }
