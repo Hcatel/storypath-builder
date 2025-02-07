@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 
 const LearnModule = () => {
   const { id } = useParams();
@@ -37,7 +37,16 @@ const LearnModule = () => {
         throw error;
       }
 
-      return data;
+      // Type assertion to ensure nodes and edges are properly typed
+      if (data) {
+        return {
+          ...data,
+          nodes: data.nodes as FlowNode[],
+          edges: data.edges as FlowEdge[]
+        };
+      }
+
+      return null;
     },
   });
 
