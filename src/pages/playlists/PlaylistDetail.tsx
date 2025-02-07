@@ -3,7 +3,6 @@ import { Header } from "@/components/Header";
 import { useParams } from "react-router-dom";
 import { PlaylistSidebar } from "@/components/playlist/PlaylistSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { PlaylistBreadcrumb } from "@/components/playlist/PlaylistBreadcrumb";
 import { EditPlaylistForm } from "@/components/playlist/EditPlaylistForm";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,9 +33,6 @@ export default function PlaylistDetail() {
         <div className="flex w-full">
           <PlaylistSidebar playlistId={id} />
           <main className="flex-1 p-6">
-            <PlaylistBreadcrumb 
-              currentPage={isCreateMode ? "Create Playlist" : (playlist?.name || "Loading...")} 
-            />
             {!isCreateMode && isLoading ? (
               <div>Loading...</div>
             ) : (
