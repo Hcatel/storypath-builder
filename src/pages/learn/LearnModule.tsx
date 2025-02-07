@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
+import { ComponentType, FlowNode, FlowEdge, MessageNodeData, TextInputNodeData, VideoNodeData } from "@/types/module";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
@@ -105,9 +105,9 @@ const LearnModule = () => {
   // Initialize progress if none exists
   useEffect(() => {
     if (
-      !isProgressLoading && 
-      !progress && 
-      user && 
+      !isProgressLoading &&
+      !progress &&
+      user &&
       module?.nodes.length > 0
     ) {
       updateProgress(module.nodes[0].id);
@@ -116,7 +116,7 @@ const LearnModule = () => {
 
   const handleNext = () => {
     if (!module?.nodes) return;
-    
+
     const nextIndex = currentNodeIndex + 1;
     if (nextIndex < module.nodes.length) {
       setCurrentNodeIndex(nextIndex);
@@ -132,30 +132,35 @@ const LearnModule = () => {
 
   const renderNodeContent = (node: FlowNode) => {
     switch (node.type) {
-      case "message":
+      case "message": {
+        const messageData = node.data as MessageNodeData;
         return (
           <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-4">{node.data.title}</h2>
-            <p className="text-lg text-gray-700">{node.data.content}</p>
+            <h2 className="text-2xl font-bold mb-4">{messageData.title}</h2>
+            <p className="text-lg text-gray-700">{messageData.content}</p>
           </div>
         );
-      case "text_input":
+      }
+      case "text_input": {
+        const textInputData = node.data as TextInputNodeData;
         return (
           <div className="max-w-2xl mx-auto">
-            <h2 className="text-xl font-semibold mb-4">{node.data.question}</h2>
+            <h2 className="text-xl font-semibold mb-4">{textInputData.question}</h2>
             <textarea
               className="w-full h-32 p-4 border rounded-lg"
               placeholder="Type your answer here..."
             />
           </div>
         );
-      case "video":
+      }
+      case "video": {
+        const videoData = node.data as VideoNodeData;
         return (
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl font-semibold mb-4">{node.data.title}</h2>
+            <h2 className="text-xl font-semibold mb-4">{videoData.title}</h2>
             <div className="aspect-video">
-              <iframe 
-                src={node.data.videoUrl}
+              <iframe
+                src={videoData.videoUrl}
                 className="w-full h-full rounded-lg"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -163,6 +168,7 @@ const LearnModule = () => {
             </div>
           </div>
         );
+      }
       // Add other node types here
       default:
         return <div>Unsupported node type: {node.type}</div>;
@@ -213,7 +219,7 @@ const LearnModule = () => {
         <div className="flex-1 flex items-center justify-center p-8">
           {renderNodeContent(currentNode)}
         </div>
-        
+
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <Button
@@ -224,7 +230,7 @@ const LearnModule = () => {
               <ChevronLeft className="w-4 h-4 mr-2" />
               Previous
             </Button>
-            
+
             <div className="text-sm text-gray-500">
               {currentNodeIndex + 1} of {module.nodes.length}
             </div>
