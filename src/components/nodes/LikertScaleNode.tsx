@@ -2,15 +2,17 @@
 import { Handle, Position } from "@xyflow/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { Star } from "lucide-react";
+import { Star, Trash2 } from "lucide-react";
 import { LikertScaleNodeData } from "@/types/module";
+import { Button } from "@/components/ui/button";
 
 type LikertScaleNodeProps = {
   data: LikertScaleNodeData;
   selected?: boolean;
+  id: string;
 };
 
-export function LikertScaleNode({ data, selected }: LikertScaleNodeProps) {
+export function LikertScaleNode({ data, selected, id }: LikertScaleNodeProps) {
   const renderScale = () => {
     switch (data.displayType) {
       case 'slider':
@@ -24,9 +26,9 @@ export function LikertScaleNode({ data, selected }: LikertScaleNodeProps) {
               className="my-4"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{data.startText}</span>
+              <span>{data.startText || data.scaleStart}</span>
               <span>{data.middleText}</span>
-              <span>{data.endText}</span>
+              <span>{data.endText || data.scaleEnd}</span>
             </div>
           </div>
         );
@@ -63,15 +65,26 @@ export function LikertScaleNode({ data, selected }: LikertScaleNodeProps) {
 
   return (
     <Card className={`w-[400px] ${selected ? 'border-primary' : ''}`}>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-sm">Likert Scale</CardTitle>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="h-8 w-8 p-0"
+          onClick={() => {
+            const event = new CustomEvent('delete-node', { detail: { id } });
+            window.dispatchEvent(event);
+          }}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent>
         <p className="text-sm font-medium mb-4">{data.question || "Enter your question"}</p>
         {renderScale()}
       </CardContent>
-      <Handle type="target" position={Position.Top} />
-      <Handle type="source" position={Position.Bottom} />
+      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Right} />
     </Card>
   );
 }

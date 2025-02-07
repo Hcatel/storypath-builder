@@ -16,7 +16,7 @@ export function LikertScaleNodeDetails({ data, onUpdate }: LikertScaleNodeDetail
   };
 
   const displayOptions: { value: LikertDisplayType; label: string }[] = [
-    { value: 'numbers', label: 'Numbers' },
+    { value: 'numbers', label: 'Numbered Circles' },
     { value: 'slider', label: 'Slider' },
     { value: 'stars', label: 'Stars' },
   ];
@@ -28,14 +28,14 @@ export function LikertScaleNodeDetails({ data, onUpdate }: LikertScaleNodeDetail
         <Input
           value={data.question || ""}
           onChange={(e) => onUpdate({ question: e.target.value })}
-          placeholder="Enter question"
+          placeholder="Enter your question"
         />
       </div>
 
       <div>
         <Label>Display Type</Label>
         <Select
-          value={data.displayType}
+          value={data.displayType || 'numbers'}
           onValueChange={(value: LikertDisplayType) => onUpdate({ displayType: value })}
         >
           <SelectTrigger>
@@ -56,7 +56,7 @@ export function LikertScaleNodeDetails({ data, onUpdate }: LikertScaleNodeDetail
           <Label>Scale Start</Label>
           <Input
             type="number"
-            value={data.scaleStart}
+            value={data.scaleStart || 1}
             onChange={(e) => onUpdate({ scaleStart: parseInt(e.target.value) })}
           />
         </div>
@@ -64,7 +64,7 @@ export function LikertScaleNodeDetails({ data, onUpdate }: LikertScaleNodeDetail
           <Label>Scale End</Label>
           <Input
             type="number"
-            value={data.scaleEnd}
+            value={data.scaleEnd || 5}
             onChange={(e) => onUpdate({ scaleEnd: parseInt(e.target.value) })}
           />
         </div>
