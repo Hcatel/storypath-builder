@@ -55,22 +55,6 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     onNodeUpdate(selectedNode.id, updatedData);
   };
 
-  const renderNodeDetails = () => {
-    if (!nodeData) return null;
-    
-    console.log("Rendering details for node type:", nodeData.type);
-    
-    const type = nodeData.type as keyof typeof nodeTypeComponents;
-    const Component = nodeTypeComponents[type];
-    
-    if (!Component) {
-      console.warn("Unknown node type:", type);
-      return null;
-    }
-    
-    return <Component data={nodeData} onUpdate={updateNodeData} availableNodes={availableNodes} />;
-  };
-
   const nodeTypeComponents = {
     message: MessageNodeDetails,
     video: VideoNodeDetails,
@@ -81,6 +65,34 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     likert_scale: LikertScaleNodeDetails,
     matching: MatchingNodeDetails,
   } as const;
+
+  const renderNodeDetails = () => {
+    if (!nodeData) return null;
+    
+    console.log("Rendering details for node type:", nodeData.type);
+    
+    switch (nodeData.type) {
+      case 'message':
+        return <MessageNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'video':
+        return <VideoNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'router':
+        return <RouterNodeDetails data={nodeData} onUpdate={updateNodeData} availableNodes={availableNodes} />;
+      case 'text_input':
+        return <TextInputNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'multiple_choice':
+        return <MultipleChoiceNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'ranking':
+        return <RankingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'likert_scale':
+        return <LikertScaleNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'matching':
+        return <MatchingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      default:
+        console.warn("Unknown node type:", nodeData.type);
+        return null;
+    }
+  };
 
   return (
     <Card>
@@ -93,4 +105,3 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     </Card>
   );
 }
-
