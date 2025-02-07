@@ -16,12 +16,18 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
   const [showSubtitles, setShowSubtitles] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Handle autoplay on component mount
   useEffect(() => {
-    if (data.autoplay && videoRef.current) {
-      videoRef.current.play().catch(error => {
-        console.log("Autoplay failed:", error);
-      });
+    if (videoRef.current) {
+      videoRef.current.addEventListener('play', () => setIsPlaying(true));
+      videoRef.current.addEventListener('pause', () => setIsPlaying(false));
+      videoRef.current.addEventListener('ended', () => setIsPlaying(false));
+
+      // Handle autoplay
+      if (data.autoplay) {
+        videoRef.current.play().catch(error => {
+          console.log("Autoplay failed:", error);
+        });
+      }
     }
   }, [data.autoplay]);
 
@@ -42,12 +48,13 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
-        setIsPlaying(false);
       } else {
-        videoRef.current.play().catch(error => {
-          console.log("Play failed:", error);
-        });
-        setIsPlaying(true);
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log("Play failed:", error);
+          });
+        }
       }
     }
   };
@@ -102,7 +109,7 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
           className="aspect-video rounded-lg overflow-hidden bg-black relative cursor-pointer group"
           onClick={() => !isPlaying && (!data.autoplay || data.showPlayPause) && handlePlayPause()}
         >
-          {!isPlaying ? (
+          {!isPlaying && (
             <>
               <img 
                 src={thumbnailUrl} 
@@ -123,22 +130,18 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
                 </Button>
               )}
             </>
-          ) : (
-            <video
-              ref={videoRef}
-              src={data.videoUrl}
-              className="w-full h-full"
-              autoPlay={data.autoplay}
-              muted={isMuted}
-              playsInline
-              controls={data.showSeeking}
-              onEnded={() => setIsPlaying(false)}
-              onPause={() => setIsPlaying(false)}
-              onPlay={() => setIsPlaying(true)}
-            >
-              {showSubtitles && <track kind="captions" />}
-            </video>
           )}
+          <video
+            ref={videoRef}
+            src={data.videoUrl}
+            className={`w-full h-full ${!isPlaying ? 'hidden' : ''}`}
+            autoPlay={data.autoplay}
+            muted={isMuted}
+            playsInline
+            controls={data.showSeeking}
+          >
+            {showSubtitles && <track kind="captions" />}
+          </video>
         </div>
       </CardContent>
     </Card>
