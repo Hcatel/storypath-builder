@@ -1,11 +1,12 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
-import { Loader2, GripVertical } from "lucide-react";
+import { Loader2, GripVertical, Trash2 } from "lucide-react";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 
 interface PlaylistModule {
   id: string;
@@ -65,6 +66,30 @@ export function PlaylistModulesTable({ modules, isLoading, playlistId }: Playlis
     }
   };
 
+  const handleDelete = async (moduleId: string) => {
+    try {
+      const { error } = await supabase
+        .from("playlist_modules")
+        .delete()
+        .eq("id", moduleId);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["playlist-modules", playlistId] });
+
+      toast({
+        title: "Success",
+        description: "Module removed from playlist",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: `Failed to remove module: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center p-8">
@@ -84,6 +109,7 @@ export function PlaylistModulesTable({ modules, isLoading, playlistId }: Playlis
             <TableHead className="text-right">Completion Rate</TableHead>
             <TableHead className="text-right">Duration</TableHead>
             <TableHead className="text-right">Last Modified</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <Droppable droppableId="modules">
@@ -132,6 +158,16 @@ export function PlaylistModulesTable({ modules, isLoading, playlistId }: Playlis
                           ? format(new Date(item.module.updated_at), 'MMM d, yyyy')
                           : '-'
                         }
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(item.id)}
+                          className="hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   )}
