@@ -12,7 +12,7 @@ import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { Panel } from "@xyflow/react";
 import { nodeTypes } from "@/constants/moduleComponents";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ModuleFlowContextMenu } from "./ModuleFlowContextMenu";
 import { useModuleFlowKeyboard } from "@/hooks/useModuleFlowKeyboard";
 import { useModuleFlowHistory } from "@/hooks/useModuleFlowHistory";
@@ -77,6 +77,29 @@ export function ModuleFlow({
     onPaneClick();
   };
 
+  const nodeColor = useCallback((node: Node) => {
+    switch (node.type) {
+      case 'message':
+        return '#6366f1';
+      case 'video':
+        return '#f43f5e';
+      case 'router':
+        return '#14b8a6';
+      case 'text_input':
+        return '#8b5cf6';
+      case 'multiple_choice':
+        return '#f59e0b';
+      case 'ranking':
+        return '#10b981';
+      case 'likert_scale':
+        return '#6366f1';
+      case 'matching':
+        return '#ec4899';
+      default:
+        return '#64748b';
+    }
+  }, []);
+
   useEffect(() => {
     const handleDeleteEvent = (event: CustomEvent) => {
       const nodeId = event.detail.id;
@@ -106,9 +129,7 @@ export function ModuleFlow({
       <Background />
       <Controls />
       <MiniMap 
-        nodeColor={node => {
-          return node.type === 'input' ? '#ff0072' : '#1a192b';
-        }}
+        nodeColor={nodeColor}
         nodeStrokeWidth={3}
         maskColor="rgb(255, 255, 255, 0.8)"
       />
