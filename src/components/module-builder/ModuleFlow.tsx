@@ -42,7 +42,7 @@ export function ModuleFlow({
   onAddNode,
   onSave,
 }: ModuleFlowProps) {
-  const { getNodes, setNodes, getSelectedNodes } = useReactFlow();
+  const { getNodes, setNodes } = useReactFlow();
   const isCPressed = useKeyPress('c');
   const isVPressed = useKeyPress('v');
   const isXPressed = useKeyPress('x');
@@ -50,7 +50,7 @@ export function ModuleFlow({
   // Handle clipboard operations
   useEffect(() => {
     const handleKeyboard = async (event: KeyboardEvent) => {
-      const selectedNodes = getSelectedNodes();
+      const selectedNodes = getNodes().filter(node => node.selected);
       
       // Only proceed if we have selected nodes and Control/Command is pressed
       if (selectedNodes.length > 0 && (event.ctrlKey || event.metaKey)) {
@@ -100,7 +100,7 @@ export function ModuleFlow({
 
     document.addEventListener('keydown', handleKeyboard);
     return () => document.removeEventListener('keydown', handleKeyboard);
-  }, [getNodes, setNodes, getSelectedNodes]);
+  }, [getNodes, setNodes]);
 
   return (
     <ReactFlow
