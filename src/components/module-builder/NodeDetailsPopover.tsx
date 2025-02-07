@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Node } from "@xyflow/react";
 import { NodeData } from "@/types/module";
@@ -28,26 +27,25 @@ export function NodeDetailsPopover({
   onPositionChange,
 }: NodeDetailsPopoverProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [startDragPos, setStartDragPos] = useState({ x: 0, y: 0 });
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    console.log('Mouse down on popover header:', {
-      target: e.target,
-      isHeader: e.target instanceof HTMLElement && e.target.closest('.popover-header')
-    });
-
     if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
+      e.preventDefault();
       setIsDragging(true);
-      
-      const startX = e.clientX - (popoverPosition?.x || 0);
-      const startY = e.clientY - (popoverPosition?.y || 0);
-
-      console.log('Starting drag:', { startX, startY, currentPosition: popoverPosition });
+      setStartDragPos({
+        x: e.clientX - (popoverPosition?.x || 0),
+        y: e.clientY - (popoverPosition?.y || 0)
+      });
 
       const handleMouseMove = (moveEvent: MouseEvent) => {
-        const newX = moveEvent.clientX - startX;
-        const newY = moveEvent.clientY - startY;
+        if (!isDragging) return;
         
-        console.log('Dragging:', { newX, newY, clientX: moveEvent.clientX, clientY: moveEvent.clientY });
+        moveEvent.preventDefault();
+        const newX = moveEvent.clientX - startDragPos.x;
+        const newY = moveEvent.clientY - startDragPos.y;
+        
+        console.log('Dragging:', { newX, newY, startPos: startDragPos });
         
         if (onPositionChange) {
           onPositionChange({ x: newX, y: newY });
@@ -55,7 +53,6 @@ export function NodeDetailsPopover({
       };
 
       const handleMouseUp = () => {
-        console.log('Drag ended');
         setIsDragging(false);
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
@@ -74,7 +71,8 @@ export function NodeDetailsPopover({
       style={{ 
         left: popoverPosition.x, 
         top: popoverPosition.y,
-        zIndex: 1000 
+        zIndex: 1000,
+        cursor: isDragging ? 'grabbing' : 'auto'
       }}
       onMouseDown={handleMouseDown}
     >

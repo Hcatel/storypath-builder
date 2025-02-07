@@ -1,4 +1,3 @@
-
 import {
   ReactFlow,
   Background,
@@ -57,29 +56,22 @@ export function ModuleFlow({
       eventType: event.type,
       nodeId: node.id,
       clientX: event.clientX,
-      clientY: event.clientY,
-      target: event.target
+      clientY: event.clientY
     });
     
-    // Prevent default context menu
     event.preventDefault();
+    event.stopPropagation();
     
-    // Get the flow wrapper element
     const flowWrapper = document.querySelector('.react-flow') as HTMLElement;
     if (!flowWrapper) {
       console.error('Flow wrapper element not found');
       return;
     }
 
-    // Get the bounds of the flow wrapper
     const flowBounds = flowWrapper.getBoundingClientRect();
-    console.log('Flow bounds:', flowBounds);
-
-    // Calculate position relative to the flow wrapper
     const x = event.clientX - flowBounds.left;
     const y = event.clientY - flowBounds.top;
 
-    console.log('Setting context menu position:', { x, y, nodeId: node.id });
     setContextMenu({
       x,
       y,
@@ -91,7 +83,6 @@ export function ModuleFlow({
     console.log('Delete node triggered', { contextMenu });
     if (contextMenu) {
       const newNodes = nodes.filter(n => n.id !== contextMenu.nodeId);
-      console.log('Filtered nodes:', newNodes);
       setNodes(newNodes);
       setHistory(prev => [...prev.slice(0, currentIndex + 1), newNodes]);
       setCurrentIndex(prev => prev + 1);
