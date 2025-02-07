@@ -22,9 +22,9 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
   const [showConditionDialog, setShowConditionDialog] = useState(false);
   const { toast } = useToast();
 
-  // Ensure we have valid string IDs
-  const nodeId = data?.id;
-  const moduleId = data?.moduleId;
+  // Ensure we have valid string IDs and they are properly typed
+  const nodeId = data.id as string;
+  const moduleId = data.moduleId as string;
 
   // Check if both IDs exist
   if (!nodeId || !moduleId) {
