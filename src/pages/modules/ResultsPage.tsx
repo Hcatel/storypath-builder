@@ -24,6 +24,7 @@ import { formatDistanceToNow } from "date-fns";
 
 export default function ResultsPage() {
   const { id } = useParams();
+  const isCreateMode = !id || id === 'create';
 
   const { data: analytics, isLoading } = useQuery({
     queryKey: ["module-analytics", id],
@@ -67,7 +68,34 @@ export default function ResultsPage() {
         totalCompletions: completions?.length || 0,
       };
     },
+    enabled: !isCreateMode,
   });
+
+  if (isCreateMode) {
+    return (
+      <div className="container max-w-4xl mx-auto py-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Module Results</CardTitle>
+            <CardDescription>
+              Save your module first to view analytics and results
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              After creating your module, you'll be able to:
+            </p>
+            <ul className="list-disc ml-6 mt-2 text-muted-foreground">
+              <li>Track completion rates and scores</li>
+              <li>View detailed analytics</li>
+              <li>Monitor learner progress</li>
+              <li>Get feedback from participants</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
