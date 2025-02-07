@@ -23,7 +23,9 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
   useEffect(() => {
     if (selectedNode) {
-      setNodeData(selectedNode.data as NodeData);
+      // Ensure we're properly typing the node data
+      const typedNodeData = selectedNode.data as NodeData;
+      setNodeData(typedNodeData);
     } else {
       setNodeData(null);
     }
@@ -45,7 +47,6 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   const updateNodeData = (updates: Partial<NodeData>) => {
     if (!selectedNode || !nodeData) return;
 
-    // Ensure we preserve the node type when updating
     const updatedData = {
       ...nodeData,
       ...updates,
@@ -57,9 +58,10 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   };
 
   const renderNodeDetails = () => {
+    // Ensure we're working with the correct type at runtime
     const type = nodeData.type;
     console.log("Rendering details for node type:", type);
-    
+
     switch (type) {
       case 'message':
         return <MessageNodeDetails data={nodeData} onUpdate={updateNodeData} />;
@@ -77,9 +79,11 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
         return <LikertScaleNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       case 'matching':
         return <MatchingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
-      default:
-        console.warn("Unknown node type:", type);
+      default: {
+        // This helps TypeScript know that we've handled all possible cases
+        const _exhaustiveCheck: never = type;
         return null;
+      }
     }
   };
 
@@ -94,4 +98,3 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     </Card>
   );
 }
-
