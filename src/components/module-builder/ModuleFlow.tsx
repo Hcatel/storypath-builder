@@ -53,11 +53,23 @@ export function ModuleFlow({
   useModuleFlowHistory(nodes, setHistory, setCurrentIndex, history);
 
   const handleNodeContextMenu = (event: React.MouseEvent, node: Node) => {
+    // Prevent default context menu
     event.preventDefault();
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    
+    // Get the flow wrapper element
+    const flowWrapper = document.querySelector('.react-flow') as HTMLElement;
+    if (!flowWrapper) return;
+
+    // Get the bounds of the flow wrapper
+    const flowBounds = flowWrapper.getBoundingClientRect();
+
+    // Calculate position relative to the flow wrapper
+    const x = event.clientX - flowBounds.left;
+    const y = event.clientY - flowBounds.top;
+
     setContextMenu({
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
+      x,
+      y,
       nodeId: node.id
     });
   };
@@ -91,10 +103,6 @@ export function ModuleFlow({
         return '#f59e0b';
       case 'ranking':
         return '#10b981';
-      case 'likert_scale':
-        return '#6366f1';
-      case 'matching':
-        return '#ec4899';
       default:
         return '#64748b';
     }
