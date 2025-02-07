@@ -13,6 +13,11 @@ type LikertScaleNodeProps = {
 };
 
 export function LikertScaleNode({ data, selected, id }: LikertScaleNodeProps) {
+  const handleDelete = () => {
+    const event = new CustomEvent('delete-node', { detail: { id } });
+    window.dispatchEvent(event);
+  };
+
   const renderScale = () => {
     switch (data.displayType) {
       case 'slider':
@@ -35,7 +40,7 @@ export function LikertScaleNode({ data, selected, id }: LikertScaleNodeProps) {
       
       case 'stars':
         return (
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4 my-4">
             {Array.from({ length: data.scaleEnd - data.scaleStart + 1 }, (_, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
                 <Star className="w-6 h-6 text-muted-foreground hover:text-yellow-400 cursor-pointer" />
@@ -49,7 +54,7 @@ export function LikertScaleNode({ data, selected, id }: LikertScaleNodeProps) {
       
       default: // 'numbers'
         return (
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4 my-4">
             {Array.from({ length: data.scaleEnd - data.scaleStart + 1 }, (_, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
                 <div className="w-8 h-8 rounded-full border flex items-center justify-center bg-muted hover:bg-muted/80 cursor-pointer">
@@ -67,16 +72,13 @@ export function LikertScaleNode({ data, selected, id }: LikertScaleNodeProps) {
 
   return (
     <Card className={`w-[400px] ${selected ? 'border-primary' : ''}`}>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-sm">Likert Scale</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">Likert Scale</CardTitle>
         <Button 
           variant="ghost" 
           size="icon"
           className="h-8 w-8 p-0"
-          onClick={() => {
-            const event = new CustomEvent('delete-node', { detail: { id } });
-            window.dispatchEvent(event);
-          }}
+          onClick={handleDelete}
         >
           <Trash2 className="h-4 w-4" />
         </Button>

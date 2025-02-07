@@ -10,6 +10,22 @@ interface LikertScaleNodeDetailsProps {
 }
 
 export function LikertScaleNodeDetails({ data, onUpdate }: LikertScaleNodeDetailsProps) {
+  const handleScaleStart = (value: string) => {
+    const start = parseInt(value);
+    onUpdate({ 
+      scaleStart: start,
+      labels: {} // Reset labels when scale changes
+    });
+  };
+
+  const handleScaleEnd = (value: string) => {
+    const end = parseInt(value);
+    onUpdate({ 
+      scaleEnd: end,
+      labels: {} // Reset labels when scale changes
+    });
+  };
+
   const updateLabel = (scale: number, label: string) => {
     const newLabels = { ...data.labels, [scale]: label };
     onUpdate({ labels: newLabels });
@@ -57,7 +73,7 @@ export function LikertScaleNodeDetails({ data, onUpdate }: LikertScaleNodeDetail
           <Input
             type="number"
             value={data.scaleStart || 1}
-            onChange={(e) => onUpdate({ scaleStart: parseInt(e.target.value) })}
+            onChange={(e) => handleScaleStart(e.target.value)}
           />
         </div>
         <div>
@@ -65,7 +81,7 @@ export function LikertScaleNodeDetails({ data, onUpdate }: LikertScaleNodeDetail
           <Input
             type="number"
             value={data.scaleEnd || 5}
-            onChange={(e) => onUpdate({ scaleEnd: parseInt(e.target.value) })}
+            onChange={(e) => handleScaleEnd(e.target.value)}
           />
         </div>
       </div>
