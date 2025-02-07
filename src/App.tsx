@@ -40,7 +40,24 @@ function App() {
 
           {/* Module routes */}
           <Route path="/modules">
-            {/* Edit existing module - use regex to ensure only valid UUIDs are matched */}
+            {/* Create new module */}
+            <Route 
+              path="create/*" 
+              element={
+                <ModuleCreator>
+                  <Routes>
+                    <Route index element={<Navigate to="summary" replace />} />
+                    <Route path="summary" element={<SummaryPage />} />
+                    <Route path="build" element={<BuildPage />} />
+                    <Route path="media" element={<MediaPage />} />
+                    <Route path="share" element={<SharePage />} />
+                    <Route path="results" element={<ResultsPage />} />
+                  </Routes>
+                </ModuleCreator>
+              } 
+            />
+            
+            {/* Edit existing module - use regex to match only valid UUIDs */}
             <Route 
               path=":id"
               element={<ModuleCreator />}
