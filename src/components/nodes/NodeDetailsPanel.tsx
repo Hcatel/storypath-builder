@@ -57,7 +57,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   };
 
   const renderNodeDetails = () => {
-    const type = (nodeData.type as ComponentType);
+    const type = nodeData.type;
     console.log("Rendering details for node type:", type);
     
     switch (type) {
@@ -94,3 +94,4 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     </Card>
   );
 }
+
