@@ -1,10 +1,9 @@
 
-import { Handle, Position } from "@xyflow/react";
+import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RankingNodeData } from "@/types/module";
 import { GripVertical, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useReactFlow } from "@xyflow/react";
 
 type RankingNodeProps = {
   data: RankingNodeData;

@@ -34,11 +34,11 @@ export function ModuleToolbar({
   // Initialize history with current nodes
   useEffect(() => {
     const currentNodes = getNodes() as FlowNode[];
-    if (currentNodes.length > 0 && history.length === 0) {
+    if (history.length === 0) {
       setHistory([currentNodes]);
       setCurrentIndex(0);
     }
-  }, [getNodes, history.length]);
+  }, []);
 
   const onUndo = () => {
     if (currentIndex > 0) {
@@ -59,18 +59,14 @@ export function ModuleToolbar({
   // Save state to history when nodes change
   useEffect(() => {
     const currentNodes = getNodes() as FlowNode[];
-    if (currentNodes.length > 0) {
-      // Only add to history if the state is different
-      const lastState = history[currentIndex];
-      const isStateChanged = !lastState || 
-        JSON.stringify(lastState) !== JSON.stringify(currentNodes);
-
-      if (isStateChanged) {
-        setHistory(prev => [...prev.slice(0, currentIndex + 1), currentNodes]);
-        setCurrentIndex(prev => prev + 1);
-      }
+    const lastState = history[currentIndex];
+    
+    if (!lastState || JSON.stringify(lastState) !== JSON.stringify(currentNodes)) {
+      const newHistory = [...history.slice(0, currentIndex + 1), currentNodes];
+      setHistory(newHistory);
+      setCurrentIndex(currentIndex + 1);
     }
-  }, [getNodes, currentIndex, history]);
+  }, [getNodes()]);
 
   return (
     <div className="flex items-center gap-2 p-2">
