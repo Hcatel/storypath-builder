@@ -10,9 +10,7 @@ import {
   RouterNodeData,
   TextInputNodeData,
   MultipleChoiceNodeData,
-  RankingNodeData,
-  LikertScaleNodeData,
-  MatchingNodeData
+  RankingNodeData
 } from "@/types/module";
 import { MessageNodeDetails } from "./details/MessageNodeDetails";
 import { VideoNodeDetails } from "./details/VideoNodeDetails";
@@ -20,8 +18,6 @@ import { RouterNodeDetails } from "./details/RouterNodeDetails";
 import { TextInputNodeDetails } from "./details/TextInputNodeDetails";
 import { MultipleChoiceNodeDetails } from "./details/MultipleChoiceNodeDetails";
 import { RankingNodeDetails } from "./details/RankingNodeDetails";
-import { LikertScaleNodeDetails } from "./details/LikertScaleNodeDetails";
-import { MatchingNodeDetails } from "./details/MatchingNodeDetails";
 
 type NodeDetailsPanelProps = {
   selectedNode: Node<NodeData> | null;
@@ -62,12 +58,6 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
           break;
         case 'ranking':
           typedData = { ...selectedNode.data, type: 'ranking' } as RankingNodeData;
-          break;
-        case 'likert_scale':
-          typedData = { ...selectedNode.data, type: 'likert_scale' } as LikertScaleNodeData;
-          break;
-        case 'matching':
-          typedData = { ...selectedNode.data, type: 'matching' } as MatchingNodeData;
           break;
         default:
           console.error("Unknown node type:", selectedNode.data.type);
@@ -124,10 +114,6 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
         return <MultipleChoiceNodeDetails data={nodeData as MultipleChoiceNodeData} onUpdate={updateNodeData} />;
       case 'ranking':
         return <RankingNodeDetails data={nodeData as RankingNodeData} onUpdate={updateNodeData} />;
-      case 'likert_scale':
-        return <LikertScaleNodeDetails data={nodeData as LikertScaleNodeData} onUpdate={updateNodeData} />;
-      case 'matching':
-        return <MatchingNodeDetails data={nodeData as MatchingNodeData} onUpdate={updateNodeData} />;
       default: {
         const _exhaustiveCheck: never = nodeType;
         return null;
