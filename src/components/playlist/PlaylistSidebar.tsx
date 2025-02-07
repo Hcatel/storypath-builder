@@ -18,7 +18,7 @@ export function PlaylistSidebar({ playlistId }: PlaylistSidebarProps) {
     {
       title: "Content",
       icon: Layout,
-      path: playlistId ? `/playlists/${playlistId}` : "#",
+      path: playlistId ? `/playlists/${playlistId}/content` : "#",
       description: "Manage modules",
     },
     {

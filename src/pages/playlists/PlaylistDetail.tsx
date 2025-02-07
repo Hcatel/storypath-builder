@@ -7,7 +7,6 @@ import { EditPlaylistForm } from "@/components/playlist/EditPlaylistForm";
 import { PlaylistContent } from "@/components/playlist/PlaylistContent";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function PlaylistDetail() {
   const { id } = useParams();
@@ -37,30 +36,23 @@ export default function PlaylistDetail() {
         <div className="flex w-full">
           <PlaylistSidebar playlistId={id} />
           <main className="flex-1 p-6">
-            <h1 className="text-2xl font-bold mb-6">Playlist Details</h1>
+            <h1 className="text-2xl font-bold mb-6">
+              {showContent ? "Playlist Content" : "Playlist Details"}
+            </h1>
             {!isCreateMode && isLoading ? (
               <div>Loading...</div>
             ) : (
               <div className="space-y-6">
-                <Tabs defaultValue={showContent ? "content" : "details"}>
-                  <TabsList>
-                    <TabsTrigger value="details">Details</TabsTrigger>
-                    <TabsTrigger value="content" disabled={isCreateMode}>
-                      Content
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="details">
-                    <div className="max-w-2xl pt-4">
-                      <EditPlaylistForm 
-                        playlist={playlist} 
-                        isCreateMode={isCreateMode} 
-                      />
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="content">
-                    {!isCreateMode && <PlaylistContent playlistId={id} />}
-                  </TabsContent>
-                </Tabs>
+                {showContent ? (
+                  !isCreateMode && <PlaylistContent playlistId={id} />
+                ) : (
+                  <div className="max-w-2xl">
+                    <EditPlaylistForm 
+                      playlist={playlist} 
+                      isCreateMode={isCreateMode} 
+                    />
+                  </div>
+                )}
               </div>
             )}
           </main>
