@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { VideoNodeData } from "@/types/module";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -12,8 +12,18 @@ interface VideoNodeRendererProps {
 
 export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
   const [isMuted, setIsMuted] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(!!data.autoplay);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [showSubtitles, setShowSubtitles] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Handle autoplay on component mount
+  useEffect(() => {
+    if (data.autoplay && videoRef.current) {
+      videoRef.current.play().catch(error => {
+        console.log("Autoplay failed:", error);
+      });
+    }
+  }, [data.autoplay]);
 
   if (!data.title || !data.videoUrl) {
     return (
@@ -28,16 +38,15 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
 
   const thumbnailUrl = data.thumbnailUrl || "/placeholder.svg";
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-
   const handlePlayPause = () => {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
       } else {
-        videoRef.current.play();
+        videoRef.current.play().catch(error => {
+          console.log("Play failed:", error);
+        });
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -121,7 +130,6 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
               muted={isMuted}
               playsInline
               controls={data.showSeeking}
-              controlsList={data.showSeeking ? "timeline" : "nodownload nofullscreen noremoteplayback noplaybackrate"}
               onEnded={() => setIsPlaying(false)}
               onPause={() => setIsPlaying(false)}
               onPlay={() => setIsPlaying(true)}
