@@ -1,9 +1,10 @@
 
-import { FlowNode, MessageNodeData, TextInputNodeData, VideoNodeData, RouterNodeData } from "@/types/module";
+import { FlowNode, MessageNodeData, TextInputNodeData, VideoNodeData, RouterNodeData, MultipleChoiceNodeData } from "@/types/module";
 import { MessageNodeRenderer } from "@/components/nodes/learn/MessageNodeRenderer";
 import { TextInputNodeRenderer } from "@/components/nodes/learn/TextInputNodeRenderer";
 import { VideoNodeRenderer } from "@/components/nodes/learn/VideoNodeRenderer";
 import { RouterNodeRenderer } from "@/components/nodes/learn/RouterNodeRenderer";
+import { MultipleChoiceNodeRenderer } from "@/components/nodes/learn/MultipleChoiceNodeRenderer";
 
 interface ModuleContentProps {
   currentNode: FlowNode;
@@ -41,6 +42,17 @@ export function ModuleContent({ currentNode, onRouterChoice }: ModuleContentProp
           );
         }
         return <div>Invalid router node data</div>;
+
+      case "multiple_choice":
+        if ("question" in node.data && "options" in node.data) {
+          return (
+            <MultipleChoiceNodeRenderer
+              data={node.data as MultipleChoiceNodeData}
+              onOptionSelect={onRouterChoice}
+            />
+          );
+        }
+        return <div>Invalid multiple choice node data</div>;
       
       default:
         return <div>Unsupported node type: {node.type}</div>;
