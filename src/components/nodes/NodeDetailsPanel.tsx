@@ -23,7 +23,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
   useEffect(() => {
     if (selectedNode) {
-      setNodeData(selectedNode.data as unknown as NodeData);
+      setNodeData(selectedNode.data as NodeData);
     } else {
       setNodeData(null);
     }
@@ -44,13 +44,15 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
   const updateNodeData = (updates: Partial<NodeData>) => {
     if (!selectedNode || !nodeData) return;
-
-    const updatedData = { ...nodeData, ...updates } as NodeData;
+    
+    const updatedData = { ...nodeData, ...updates };
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
   };
 
   const renderNodeDetails = () => {
+    console.log("Rendering details for node type:", nodeData.type);
+    
     switch (nodeData.type) {
       case 'message':
         return <MessageNodeDetails data={nodeData} onUpdate={updateNodeData} />;
@@ -65,10 +67,12 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
       case 'ranking':
         return <RankingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       case 'likert_scale':
+        console.log("Rendering LikertScaleNodeDetails");
         return <LikertScaleNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       case 'matching':
         return <MatchingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       default:
+        console.warn("Unknown node type:", nodeData.type);
         return null;
     }
   };
