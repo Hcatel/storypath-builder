@@ -101,8 +101,8 @@ export function LikertScaleNodeDetails({ data, onUpdate }: LikertScaleNodeDetail
         <Label>Scale Labels</Label>
         <div className="space-y-2 mt-2">
           {Array.from(
-            { length: data.scaleEnd - data.scaleStart + 1 },
-            (_, i) => data.scaleStart + i
+            { length: (data.scaleEnd || 5) - (data.scaleStart || 1) + 1 },
+            (_, i) => (data.scaleStart || 1) + i
           ).map((scale) => (
             <div key={scale} className="flex gap-2 items-center">
               <span className="text-sm font-medium w-8">{scale}</span>
