@@ -12,7 +12,10 @@ import { useRouterConditionMutations } from "@/hooks/useRouterConditionMutations
 import { useToast } from "@/hooks/use-toast";
 
 type RouterNodeDetailsProps = {
-  data: RouterNodeData;
+  data: RouterNodeData & {
+    id: string;
+    moduleId: string;
+  };
   onUpdate: (updates: Partial<RouterNodeData>) => void;
   availableNodes: Node<NodeData>[];
 };
@@ -22,23 +25,9 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
   const [showConditionDialog, setShowConditionDialog] = useState(false);
   const { toast } = useToast();
 
-  // Ensure we have valid string IDs and they are properly typed
-  const nodeId = data.id as string;
-  const moduleId = data.moduleId as string;
-
-  // Check if both IDs exist
-  if (!nodeId || !moduleId) {
-    console.error("Missing required IDs:", { nodeId, moduleId, data });
-    return (
-      <div className="p-4 text-red-500">
-        Error: Missing required node or module ID
-      </div>
-    );
-  }
-
-  const { data: variables } = useModuleVariables(moduleId);
-  const { data: conditions } = useRouterConditions(nodeId);
-  const { createCondition, deleteCondition } = useRouterConditionMutations(nodeId);
+  const { data: variables } = useModuleVariables(data.moduleId);
+  const { data: conditions } = useRouterConditions(data.id);
+  const { createCondition, deleteCondition } = useRouterConditionMutations(data.id);
 
   const handleAddCondition = () => {
     if (selectedChoice === null) {
@@ -60,8 +49,8 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
     }
 
     createCondition.mutate({
-      module_id: moduleId,
-      source_node_id: nodeId,
+      module_id: data.moduleId,
+      source_node_id: data.id,
       target_variable_id: variables[0].id,
       condition_type: 'equals',
       condition_value: "",
