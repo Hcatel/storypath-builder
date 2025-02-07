@@ -38,7 +38,7 @@ function App() {
             <Route path="settings" element={<CreatorSettings />} />
           </Route>
 
-          {/* Module creator routes */}
+          {/* Module creator routes - make sure :id is a proper UUID */}
           <Route path="/modules/:id/*" element={<ModuleCreator />}>
             <Route path="summary" element={<SummaryPage />} />
             <Route path="build" element={<BuildPage />} />

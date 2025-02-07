@@ -48,6 +48,7 @@ const Index = () => {
         .single();
 
       if (error) throw error;
+      if (!data?.id) throw new Error("No module id returned");
 
       navigate(`/modules/${data.id}/summary`);
     } catch (error: any) {
