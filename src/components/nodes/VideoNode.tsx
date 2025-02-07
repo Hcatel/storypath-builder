@@ -47,38 +47,22 @@ export function VideoNode({ data, selected, id }: VideoNodeProps) {
           className="aspect-video bg-muted rounded-md relative cursor-pointer group"
           onClick={handlePlayPause}
         >
-          {!isPlaying ? (
-            <>
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                {data.thumbnailUrl ? (
-                  <img 
-                    src={data.thumbnailUrl} 
-                    alt={data.title || "Video thumbnail"} 
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                ) : (
-                  <Video className="w-4 h-4" />
-                )}
-              </div>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-90 group-hover:opacity-100 transition-opacity"
-              >
-                <Play className="h-4 w-4" />
-              </Button>
-            </>
-          ) : (
-            <video 
-              src={data.videoUrl} 
-              className="w-full h-full rounded-md"
-              muted
-              playsInline
-              controls={false}
-              autoPlay
-              onEnded={() => setIsPlaying(false)}
-              onPause={() => setIsPlaying(false)}
-            />
+          <video 
+            src={data.videoUrl} 
+            className="w-full h-full rounded-md"
+            muted
+            playsInline
+            controls={false}
+            autoPlay={false}
+          />
+          {!isPlaying && (
+            <Button
+              variant="secondary"
+              size="icon"
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-90 group-hover:opacity-100 transition-opacity"
+            >
+              <Play className="h-4 w-4" />
+            </Button>
           )}
         </div>
       </CardContent>
