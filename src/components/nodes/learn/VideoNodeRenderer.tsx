@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { VideoNodeData } from "@/types/module";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -28,7 +28,7 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
 
   const thumbnailUrl = data.thumbnailUrl || "/placeholder.svg";
 
-  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const handlePlayPause = () => {
     if (videoRef.current) {
