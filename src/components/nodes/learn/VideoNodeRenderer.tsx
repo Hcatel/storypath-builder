@@ -25,9 +25,18 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
     );
   }
 
-  // Extract video ID for thumbnail
-  const videoId = data.videoUrl.split('/').pop()?.split('?')[0];
-  const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  // Use custom thumbnail if provided, otherwise try to get YouTube thumbnail
+  const getDefaultThumbnail = () => {
+    try {
+      const videoId = data.videoUrl.split('/').pop()?.split('?')[0];
+      return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    } catch (error) {
+      console.error("Error getting video thumbnail:", error);
+      return "/placeholder.svg"; // Fallback to a placeholder image
+    }
+  };
+
+  const thumbnailUrl = data.thumbnailUrl || getDefaultThumbnail();
 
   return (
     <Card className="max-w-4xl w-full mx-auto">
@@ -62,21 +71,25 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
       </CardHeader>
       <CardContent>
         <div 
-          className="aspect-video rounded-lg overflow-hidden bg-black relative cursor-pointer"
-          onClick={() => setIsPlaying(true)}
+          className="aspect-video rounded-lg overflow-hidden bg-black relative cursor-pointer group"
+          onClick={() => !isPlaying && setIsPlaying(true)}
         >
           {!isPlaying ? (
             <>
               <img 
                 src={thumbnailUrl} 
                 alt={data.title} 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-opacity group-hover:opacity-80"
+                onError={(e) => {
+                  // Fallback to placeholder if thumbnail fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/placeholder.svg";
+                }}
               />
               <Button
                 variant="secondary"
                 size="lg"
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                onClick={() => setIsPlaying(true)}
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-90 group-hover:opacity-100 transition-opacity"
               >
                 <Play className="h-6 w-6" />
               </Button>

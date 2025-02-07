@@ -1,4 +1,3 @@
-
 import { Edge, Node } from '@xyflow/react';
 
 export type ComponentType = 
@@ -26,6 +25,7 @@ export interface VideoNodeData extends BaseNodeData {
   type: 'video';
   title: string;
   videoUrl: string;
+  thumbnailUrl?: string; // Optional custom thumbnail URL
 }
 
 export interface RouterChoice {
