@@ -12,6 +12,7 @@ import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { useState } from "react";
+import { ReactFlowProvider } from '@xyflow/react';
 
 const LearnModule = () => {
   const { id } = useParams();
@@ -110,19 +111,21 @@ const LearnModule = () => {
           )}
         </div>
         <div className="bg-white rounded-lg shadow-lg p-4">
-          <ModuleFlow 
-            nodes={module.nodes} 
-            edges={module.edges}
-            onNodesChange={handleNodesChange}
-            onEdgesChange={handleEdgesChange}
-            onConnect={handleConnect}
-            onNodeClick={handleNodeClick}
-            onPaneClick={handlePaneClick}
-            selectedComponentType={selectedComponentType}
-            onComponentTypeChange={setSelectedComponentType}
-            onAddNode={handleAddNode}
-            onSave={handleSave}
-          />
+          <ReactFlowProvider>
+            <ModuleFlow 
+              nodes={module.nodes} 
+              edges={module.edges}
+              onNodesChange={handleNodesChange}
+              onEdgesChange={handleEdgesChange}
+              onConnect={handleConnect}
+              onNodeClick={handleNodeClick}
+              onPaneClick={handlePaneClick}
+              selectedComponentType={selectedComponentType}
+              onComponentTypeChange={setSelectedComponentType}
+              onAddNode={handleAddNode}
+              onSave={handleSave}
+            />
+          </ReactFlowProvider>
         </div>
       </main>
     </div>
