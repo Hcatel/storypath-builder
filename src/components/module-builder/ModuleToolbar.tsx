@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { ComponentType } from "@/types/module";
 import { componentOptions } from "@/constants/moduleComponents";
-import { useReactFlow } from "@xyflow/react";
+import { useReactFlow, useUndoRedo } from "@xyflow/react";
 
 interface ModuleToolbarProps {
   selectedComponentType: ComponentType;
@@ -25,7 +25,7 @@ export function ModuleToolbar({
   onAddNode,
   onSave,
 }: ModuleToolbarProps) {
-  const { undo, redo, canUndo, canRedo } = useReactFlow();
+  const { undo, redo, canUndo, canRedo } = useUndoRedo();
 
   return (
     <div className="flex items-center gap-2 p-2">

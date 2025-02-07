@@ -8,6 +8,7 @@ import {
   NodeTypes,
   useReactFlow,
   useKeyPress,
+  useUndoRedo,
 } from "@xyflow/react";
 import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
@@ -43,12 +44,10 @@ export function ModuleFlow({
   onSave,
 }: ModuleFlowProps) {
   const { getNodes, setNodes } = useReactFlow();
+  const { undo, redo } = useUndoRedo();
   const isCPressed = useKeyPress('c');
   const isVPressed = useKeyPress('v');
   const isXPressed = useKeyPress('x');
-  const isZPressed = useKeyPress('z');
-  const isYPressed = useKeyPress('y');
-  const { undo, redo } = useReactFlow();
 
   // Handle clipboard operations
   useEffect(() => {
