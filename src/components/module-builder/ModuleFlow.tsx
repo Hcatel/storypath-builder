@@ -55,9 +55,10 @@ export function ModuleFlow({
 
   const handleNodeContextMenu = (event: React.MouseEvent, node: Node) => {
     event.preventDefault();
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
     setContextMenu({
-      x: event.clientX,
-      y: event.clientY,
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
       nodeId: node.id
     });
   };
@@ -77,6 +78,20 @@ export function ModuleFlow({
     onPaneClick();
   };
 
+  // Register a global event listener for delete node events from node components
+  useState(() => {
+    const handleDeleteEvent = (event: CustomEvent) => {
+      const nodeId = event.detail.id;
+      const newNodes = nodes.filter(n => n.id !== nodeId);
+      setNodes(newNodes);
+      setHistory(prev => [...prev.slice(0, currentIndex + 1), newNodes]);
+      setCurrentIndex(prev => prev + 1);
+    };
+
+    window.addEventListener('delete-node', handleDeleteEvent as EventListener);
+    return () => window.removeEventListener('delete-node', handleDeleteEvent as EventListener);
+  }, [nodes, setNodes, currentIndex, setHistory, setCurrentIndex]);
+
   return (
     <ReactFlow
       nodes={nodes}
@@ -92,7 +107,13 @@ export function ModuleFlow({
     >
       <Background />
       <Controls />
-      <MiniMap />
+      <MiniMap 
+        nodeColor={node => {
+          return node.type === 'input' ? '#ff0072' : '#1a192b';
+        }}
+        nodeStrokeWidth={3}
+        maskColor="rgb(255, 255, 255, 0.8)"
+      />
       <Panel position="top-left">
         <ModuleToolbar
           selectedComponentType={selectedComponentType}

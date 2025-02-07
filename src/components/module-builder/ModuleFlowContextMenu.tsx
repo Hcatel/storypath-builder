@@ -1,10 +1,9 @@
 
-import { Node } from '@xyflow/react';
 import {
+  ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-  ContextMenu,
 } from "@/components/ui/context-menu";
 
 type ModuleFlowContextMenuProps = {
@@ -16,20 +15,24 @@ export function ModuleFlowContextMenu({ contextMenu, onDeleteNode }: ModuleFlowC
   if (!contextMenu) return null;
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger>
-        <div style={{
-          position: 'fixed',
-          left: contextMenu.x,
-          top: contextMenu.y,
-          zIndex: 1000,
-        }} />
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem onClick={onDeleteNode}>
-          Delete Node
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
+    <div
+      style={{
+        position: 'fixed',
+        left: contextMenu.x,
+        top: contextMenu.y,
+        zIndex: 1000,
+      }}
+    >
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <div style={{ width: '1px', height: '1px' }} />
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem onClick={onDeleteNode}>
+            Delete Node
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+    </div>
   );
 }
