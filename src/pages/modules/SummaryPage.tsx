@@ -74,8 +74,8 @@ export default function SummaryPage() {
         description: module.description || "",
         thumbnail_url: module.thumbnail_url,
         access_type: module.access_type || "private",
-        nodes: module.nodes || [],
-        edges: module.edges || [],
+        nodes: Array.isArray(module.nodes) ? module.nodes : [],
+        edges: Array.isArray(module.edges) ? module.edges : [],
         published: module.published || false,
         component_types: module.component_types || [],
       });
