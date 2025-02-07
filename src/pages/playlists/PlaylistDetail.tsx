@@ -33,6 +33,7 @@ export default function PlaylistDetail() {
         <div className="flex w-full">
           <PlaylistSidebar playlistId={id} />
           <main className="flex-1 p-6">
+            <h1 className="text-2xl font-bold mb-6">Playlist Details</h1>
             {!isCreateMode && isLoading ? (
               <div>Loading...</div>
             ) : (
