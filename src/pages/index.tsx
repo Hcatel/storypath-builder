@@ -50,6 +50,7 @@ const Index = () => {
       if (error) throw error;
       if (!data?.id) throw new Error("No module id returned");
 
+      // Navigate directly to the summary page
       navigate(`/modules/${data.id}/summary`);
     } catch (error: any) {
       console.error("Error creating module:", error);

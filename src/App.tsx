@@ -38,14 +38,20 @@ function App() {
             <Route path="settings" element={<CreatorSettings />} />
           </Route>
 
-          {/* Module creator routes - make sure :id is a proper UUID */}
-          <Route path="/modules/:id" element={<ModuleCreator />}>
-            <Route index element={<Navigate to="summary" replace />} />
-            <Route path="summary" element={<SummaryPage />} />
-            <Route path="build" element={<BuildPage />} />
-            <Route path="media" element={<MediaPage />} />
-            <Route path="share" element={<SharePage />} />
-            <Route path="results" element={<ResultsPage />} />
+          {/* Module routes */}
+          <Route path="/modules">
+            {/* Create new module */}
+            <Route path="create" element={<Navigate to="/" replace />} />
+            
+            {/* Edit existing module - make sure :id is a proper UUID */}
+            <Route path=":id" element={<ModuleCreator />}>
+              <Route index element={<Navigate to="summary" replace />} />
+              <Route path="summary" element={<SummaryPage />} />
+              <Route path="build" element={<BuildPage />} />
+              <Route path="media" element={<MediaPage />} />
+              <Route path="share" element={<SharePage />} />
+              <Route path="results" element={<ResultsPage />} />
+            </Route>
           </Route>
 
           {/* Playlist routes */}
