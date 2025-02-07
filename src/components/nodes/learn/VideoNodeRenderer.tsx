@@ -28,6 +28,19 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
 
   const thumbnailUrl = data.thumbnailUrl || "/placeholder.svg";
 
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+
+  const handlePlayPause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
   return (
     <Card className="max-w-4xl w-full mx-auto">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -51,7 +64,7 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsPlaying(!isPlaying)}
+              onClick={handlePlayPause}
               title={isPlaying ? "Pause video" : "Play video"}
             >
               {isPlaying ? (
@@ -76,7 +89,7 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
       <CardContent>
         <div 
           className="aspect-video rounded-lg overflow-hidden bg-black relative cursor-pointer group"
-          onClick={() => !isPlaying && (!data.autoplay || data.showPlayPause) && setIsPlaying(true)}
+          onClick={() => !isPlaying && (!data.autoplay || data.showPlayPause) && handlePlayPause()}
         >
           {!isPlaying ? (
             <>
@@ -101,12 +114,14 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
             </>
           ) : (
             <video
+              ref={videoRef}
               src={data.videoUrl}
               className="w-full h-full"
               autoPlay={data.autoplay}
               muted={isMuted}
               playsInline
               controls={data.showSeeking}
+              controlsList={data.showSeeking ? "timeline" : "nodownload nofullscreen noremoteplayback noplaybackrate"}
               onEnded={() => setIsPlaying(false)}
               onPause={() => setIsPlaying(false)}
               onPlay={() => setIsPlaying(true)}
