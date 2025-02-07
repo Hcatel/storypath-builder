@@ -8,7 +8,8 @@ import {
   NodeTypes,
   useReactFlow,
   useKeyPress,
-} from "@xyflow/react";
+  ContextMenu,
+} from '@xyflow/react';
 import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { Panel } from "@xyflow/react";
@@ -48,6 +49,7 @@ export function ModuleFlow({
   const isXPressed = useKeyPress('x');
   const [history, setHistory] = useState<FlowNode[][]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -139,6 +141,32 @@ export function ModuleFlow({
     }
   }, [nodes]);
 
+  const handleNodeContextMenu = (event: React.MouseEvent, node: Node) => {
+    // Prevent default context menu
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      nodeId: node.id
+    });
+  };
+
+  const handleDeleteNode = () => {
+    if (contextMenu) {
+      const newNodes = nodes.filter(n => n.id !== contextMenu.nodeId);
+      setNodes(newNodes);
+      // Add to history
+      setHistory(prev => [...prev.slice(0, currentIndex + 1), newNodes]);
+      setCurrentIndex(prev => prev + 1);
+      setContextMenu(null);
+    }
+  };
+
+  const handlePaneClick = () => {
+    setContextMenu(null);
+    onPaneClick();
+  };
+
   return (
     <ReactFlow
       nodes={nodes}
@@ -148,7 +176,8 @@ export function ModuleFlow({
       onConnect={onConnect}
       nodeTypes={nodeTypes as NodeTypes}
       onNodeClick={onNodeClick}
-      onPaneClick={onPaneClick}
+      onPaneClick={handlePaneClick}
+      onNodeContextMenu={handleNodeContextMenu}
       fitView
     >
       <Background />
@@ -162,6 +191,24 @@ export function ModuleFlow({
           onSave={onSave}
         />
       </Panel>
+      {contextMenu && (
+        <ContextMenu 
+          onClick={handleDeleteNode}
+          style={{
+            position: 'fixed',
+            left: contextMenu.x,
+            top: contextMenu.y,
+            zIndex: 1000,
+            backgroundColor: 'white',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+            borderRadius: '4px',
+            padding: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Delete Node
+        </ContextMenu>
+      )}
     </ReactFlow>
   );
 }

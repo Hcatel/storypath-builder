@@ -13,9 +13,10 @@ type LikertScaleNodeProps = {
 };
 
 export function LikertScaleNode({ data, selected, id }: LikertScaleNodeProps) {
-  const handleDelete = () => {
-    const event = new CustomEvent('delete-node', { detail: { id } });
-    window.dispatchEvent(event);
+  const handleDelete = (event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent node selection when clicking delete
+    const event2 = new CustomEvent('delete-node', { detail: { id } });
+    window.dispatchEvent(event2);
   };
 
   const renderScale = () => {

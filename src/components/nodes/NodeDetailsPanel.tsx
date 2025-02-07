@@ -45,19 +45,20 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
   const updateNodeData = (updates: Partial<NodeData>) => {
     if (!selectedNode || !nodeData) return;
-    
-    // Create updated data based on the node type
+
+    const baseData = { ...nodeData };
     const updatedData = {
-      ...nodeData,
+      ...baseData,
       ...updates,
-      type: nodeData.type, // Preserve the original type
-    } as NodeData; // Assert as NodeData to ensure type safety
-    
+    } as NodeData;
+
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
   };
 
   const renderNodeDetails = () => {
+    if (!nodeData) return null;
+    
     console.log("Rendering details for node type:", nodeData.type);
     
     switch (nodeData.type) {
