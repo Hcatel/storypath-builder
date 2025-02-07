@@ -6,6 +6,9 @@ import { GitBranch, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Condition } from "@/types/conditions";
 
 type RouterNodeProps = {
   data: RouterNodeData;
@@ -17,6 +20,35 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
   const { setNodes, getNodes } = useReactFlow();
   const { id: moduleId } = useParams();
   
+  // Fetch conditions for this router node
+  const { data: conditions } = useQuery({
+    queryKey: ["module-conditions", id],
+    queryFn: async () => {
+      const { data: conditions, error } = await supabase
+        .from("module_conditions")
+        .select("*")
+        .eq("source_node_id", id)
+        .order("priority", { ascending: true });
+
+      if (error) throw error;
+      return conditions as Condition[];
+    },
+  });
+
+  // Fetch variables for this module
+  const { data: variables } = useQuery({
+    queryKey: ["module-variables", moduleId],
+    queryFn: async () => {
+      const { data: variables, error } = await supabase
+        .from("module_variables")
+        .select("*")
+        .eq("module_id", moduleId as string);
+
+      if (error) throw error;
+      return variables;
+    },
+  });
+
   useEffect(() => {
     if (!data.moduleId && moduleId) {
       setNodes(nodes => 
@@ -29,6 +61,54 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
     }
   }, [data.moduleId, moduleId, id, setNodes]);
   
+  const evaluateCondition = (condition: Condition, variableValue: any): boolean => {
+    const value = condition.condition_value;
+    
+    switch (condition.condition_type) {
+      case 'equals':
+        return variableValue === value;
+      case 'not_equals':
+        return variableValue !== value;
+      case 'greater_than':
+        return Number(variableValue) > Number(value);
+      case 'less_than':
+        return Number(variableValue) < Number(value);
+      case 'contains':
+        return String(variableValue).includes(String(value));
+      case 'starts_with':
+        return String(variableValue).startsWith(String(value));
+      case 'ends_with':
+        return String(variableValue).endsWith(String(value));
+      case 'in_array':
+        return Array.isArray(value) && value.includes(variableValue);
+      case 'not_in_array':
+        return Array.isArray(value) && !value.includes(variableValue);
+      default:
+        return false;
+    }
+  };
+
+  const evaluateChoiceConditions = (choiceIndex: number, variables: any) => {
+    if (!conditions) return true;
+
+    const choiceConditions = conditions.filter(c => 
+      c.action_type === 'set_variable' && 
+      c.action_value === choiceIndex.toString()
+    );
+
+    // If no conditions are set for this choice, it's always valid
+    if (choiceConditions.length === 0) return true;
+
+    // Evaluate all conditions for this choice
+    return choiceConditions.every(condition => {
+      const variable = variables?.find(v => v.id === condition.target_variable_id);
+      if (!variable) return false;
+
+      const variableValue = variable.default_value; // In the future, this should come from the current state
+      return evaluateCondition(condition, variableValue);
+    });
+  };
+
   const onDelete = () => {
     setNodes(getNodes().filter(node => node.id !== id));
   };
@@ -54,11 +134,17 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
       <CardContent className="p-3">
         <p className="text-xs font-medium truncate">{data.question}</p>
         <div className="mt-2 space-y-1">
-          {data.choices.map((choice, index) => (
-            <div key={index} className="text-[10px] text-muted-foreground truncate">
-              • {choice.text}
-            </div>
-          ))}
+          {data.choices.map((choice, index) => {
+            const isValid = evaluateChoiceConditions(index, variables);
+            return (
+              <div 
+                key={index} 
+                className={`text-[10px] ${isValid ? 'text-muted-foreground' : 'text-red-500'} truncate`}
+              >
+                • {choice.text}
+              </div>
+            );
+          })}
         </div>
       </CardContent>
       <Handle type="target" position={Position.Left} />
