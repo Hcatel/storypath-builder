@@ -2,29 +2,13 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  ReactFlow,
-  Background,
-  Controls,
-  MiniMap,
-  useNodesState,
-  useEdgesState,
-  Panel,
-  NodeTypes,
-  Node,
-} from "@xyflow/react";
+import { useNodesState, useEdgesState } from "@xyflow/react";
 import { useState } from "react";
-import { ComponentType, NodeData, FlowNode, FlowEdge } from "@/types/module";
-import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
+import { ComponentType, NodeData, FlowNode } from "@/types/module";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
-import { nodeTypes, getInitialNode } from "@/constants/moduleComponents";
-import { NodeDetailsPanel } from "@/components/nodes/NodeDetailsPanel";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { getInitialNode } from "@/constants/moduleComponents";
+import { ModuleFlow } from "@/components/module-builder/ModuleFlow";
+import { NodeDetailsPopover } from "@/components/module-builder/NodeDetailsPopover";
 import "@xyflow/react/dist/style.css";
 
 const convertToReactFlowNode = (node: any): FlowNode => ({
@@ -39,7 +23,6 @@ export default function BuildPage() {
   const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
   const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
   const [popoverPosition, setPopoverPosition] = useState<{ x: number; y: number } | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
   const isCreateMode = !id || id === 'create';
 
   const { data: module, isLoading } = useQuery({
@@ -86,7 +69,7 @@ export default function BuildPage() {
     module?.nodes || [getInitialNode()]
   );
   
-  const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>(
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
     module?.edges || []
   );
 
@@ -106,10 +89,8 @@ export default function BuildPage() {
   };
 
   const onPaneClick = () => {
-    if (!isDragging) {
-      setSelectedNode(null);
-      setPopoverPosition(null);
-    }
+    setSelectedNode(null);
+    setPopoverPosition(null);
   };
 
   const onNodeUpdate = (nodeId: string, data: NodeData) => {
@@ -126,31 +107,6 @@ export default function BuildPage() {
     );
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
-      setIsDragging(true);
-      
-      const startX = e.clientX - (popoverPosition?.x || 0);
-      const startY = e.clientY - (popoverPosition?.y || 0);
-
-      const handleMouseMove = (moveEvent: MouseEvent) => {
-        setPopoverPosition({
-          x: moveEvent.clientX - startX,
-          y: moveEvent.clientY - startY,
-        });
-      };
-
-      const handleMouseUp = () => {
-        setIsDragging(false);
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-  };
-
   if (isLoading && !isCreateMode) {
     return <div>Loading...</div>;
   }
@@ -159,62 +115,26 @@ export default function BuildPage() {
 
   return (
     <div className="h-[calc(100vh-10rem)]">
-      <ReactFlow
+      <ModuleFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        nodeTypes={nodeTypes as NodeTypes}
         onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
-        fitView
-      >
-        <Background />
-        <Controls />
-        <MiniMap />
-        <Panel position="top-left">
-          <ModuleToolbar
-            selectedComponentType={selectedComponentType}
-            onComponentTypeChange={setSelectedComponentType}
-            onAddNode={() => addNode(selectedComponentType)}
-            onSave={saveChanges}
-          />
-        </Panel>
-      </ReactFlow>
-      {selectedNode && popoverPosition && (
-        <div 
-          className="fixed"
-          style={{ 
-            left: popoverPosition.x, 
-            top: popoverPosition.y,
-            zIndex: 1000 
-          }}
-          onMouseDown={handleMouseDown}
-        >
-          <Popover open={selectedNode !== null} onOpenChange={() => setSelectedNode(null)}>
-            <PopoverTrigger asChild>
-              <div className="w-0 h-0" />
-            </PopoverTrigger>
-            <PopoverContent side="right" className="p-0 w-[400px] resize overflow-auto" style={{ maxWidth: 'none' }}>
-              <div className="popover-header bg-secondary p-2 cursor-move select-none">
-                Drag to move
-              </div>
-              <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel defaultSize={100}>
-                  <NodeDetailsPanel 
-                    selectedNode={selectedNode}
-                    onNodeUpdate={onNodeUpdate}
-                    availableNodes={availableNodes}
-                  />
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={0} minSize={0} />
-              </ResizablePanelGroup>
-            </PopoverContent>
-          </Popover>
-        </div>
-      )}
+        selectedComponentType={selectedComponentType}
+        onComponentTypeChange={setSelectedComponentType}
+        onAddNode={() => addNode(selectedComponentType)}
+        onSave={saveChanges}
+      />
+      <NodeDetailsPopover
+        selectedNode={selectedNode}
+        popoverPosition={popoverPosition}
+        onNodeUpdate={onNodeUpdate}
+        onClose={() => setSelectedNode(null)}
+        availableNodes={availableNodes}
+      />
     </div>
   );
 }
