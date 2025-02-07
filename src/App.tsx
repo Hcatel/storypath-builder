@@ -40,11 +40,14 @@ function App() {
 
           {/* Module routes */}
           <Route path="/modules">
-            {/* Create new module */}
-            <Route path="create" element={<Navigate to="/" replace />} />
+            {/* Redirect /modules/create/* to home page */}
+            <Route path="create/*" element={<Navigate to="/" replace />} />
             
-            {/* Edit existing module - make sure :id is a proper UUID */}
-            <Route path=":id" element={<ModuleCreator />}>
+            {/* Edit existing module - only match valid UUIDs */}
+            <Route 
+              path=":id" 
+              element={<ModuleCreator />}
+            >
               <Route index element={<Navigate to="summary" replace />} />
               <Route path="summary" element={<SummaryPage />} />
               <Route path="build" element={<BuildPage />} />
