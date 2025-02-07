@@ -99,7 +99,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   };
 
   const renderNodeDetails = () => {
-    if (!nodeType) return null;
+    if (!nodeType || !selectedNode) return null;
 
     switch (nodeType) {
       case 'message':
@@ -107,7 +107,17 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
       case 'video':
         return <VideoNodeDetails data={nodeData as VideoNodeData} onUpdate={updateNodeData} />;
       case 'router':
-        return <RouterNodeDetails data={nodeData as RouterNodeData} onUpdate={updateNodeData} availableNodes={availableNodes} />;
+        return (
+          <RouterNodeDetails 
+            data={{
+              ...(nodeData as RouterNodeData),
+              id: selectedNode.id,
+              moduleId: (nodeData as RouterNodeData).moduleId || ''
+            }}
+            onUpdate={updateNodeData}
+            availableNodes={availableNodes}
+          />
+        );
       case 'text_input':
         return <TextInputNodeDetails data={nodeData as TextInputNodeData} onUpdate={updateNodeData} />;
       case 'multiple_choice':
