@@ -25,15 +25,36 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
     );
   }
 
+  // Function to get YouTube video ID from URL
+  const getYouTubeVideoId = (url: string) => {
+    try {
+      // Handle different YouTube URL formats
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+      const match = url.match(regExp);
+      return match && match[2].length === 11 ? match[2] : null;
+    } catch (error) {
+      console.error("Error extracting YouTube video ID:", error);
+      return null;
+    }
+  };
+
+  // Get YouTube embed URL
+  const getEmbedUrl = () => {
+    const videoId = getYouTubeVideoId(data.videoUrl);
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}?autoplay=${isPlaying ? '1' : '0'}&mute=${isMuted ? '1' : '0'}`;
+    }
+    // If not a YouTube URL, return the original URL
+    return data.videoUrl;
+  };
+
   // Use custom thumbnail if provided, otherwise try to get YouTube thumbnail
   const getDefaultThumbnail = () => {
-    try {
-      const videoId = data.videoUrl.split('/').pop()?.split('?')[0];
+    const videoId = getYouTubeVideoId(data.videoUrl);
+    if (videoId) {
       return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-    } catch (error) {
-      console.error("Error getting video thumbnail:", error);
-      return "/placeholder.svg"; // Fallback to a placeholder image
     }
+    return "/placeholder.svg"; // Fallback to a placeholder image
   };
 
   const thumbnailUrl = data.thumbnailUrl || getDefaultThumbnail();
@@ -96,7 +117,7 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
             </>
           ) : (
             <iframe
-              src={`${data.videoUrl}${isMuted ? '&mute=1' : ''}&autoplay=1`}
+              src={getEmbedUrl()}
               className="w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
