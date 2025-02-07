@@ -142,6 +142,44 @@ export type Database = {
           },
         ]
       }
+      learner_progress: {
+        Row: {
+          completed_nodes: string[] | null
+          created_at: string | null
+          current_node_id: string
+          id: string
+          module_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_nodes?: string[] | null
+          created_at?: string | null
+          current_node_id: string
+          id?: string
+          module_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_nodes?: string[] | null
+          created_at?: string | null
+          current_node_id?: string
+          id?: string
+          module_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learner_progress_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media: {
         Row: {
           created_at: string
