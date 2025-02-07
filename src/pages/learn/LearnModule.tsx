@@ -10,11 +10,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
+import { useState, useCallback } from "react";
 
 const LearnModule = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
 
   const { data: module, isLoading } = useQuery({
     queryKey: ["module", id],
@@ -37,6 +40,15 @@ const LearnModule = () => {
       return data;
     },
   });
+
+  // Empty handlers since we're in read-only mode
+  const handleNodesChange = () => {};
+  const handleEdgesChange = () => {};
+  const handleConnect = () => {};
+  const handleNodeClick = () => {};
+  const handlePaneClick = () => {};
+  const handleAddNode = () => {};
+  const handleSave = () => {};
 
   if (isLoading) {
     return (
@@ -87,9 +99,17 @@ const LearnModule = () => {
         </div>
         <div className="bg-white rounded-lg shadow-lg p-4">
           <ModuleFlow 
-            initialNodes={module.nodes} 
-            initialEdges={module.edges}
-            readOnly={true}
+            nodes={module.nodes} 
+            edges={module.edges}
+            onNodesChange={handleNodesChange}
+            onEdgesChange={handleEdgesChange}
+            onConnect={handleConnect}
+            onNodeClick={handleNodeClick}
+            onPaneClick={handlePaneClick}
+            selectedComponentType={selectedComponentType}
+            onComponentTypeChange={setSelectedComponentType}
+            onAddNode={handleAddNode}
+            onSave={handleSave}
           />
         </div>
       </main>
