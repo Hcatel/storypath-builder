@@ -10,6 +10,8 @@ import { useModuleVariables } from "@/hooks/useModuleVariables";
 import { useRouterConditions } from "@/hooks/useRouterConditions";
 import { useRouterConditionMutations } from "@/hooks/useRouterConditionMutations";
 import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 type RouterNodeDetailsProps = {
   data: RouterNodeData & {
@@ -71,6 +73,15 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
           onChange={(e) => onUpdate({ ...data, question: e.target.value })}
           placeholder="Enter the decision question"
         />
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="overlay-mode"
+          checked={data.isOverlay}
+          onCheckedChange={(checked) => onUpdate({ ...data, isOverlay: checked })}
+        />
+        <Label htmlFor="overlay-mode">Display as overlay</Label>
       </div>
 
       <RouterChoices

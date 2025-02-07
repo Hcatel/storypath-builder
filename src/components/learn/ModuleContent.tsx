@@ -1,14 +1,16 @@
 
-import { FlowNode, MessageNodeData, TextInputNodeData, VideoNodeData } from "@/types/module";
+import { FlowNode, MessageNodeData, TextInputNodeData, VideoNodeData, RouterNodeData } from "@/types/module";
 import { MessageNodeRenderer } from "@/components/nodes/learn/MessageNodeRenderer";
 import { TextInputNodeRenderer } from "@/components/nodes/learn/TextInputNodeRenderer";
 import { VideoNodeRenderer } from "@/components/nodes/learn/VideoNodeRenderer";
+import { RouterNodeRenderer } from "@/components/nodes/learn/RouterNodeRenderer";
 
 interface ModuleContentProps {
   currentNode: FlowNode;
+  onRouterChoice?: (choiceIndex: number) => void;
 }
 
-export function ModuleContent({ currentNode }: ModuleContentProps) {
+export function ModuleContent({ currentNode, onRouterChoice }: ModuleContentProps) {
   const renderNodeContent = (node: FlowNode) => {
     switch (node.type) {
       case "message":
@@ -28,6 +30,17 @@ export function ModuleContent({ currentNode }: ModuleContentProps) {
           return <VideoNodeRenderer data={node.data as VideoNodeData} />;
         }
         return <div>Invalid video node data</div>;
+
+      case "router":
+        if ("question" in node.data && "choices" in node.data) {
+          return (
+            <RouterNodeRenderer 
+              data={node.data as RouterNodeData}
+              onChoiceSelect={onRouterChoice}
+            />
+          );
+        }
+        return <div>Invalid router node data</div>;
       
       default:
         return <div>Unsupported node type: {node.type}</div>;

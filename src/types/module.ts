@@ -43,6 +43,7 @@ export interface RouterNodeData extends BaseNodeData {
   question: string;
   choices: RouterChoice[];
   moduleId?: string;
+  isOverlay?: boolean;
 }
 
 export interface TextInputNodeData extends BaseNodeData {
