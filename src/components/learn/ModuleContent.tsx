@@ -56,11 +56,15 @@ export function ModuleContent({ currentNode, onRouterChoice }: ModuleContentProp
         return <div>Invalid multiple choice node data</div>;
 
       case "ranking":
-        if ("question" in node.data && "items" in node.data) {
+        if ("title" in node.data && "options" in node.data) {
           return (
             <RankingNodeRenderer
               data={node.data as RankingNodeData}
-              onRankingChange={onRouterChoice}
+              onRankingChange={(ranking) => {
+                // For now, we'll just use the first item's index as the choice
+                const index = (data.options as string[]).indexOf(ranking[0]);
+                onRouterChoice?.(index);
+              }}
             />
           );
         }

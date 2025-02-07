@@ -10,7 +10,7 @@ interface RankingNodeRendererProps {
 }
 
 export function RankingNodeRenderer({ data, onRankingChange }: RankingNodeRendererProps) {
-  const [items, setItems] = useState(data.items);
+  const [items, setItems] = useState<string[]>(data.options);
   const isVertical = data.displayOrientation !== 'horizontal';
 
   const handleDragEnd = (result: any) => {
@@ -27,9 +27,9 @@ export function RankingNodeRenderer({ data, onRankingChange }: RankingNodeRender
   return (
     <div className="max-w-2xl w-full mx-auto">
       <Card className="p-6">
-        <h2 className="text-2xl font-semibold mb-4 text-center">{data.question}</h2>
-        {data.instruction && (
-          <p className="text-muted-foreground mb-8 text-center">{data.instruction}</p>
+        <h2 className="text-2xl font-semibold mb-4 text-center">{data.title}</h2>
+        {data.instructions && (
+          <p className="text-muted-foreground mb-8 text-center">{data.instructions}</p>
         )}
         
         <DragDropContext onDragEnd={handleDragEnd}>
