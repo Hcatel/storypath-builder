@@ -1,5 +1,5 @@
 
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,17 +7,23 @@ import { useState, useEffect, useRef } from "react";
 import { ModuleNavigation } from "@/components/learn/ModuleNavigation";
 import { ModuleContent } from "@/components/learn/ModuleContent";
 import { ModuleNotFound } from "@/components/learn/ModuleNotFound";
+import { ModuleCompletion } from "@/components/learn/ModuleCompletion";
 import { useModuleLearning } from "@/hooks/useModuleLearning";
 import { RouterNodeData } from "@/types/module";
 import { RouterNodeRenderer } from "@/components/nodes/learn/RouterNodeRenderer";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const LearnModule = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const [currentNodeIndex, setCurrentNodeIndex] = useState(0);
   const [overlayRouter, setOverlayRouter] = useState<RouterNodeData | null>(null);
+  const [showCompletion, setShowCompletion] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const location = useLocation();
+  const playlistModuleId = new URLSearchParams(location.search).get("playlist_module_id");
 
   const {
     module,
@@ -26,6 +32,32 @@ const LearnModule = () => {
     isProgressLoading,
     updateProgress,
   } = useModuleLearning(id, user?.id);
+
+  // Query to get next module in playlist if this module is part of a playlist
+  const { data: nextModule } = useQuery({
+    queryKey: ["next-module", playlistModuleId],
+    queryFn: async () => {
+      if (!playlistModuleId) return null;
+
+      const { data: currentModule } = await supabase
+        .from("playlist_modules")
+        .select("position, playlist_id")
+        .eq("id", playlistModuleId)
+        .single();
+
+      if (!currentModule) return null;
+
+      const { data: nextModule } = await supabase
+        .from("playlist_modules")
+        .select("id, module:modules(id)")
+        .eq("playlist_id", currentModule.playlist_id)
+        .eq("position", currentModule.position + 1)
+        .single();
+
+      return nextModule;
+    },
+    enabled: !!playlistModuleId,
+  });
 
   // Initialize progress if none exists
   useEffect(() => {
@@ -62,12 +94,19 @@ const LearnModule = () => {
     if (!module?.nodes) return;
 
     const nextIndex = currentNodeIndex + 1;
+    
+    // If we're at the last node, show completion page
+    if (nextIndex === module.nodes.length) {
+      setShowCompletion(true);
+      return;
+    }
+
     if (nextIndex < module.nodes.length) {
       const nextNode = module.nodes[nextIndex];
       
       // If next node is a router with overlay, show it without changing the page
       if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
-        pauseAllMedia(); // Pause all media before showing overlay
+        pauseAllMedia();
         setOverlayRouter(nextNode.data as RouterNodeData);
         updateProgress(nextNode.id);
         return;
@@ -126,7 +165,23 @@ const LearnModule = () => {
     return <ModuleNotFound />;
   }
 
+  if (showCompletion) {
+    return (
+      <ModuleCompletion 
+        moduleId={module.id}
+        playlistModuleId={playlistModuleId || undefined}
+        hasNextModule={!!nextModule}
+        onPlayNext={() => {
+          if (nextModule?.module?.id) {
+            window.location.href = `/learn/${nextModule.module.id}?playlist_module_id=${nextModule.id}`;
+          }
+        }}
+      />
+    );
+  }
+
   const currentNode = module.nodes[currentNodeIndex];
+  const isLastNode = currentNodeIndex === module.nodes.length - 1;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -144,6 +199,7 @@ const LearnModule = () => {
           totalNodes={module.nodes.length}
           onPrevious={handlePrevious}
           onNext={handleNext}
+          isLastNode={isLastNode}
         />
       </main>
     </div>
@@ -151,4 +207,3 @@ const LearnModule = () => {
 };
 
 export default LearnModule;
-

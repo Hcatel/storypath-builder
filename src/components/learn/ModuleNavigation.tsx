@@ -1,12 +1,13 @@
 
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle } from "lucide-react";
 
 interface ModuleNavigationProps {
   currentIndex: number;
   totalNodes: number;
   onPrevious: () => void;
   onNext: () => void;
+  isLastNode?: boolean;
 }
 
 export function ModuleNavigation({
@@ -14,6 +15,7 @@ export function ModuleNavigation({
   totalNodes,
   onPrevious,
   onNext,
+  isLastNode,
 }: ModuleNavigationProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t">
@@ -34,9 +36,19 @@ export function ModuleNavigation({
         <Button
           onClick={onNext}
           disabled={currentIndex === totalNodes - 1}
+          className={isLastNode ? "bg-green-500 hover:bg-green-600" : ""}
         >
-          Next
-          <ChevronRight className="w-4 h-4 ml-2" />
+          {isLastNode ? (
+            <>
+              Finish
+              <CheckCircle className="w-4 h-4 ml-2" />
+            </>
+          ) : (
+            <>
+              Next
+              <ChevronRight className="w-4 h-4 ml-2" />
+            </>
+          )}
         </Button>
       </div>
     </div>
