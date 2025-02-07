@@ -1,6 +1,6 @@
 
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -14,15 +14,24 @@ export default function SummaryPage() {
   const { id } = useParams();
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isCreateMode = !id || id === 'create';
 
   // Fetch module data only in edit mode
   const { data: module, isLoading, refetch } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
-      if (!id || isCreateMode) throw new Error("No module ID provided");
+      if (!id || isCreateMode) {
+        return {
+          title: "",
+          description: "",
+          thumbnail_url: null,
+          access_type: "private" as const,
+          nodes: [],
+          edges: [],
+        };
+      }
       
-      console.log("Fetching module with ID:", id);
       const { data, error } = await supabase
         .from("modules")
         .select("*")
@@ -34,10 +43,9 @@ export default function SummaryPage() {
         throw error;
       }
 
-      console.log("Fetched module data:", data);
       return data;
     },
-    enabled: !isCreateMode && !!id,
+    enabled: !!user,
   });
 
   // Update module mutation
@@ -50,12 +58,11 @@ export default function SummaryPage() {
       if (!user) throw new Error("No user found");
 
       if (isCreateMode) {
-        console.log("Create mode - creating new module");
         const { data, error } = await supabase
           .from("modules")
           .insert([{
             title: values.title || "",
-            description: values.description,
+            description: values.description || "",
             thumbnail_url: values.thumbnail_url,
             user_id: user.id,
             access_type: "private",
@@ -66,10 +73,13 @@ export default function SummaryPage() {
           .single();
 
         if (error) throw error;
+        
+        // Navigate to the edit page
+        navigate(`/modules/${data.id}/summary`);
         return data;
       }
       
-      console.log("Updating module with values:", values);
+      if (!id) throw new Error("No module ID provided");
       
       const { error } = await supabase
         .from("modules")
@@ -99,7 +109,7 @@ export default function SummaryPage() {
   const checkForErrors = () => {
     const errors = [];
 
-    if (!module?.title && !isCreateMode) {
+    if (!module?.title) {
       errors.push("Module title is required");
     }
 
@@ -128,11 +138,12 @@ export default function SummaryPage() {
   };
 
   const handleSave = () => {
-    updateModule({
-      title: module?.title || "",
-      description: module?.description || "",
+    const updates = {
+      title: module?.title,
+      description: module?.description,
       thumbnail_url: module?.thumbnail_url
-    });
+    };
+    updateModule(updates);
   };
 
   if (isLoading && !isCreateMode) {
