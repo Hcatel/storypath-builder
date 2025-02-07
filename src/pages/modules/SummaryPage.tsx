@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,18 @@ export default function SummaryPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isCreateMode = !id || id === 'create';
+  
+  // Local state for module data
+  const [localModule, setLocalModule] = useState({
+    title: "",
+    description: "",
+    thumbnail_url: null as string | null,
+    access_type: "private" as const,
+    nodes: [] as any[],
+    edges: [] as any[],
+    published: false,
+    component_types: [] as string[],
+  });
 
   // Fetch module data only in edit mode
   const { data: module, isLoading, refetch } = useQuery({
@@ -49,6 +61,13 @@ export default function SummaryPage() {
     },
     enabled: !!user,
   });
+
+  // Update local state when module data changes
+  useEffect(() => {
+    if (module) {
+      setLocalModule(module);
+    }
+  }, [module]);
 
   // Update module mutation
   const { mutate: updateModule } = useMutation({
@@ -113,11 +132,11 @@ export default function SummaryPage() {
   const checkForErrors = () => {
     const errors = [];
 
-    if (!module?.title) {
+    if (!localModule?.title) {
       errors.push("Module title is required");
     }
 
-    if (!module?.nodes || !Array.isArray(module?.nodes) || module?.nodes.length === 0) {
+    if (!localModule?.nodes || !Array.isArray(localModule?.nodes) || localModule?.nodes.length === 0) {
       errors.push("Module must have at least one content node");
     }
 
@@ -143,11 +162,23 @@ export default function SummaryPage() {
 
   const handleSave = () => {
     const updates = {
-      title: module?.title,
-      description: module?.description,
-      thumbnail_url: module?.thumbnail_url
+      title: localModule?.title,
+      description: localModule?.description,
+      thumbnail_url: localModule?.thumbnail_url
     };
     updateModule(updates);
+  };
+
+  // Handler for local updates
+  const handleLocalUpdate = (values: {
+    title?: string;
+    description?: string;
+    thumbnail_url?: string;
+  }) => {
+    setLocalModule(prev => ({
+      ...prev,
+      ...values
+    }));
   };
 
   if (isLoading && !isCreateMode) {
@@ -172,14 +203,14 @@ export default function SummaryPage() {
       <div className="space-y-6">
         <ModuleDetails
           moduleId={id || ""}
-          title={module?.title || ""}
-          description={module?.description || ""}
-          thumbnailUrl={module?.thumbnail_url}
-          onUpdate={updateModule}
+          title={localModule?.title || ""}
+          description={localModule?.description || ""}
+          thumbnailUrl={localModule?.thumbnail_url}
+          onUpdate={handleLocalUpdate}
         />
         <ModuleStatus
-          published={module?.published || false}
-          accessType={module?.access_type || "private"}
+          published={localModule?.published || false}
+          accessType={localModule?.access_type || "private"}
         />
       </div>
     </div>
