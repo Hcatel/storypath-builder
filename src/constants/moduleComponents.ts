@@ -1,3 +1,4 @@
+
 import { ComponentType } from "@/types/module";
 import { MessageNode } from "@/components/nodes/MessageNode";
 import { VideoNode } from "@/components/nodes/VideoNode";
@@ -16,7 +17,7 @@ export const componentOptions: { value: ComponentType; label: string }[] = [
   { value: "text_input", label: "Text Input" },
   { value: "multiple_choice", label: "Multiple Choice" },
   { value: "ranking", label: "Ranking" },
-  { value: "likert_scale", label: "Likert Scale" },
+  { value: "likert_scale", label: "Scale" },
   { value: "matching", label: "Matching" },
 ];
 

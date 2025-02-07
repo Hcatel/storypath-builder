@@ -73,7 +73,7 @@ export function LikertScaleNode({ data, selected, id }: LikertScaleNodeProps) {
   return (
     <Card className={`w-[400px] ${selected ? 'border-primary' : ''}`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Likert Scale</CardTitle>
+        <CardTitle className="text-sm font-medium">Scale</CardTitle>
         <Button 
           variant="ghost" 
           size="icon"
