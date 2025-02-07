@@ -6,15 +6,17 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Trash2 } from "lucide-react";
+import { memo } from "react";
 
 type ModuleFlowContextMenuProps = {
   contextMenu: { x: number; y: number; nodeId: string } | null;
   onDeleteNode: () => void;
 };
 
-export function ModuleFlowContextMenu({ contextMenu, onDeleteNode }: ModuleFlowContextMenuProps) {
-  console.log('Rendering context menu with props:', { contextMenu });
-  
+export const ModuleFlowContextMenu = memo(function ModuleFlowContextMenu({ 
+  contextMenu, 
+  onDeleteNode 
+}: ModuleFlowContextMenuProps) {
   if (!contextMenu) return null;
 
   return (
@@ -26,7 +28,6 @@ export function ModuleFlowContextMenu({ contextMenu, onDeleteNode }: ModuleFlowC
         zIndex: 1000,
       }}
       onClick={(e) => {
-        console.log('Context menu clicked');
         e.stopPropagation();
       }}
     >
@@ -36,10 +37,7 @@ export function ModuleFlowContextMenu({ contextMenu, onDeleteNode }: ModuleFlowC
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem 
-            onClick={() => {
-              console.log('Delete menu item clicked');
-              onDeleteNode();
-            }}
+            onClick={onDeleteNode}
             className="text-destructive focus:text-destructive flex items-center gap-2"
           >
             <Trash2 className="w-4 h-4" />
@@ -49,4 +47,4 @@ export function ModuleFlowContextMenu({ contextMenu, onDeleteNode }: ModuleFlowC
       </ContextMenu>
     </div>
   );
-}
+});
