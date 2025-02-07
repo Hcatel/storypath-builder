@@ -39,11 +39,12 @@ export function VideoNode({ data, selected, id }: VideoNodeProps) {
       <CardContent className="p-3">
         <div className="aspect-video bg-muted rounded-md">
           {data.videoUrl ? (
-            <iframe 
+            <video 
               src={data.videoUrl} 
               className="w-full h-full rounded-md"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
+              muted
+              playsInline
+              controls={false}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground">
