@@ -48,7 +48,7 @@ export function RankingNodeDetails({ data, onUpdate }: RankingNodeDetailsProps) 
       <div>
         <label className="text-sm font-medium">Options</label>
         <div className="space-y-2 mt-2">
-          {data.options?.map((option, index) => (
+          {(data.options || []).map((option, index) => (
             <div key={index} className="flex items-center gap-2">
               <GripVertical className="h-4 w-4 text-muted-foreground" />
               <Input
@@ -70,7 +70,7 @@ export function RankingNodeDetails({ data, onUpdate }: RankingNodeDetailsProps) 
           variant="outline"
           size="sm"
           onClick={addOption}
-          className="mt-2"
+          className="mt-2 w-full"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Option

@@ -48,6 +48,14 @@ const getInitialDataForType = (type: ComponentType, nodeCount: number): NodeData
         options: ["Option 1", "Option 2"],
         allowMultiple: false,
       };
+    case "ranking":
+      return {
+        type: "ranking",
+        label: `Ranking ${nodeCount + 1}`,
+        title: "",
+        instructions: "",
+        options: ["Option 1", "Option 2"],
+      };
     default:
       return {
         type: "message",
