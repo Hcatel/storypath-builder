@@ -29,6 +29,8 @@ export default function SummaryPage() {
           access_type: "private" as const,
           nodes: [],
           edges: [],
+          published: false,
+          component_types: [],
         };
       }
       
@@ -68,6 +70,8 @@ export default function SummaryPage() {
             access_type: "private",
             nodes: [],
             edges: [],
+            published: false,
+            component_types: [],
           }])
           .select()
           .single();
