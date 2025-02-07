@@ -71,6 +71,17 @@ export function AddContentDialog({ open, onOpenChange, playlistId }: AddContentD
     try {
       console.log("Adding module to playlist:", { moduleId, playlistId });
 
+      // Check if module is already in the playlist
+      const isModuleInPlaylist = existingModules?.includes(moduleId);
+      if (isModuleInPlaylist) {
+        toast({
+          title: "Module already in playlist",
+          description: "This module has already been added to the playlist.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Get the current highest position
       const { data: currentModules, error: fetchError } = await supabase
         .from("playlist_modules")
@@ -95,7 +106,18 @@ export function AddContentDialog({ open, onOpenChange, playlistId }: AddContentD
           position: newPosition,
         });
 
-      if (error) throw error;
+      if (error) {
+        // Handle unique constraint violation
+        if (error.code === '23505') {
+          toast({
+            title: "Module already in playlist",
+            description: "This module has already been added to the playlist.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
 
       // Invalidate both queries to ensure UI is up to date
       queryClient.invalidateQueries({ queryKey: ["playlist-modules", playlistId] });
