@@ -5,6 +5,7 @@ import { RouterNodeData } from "@/types/module";
 import { GitBranch, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 type RouterNodeProps = {
   data: RouterNodeData;
@@ -16,16 +17,17 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
   const { setNodes, getNodes } = useReactFlow();
   const { id: moduleId } = useParams();
   
-  // Add moduleId to the node data if it's not already present
-  if (!data.moduleId && moduleId) {
-    setNodes(nodes => 
-      nodes.map(node => 
-        node.id === id 
-          ? { ...node, data: { ...node.data, moduleId } }
-          : node
-      )
-    );
-  }
+  useEffect(() => {
+    if (!data.moduleId && moduleId) {
+      setNodes(nodes => 
+        nodes.map(node => 
+          node.id === id 
+            ? { ...node, data: { ...node.data, moduleId } }
+            : node
+        )
+      );
+    }
+  }, [data.moduleId, moduleId, id, setNodes]);
   
   const onDelete = () => {
     setNodes(getNodes().filter(node => node.id !== id));

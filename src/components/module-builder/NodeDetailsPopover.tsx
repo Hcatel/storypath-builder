@@ -28,96 +28,75 @@ export function NodeDetailsPopover({
   onPositionChange,
 }: NodeDetailsPopoverProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [startDragPos, setStartDragPos] = useState({ x: 0, y: 0 });
-  const [localPosition, setLocalPosition] = useState(popoverPosition);
+  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState(popoverPosition);
 
   useEffect(() => {
     if (!isDragging) {
-      setLocalPosition(popoverPosition);
+      setPosition(popoverPosition);
     }
   }, [popoverPosition, isDragging]);
-
-  const updatePosition = useCallback((clientX: number, clientY: number) => {
-    if (!localPosition) return;
-    
-    const newX = clientX - startDragPos.x;
-    const newY = clientY - startDragPos.y;
-    
-    const newPosition = { x: newX, y: newY };
-    setLocalPosition(newPosition);
-    onPositionChange?.(newPosition);
-  }, [localPosition, startDragPos, onPositionChange]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
       e.preventDefault();
       e.stopPropagation();
       
-      if (!localPosition) return;
-      
       setIsDragging(true);
-      setStartDragPos({
-        x: e.clientX - localPosition.x,
-        y: e.clientY - localPosition.y
+      setStartPosition({
+        x: e.clientX - (position?.x || 0),
+        y: e.clientY - (position?.y || 0)
       });
-
-      // Set a global flag on the window object
+      
       (window as any).isPopoverDragging = true;
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    e.stopPropagation();
-    updatePosition(e.clientX, e.clientY);
-  };
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (isDragging && position) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const newPosition = {
+        x: e.clientX - startPosition.x,
+        y: e.clientY - startPosition.y
+      };
+      
+      setPosition(newPosition);
+      onPositionChange?.(newPosition);
+    }
+  }, [isDragging, position, startPosition, onPositionChange]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
-    // Clear the global flag
     (window as any).isPopoverDragging = false;
-  };
+  }, []);
 
   useEffect(() => {
     if (isDragging) {
-      const handleGlobalMouseMove = (e: MouseEvent) => {
-        e.preventDefault();
-        updatePosition(e.clientX, e.clientY);
-      };
-
-      const handleGlobalMouseUp = () => {
-        setIsDragging(false);
-        (window as any).isPopoverDragging = false;
-      };
-
-      window.addEventListener('mousemove', handleGlobalMouseMove);
-      window.addEventListener('mouseup', handleGlobalMouseUp);
-
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      
       return () => {
-        window.removeEventListener('mousemove', handleGlobalMouseMove);
-        window.removeEventListener('mouseup', handleGlobalMouseUp);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, updatePosition]);
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  if (!selectedNode || !localPosition) return null;
+  if (!selectedNode || !position) return null;
 
   return (
     <div 
       className="fixed"
       style={{ 
-        left: `${localPosition.x}px`, 
-        top: `${localPosition.y}px`,
+        left: `${position.x}px`, 
+        top: `${position.y}px`,
         zIndex: 1000,
         cursor: isDragging ? 'grabbing' : 'grab',
         userSelect: 'none',
-        willChange: 'transform',
-        transform: 'translate3d(0, 0, 0)',
       }}
       onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
     >
       <Popover open={selectedNode !== null} onOpenChange={onClose}>
         <PopoverTrigger asChild>
