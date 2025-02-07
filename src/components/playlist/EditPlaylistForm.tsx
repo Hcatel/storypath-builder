@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PlaylistFormFields } from "./form/PlaylistFormFields";
 import { AccessTypeSelect } from "./form/AccessTypeSelect";
 import { ThumbnailUpload } from "./form/ThumbnailUpload";
+import { useQueryClient } from "@tanstack/react-query";
 
 type AccessType = "private" | "public" | "restricted";
 
@@ -32,6 +33,7 @@ export function EditPlaylistForm({ playlist, isCreateMode = false }: EditPlaylis
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: playlist?.name || "",
@@ -52,17 +54,31 @@ export function EditPlaylistForm({ playlist, isCreateMode = false }: EditPlaylis
         const fileExt = thumbnail.name.split(".").pop();
         const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
 
+        // Upload to unified media storage
         const { error: uploadError } = await supabase.storage
-          .from("playlist-thumbnails")
+          .from("media")
           .upload(filePath, thumbnail);
 
         if (uploadError) throw uploadError;
 
         const { data: { publicUrl } } = supabase.storage
-          .from("playlist-thumbnails")
+          .from("media")
           .getPublicUrl(filePath);
 
         thumbnailUrl = publicUrl;
+
+        // Save to media table
+        const { error: mediaError } = await supabase
+          .from("media")
+          .insert({
+            user_id: user.id,
+            filename: thumbnail.name,
+            file_url: publicUrl,
+            file_type: thumbnail.type,
+            file_size: thumbnail.size,
+          });
+
+        if (mediaError) throw mediaError;
       }
 
       if (isCreateMode) {
@@ -98,6 +114,9 @@ export function EditPlaylistForm({ playlist, isCreateMode = false }: EditPlaylis
           .eq("id", playlist?.id);
 
         if (updateError) throw updateError;
+
+        queryClient.invalidateQueries({ queryKey: ["playlist", playlist?.id] });
+        queryClient.invalidateQueries({ queryKey: ["media-files"] });
 
         toast({
           title: "Success",
