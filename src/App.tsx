@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "@/pages/index";
@@ -39,7 +39,8 @@ function App() {
           </Route>
 
           {/* Module creator routes - make sure :id is a proper UUID */}
-          <Route path="/modules/:id/*" element={<ModuleCreator />}>
+          <Route path="/modules/:id" element={<ModuleCreator />}>
+            <Route index element={<Navigate to="summary" replace />} />
             <Route path="summary" element={<SummaryPage />} />
             <Route path="build" element={<BuildPage />} />
             <Route path="media" element={<MediaPage />} />
