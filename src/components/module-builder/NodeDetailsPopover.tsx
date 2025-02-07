@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Node } from "@xyflow/react";
 import { NodeData } from "@/types/module";
 import {
@@ -29,104 +29,85 @@ export function NodeDetailsPopover({
 }: NodeDetailsPopoverProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [startDragPos, setStartDragPos] = useState({ x: 0, y: 0 });
-  const [currentPosition, setCurrentPosition] = useState(popoverPosition);
+  const [localPosition, setLocalPosition] = useState(popoverPosition);
 
   useEffect(() => {
-    console.log('Popover position updated:', { popoverPosition, currentPosition });
-    setCurrentPosition(popoverPosition);
-  }, [popoverPosition]);
+    if (!isDragging) {
+      setLocalPosition(popoverPosition);
+    }
+  }, [popoverPosition, isDragging]);
 
-  useEffect(() => {
-    console.log('Current position state updated:', currentPosition);
-  }, [currentPosition]);
+  const updatePosition = useCallback((clientX: number, clientY: number) => {
+    if (!localPosition) return;
+    
+    const newX = clientX - startDragPos.x;
+    const newY = clientY - startDragPos.y;
+    
+    const newPosition = { x: newX, y: newY };
+    setLocalPosition(newPosition);
+    onPositionChange?.(newPosition);
+  }, [localPosition, startDragPos, onPositionChange]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
       e.preventDefault();
-      console.log('Mouse down on header:', { 
-        clientX: e.clientX, 
-        clientY: e.clientY,
-        currentPos: currentPosition 
-      });
+      e.stopPropagation();
+      
+      if (!localPosition) return;
       
       setIsDragging(true);
       setStartDragPos({
-        x: e.clientX - (currentPosition?.x || 0),
-        y: e.clientY - (currentPosition?.y || 0)
+        x: e.clientX - localPosition.x,
+        y: e.clientY - localPosition.y
       });
-    }
-  };
-
-  const updatePosition = (clientX: number, clientY: number) => {
-    if (!currentPosition) return;
-    
-    const newX = clientX - startDragPos.x;
-    const newY = clientY - startDragPos.y;
-
-    console.log('Updating position:', { 
-      newX,
-      newY,
-      startDragPos,
-      clientX,
-      clientY,
-      isDragging
-    });
-
-    setCurrentPosition({ x: newX, y: newY });
-    if (onPositionChange) {
-      onPositionChange({ x: newX, y: newY });
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDragging) return;
     e.preventDefault();
+    e.stopPropagation();
     updatePosition(e.clientX, e.clientY);
   };
 
   const handleMouseUp = () => {
-    console.log('Mouse up, ending drag');
     setIsDragging(false);
   };
 
   useEffect(() => {
     if (isDragging) {
       const handleGlobalMouseMove = (e: MouseEvent) => {
-        if (!isDragging) return;
         e.preventDefault();
         updatePosition(e.clientX, e.clientY);
       };
 
       const handleGlobalMouseUp = () => {
-        console.log('Global mouse up');
         setIsDragging(false);
       };
 
-      document.addEventListener('mousemove', handleGlobalMouseMove);
-      document.addEventListener('mouseup', handleGlobalMouseUp);
+      window.addEventListener('mousemove', handleGlobalMouseMove);
+      window.addEventListener('mouseup', handleGlobalMouseUp);
 
       return () => {
-        document.removeEventListener('mousemove', handleGlobalMouseMove);
-        document.removeEventListener('mouseup', handleGlobalMouseUp);
+        window.removeEventListener('mousemove', handleGlobalMouseMove);
+        window.removeEventListener('mouseup', handleGlobalMouseUp);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, updatePosition]);
 
-  if (!selectedNode || !currentPosition) {
-    console.log('Not rendering popover:', { selectedNode, currentPosition });
-    return null;
-  }
+  if (!selectedNode || !localPosition) return null;
 
   return (
     <div 
       className="fixed"
       style={{ 
-        left: `${currentPosition.x}px`, 
-        top: `${currentPosition.y}px`,
+        left: `${localPosition.x}px`, 
+        top: `${localPosition.y}px`,
         zIndex: 1000,
         cursor: isDragging ? 'grabbing' : 'grab',
         userSelect: 'none',
-        transform: 'translate(0, 0)'
+        willChange: 'transform',
+        transform: 'translate3d(0, 0, 0)',
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
