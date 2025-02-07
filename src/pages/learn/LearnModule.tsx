@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
+import { ComponentType, FlowNode, FlowEdge, NodeData } from "@/types/module";
 import { useState, useEffect } from "react";
 import { MessageNodeRenderer } from "@/components/nodes/learn/MessageNodeRenderer";
 import { TextInputNodeRenderer } from "@/components/nodes/learn/TextInputNodeRenderer";
@@ -135,11 +136,23 @@ const LearnModule = () => {
   const renderNodeContent = (node: FlowNode) => {
     switch (node.type) {
       case "message":
-        return <MessageNodeRenderer data={node.data} />;
+        if ("title" in node.data && "content" in node.data) {
+          return <MessageNodeRenderer data={node.data} />;
+        }
+        return <div>Invalid message node data</div>;
+      
       case "text_input":
-        return <TextInputNodeRenderer data={node.data} />;
+        if ("question" in node.data) {
+          return <TextInputNodeRenderer data={node.data} />;
+        }
+        return <div>Invalid text input node data</div>;
+      
       case "video":
-        return <VideoNodeRenderer data={node.data} />;
+        if ("title" in node.data && "videoUrl" in node.data) {
+          return <VideoNodeRenderer data={node.data} />;
+        }
+        return <div>Invalid video node data</div>;
+      
       default:
         return <div>Unsupported node type: {node.type}</div>;
     }
