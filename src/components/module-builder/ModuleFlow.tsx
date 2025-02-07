@@ -1,4 +1,3 @@
-
 import {
   ReactFlow,
   Background,
@@ -8,13 +7,18 @@ import {
   NodeTypes,
   useReactFlow,
   useKeyPress,
-  ContextMenu,
 } from '@xyflow/react';
 import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { Panel } from "@xyflow/react";
 import { nodeTypes } from "@/constants/moduleComponents";
 import { useCallback, useEffect, useState } from "react";
+import {
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenu,
+} from "@/components/ui/context-menu";
 
 type ModuleFlowProps = {
   nodes: FlowNode[];
@@ -131,9 +135,8 @@ export function ModuleFlow({
 
     document.addEventListener('keydown', handleKeyboard);
     return () => document.removeEventListener('keydown', handleKeyboard);
-  }, [getNodes, setNodes, history, currentIndex]);
+  }, [getNodes, setNodes, history, currentIndex, nodes]);
 
-  // Save initial state
   useEffect(() => {
     if (nodes.length > 0 && history.length === 0) {
       setHistory([nodes]);
@@ -142,7 +145,6 @@ export function ModuleFlow({
   }, [nodes]);
 
   const handleNodeContextMenu = (event: React.MouseEvent, node: Node) => {
-    // Prevent default context menu
     event.preventDefault();
     setContextMenu({
       x: event.clientX,
@@ -155,7 +157,6 @@ export function ModuleFlow({
     if (contextMenu) {
       const newNodes = nodes.filter(n => n.id !== contextMenu.nodeId);
       setNodes(newNodes);
-      // Add to history
       setHistory(prev => [...prev.slice(0, currentIndex + 1), newNodes]);
       setCurrentIndex(prev => prev + 1);
       setContextMenu(null);
@@ -192,21 +193,20 @@ export function ModuleFlow({
         />
       </Panel>
       {contextMenu && (
-        <ContextMenu 
-          onClick={handleDeleteNode}
-          style={{
-            position: 'fixed',
-            left: contextMenu.x,
-            top: contextMenu.y,
-            zIndex: 1000,
-            backgroundColor: 'white',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-            borderRadius: '4px',
-            padding: '8px',
-            cursor: 'pointer'
-          }}
-        >
-          Delete Node
+        <ContextMenu>
+          <ContextMenuTrigger>
+            <div style={{
+              position: 'fixed',
+              left: contextMenu.x,
+              top: contextMenu.y,
+              zIndex: 1000,
+            }} />
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem onClick={handleDeleteNode}>
+              Delete Node
+            </ContextMenuItem>
+          </ContextMenuContent>
         </ContextMenu>
       )}
     </ReactFlow>

@@ -23,8 +23,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
   useEffect(() => {
     if (selectedNode) {
-      const data = selectedNode.data as NodeData;
-      setNodeData(data);
+      setNodeData(selectedNode.data as NodeData);
     } else {
       setNodeData(null);
     }
@@ -57,7 +56,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   };
 
   const renderNodeDetails = () => {
-    if (!nodeData) return null;
+    if (!nodeData?.type) return null;
     
     console.log("Rendering details for node type:", nodeData.type);
     
