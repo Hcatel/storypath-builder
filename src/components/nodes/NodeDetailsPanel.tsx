@@ -45,11 +45,10 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   const updateNodeData = (updates: Partial<NodeData>) => {
     if (!selectedNode || !nodeData) return;
 
-    const baseData = { ...nodeData };
     const updatedData = {
-      ...baseData,
+      ...nodeData,
       ...updates,
-    } as NodeData;
+    };
 
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
@@ -69,9 +68,10 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   const renderNodeDetails = () => {
     if (!nodeData) return null;
     
-    console.log("Rendering details for node type:", nodeData.type);
+    const type = nodeData.type;
+    console.log("Rendering details for node type:", type);
     
-    switch (nodeData.type) {
+    switch (type) {
       case 'message':
         return <MessageNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       case 'video':
@@ -89,7 +89,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
       case 'matching':
         return <MatchingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       default:
-        console.warn("Unknown node type:", nodeData.type);
+        console.warn("Unknown node type:", type);
         return null;
     }
   };
