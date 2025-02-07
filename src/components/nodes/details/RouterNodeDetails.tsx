@@ -22,11 +22,11 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
   const [showConditionDialog, setShowConditionDialog] = useState(false);
   const { toast } = useToast();
 
-  // Ensure moduleId and nodeId are strings and exist
-  const moduleId = data.moduleId as string;
+  // Type assertion to ensure moduleId and nodeId are strings
+  const moduleId = data.moduleId;
   const nodeId = data.id;
 
-  if (!nodeId || !moduleId) {
+  if (typeof moduleId !== 'string' || typeof nodeId !== 'string') {
     console.error("Missing required IDs:", { nodeId, moduleId });
     return (
       <div className="p-4 text-red-500">
