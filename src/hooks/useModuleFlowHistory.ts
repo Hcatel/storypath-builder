@@ -10,7 +10,7 @@ export function useModuleFlowHistory(
 ) {
   useEffect(() => {
     if (nodes.length > 0 && history.length === 0) {
-      setHistory([nodes]);
+      setHistory(prev => [...prev, nodes]);
       setCurrentIndex(0);
     }
   }, [nodes, history.length, setHistory, setCurrentIndex]);

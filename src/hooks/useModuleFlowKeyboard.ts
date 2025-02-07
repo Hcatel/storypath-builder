@@ -8,7 +8,8 @@ export function useModuleFlowKeyboard(
   history: FlowNode[][],
   currentIndex: number,
   setCurrentIndex: (index: number) => void,
-  nodes: FlowNode[]
+  nodes: FlowNode[],
+  setHistory: (updater: (prev: FlowNode[][]) => FlowNode[][]) => void
 ) {
   const { getNodes } = useReactFlow();
 
@@ -53,7 +54,6 @@ export function useModuleFlowKeyboard(
             await navigator.clipboard.writeText(JSON.stringify(selectedNodes));
             const newNodes = nodes.filter(node => !selectedNodes.find(n => n.id === node.id));
             setNodes(newNodes);
-            // Add to history
             setHistory(prev => [...prev.slice(0, currentIndex + 1), newNodes]);
             setCurrentIndex(prev => prev + 1);
           }
@@ -76,7 +76,6 @@ export function useModuleFlowKeyboard(
             
             const updatedNodes = [...getNodes(), ...newNodes];
             setNodes(updatedNodes);
-            // Add to history
             setHistory(prev => [...prev.slice(0, currentIndex + 1), updatedNodes]);
             setCurrentIndex(prev => prev + 1);
           } catch (error) {
@@ -88,5 +87,5 @@ export function useModuleFlowKeyboard(
 
     document.addEventListener('keydown', handleKeyboard);
     return () => document.removeEventListener('keydown', handleKeyboard);
-  }, [getNodes, setNodes, history, currentIndex, setCurrentIndex, nodes]);
+  }, [getNodes, setNodes, history, currentIndex, setCurrentIndex, nodes, setHistory]);
 }
