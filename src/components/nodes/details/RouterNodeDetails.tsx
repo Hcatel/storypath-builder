@@ -37,8 +37,10 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
         condition_type: 'equals',
         condition_value: "",
         action_type: 'set_variable',
-        action_value: "",
+        action_value: selectedChoice.toString(),
         priority: conditions?.length || 0,
+        condition_operator: 'AND',
+        expression_type: 'simple'
       });
     }
   };

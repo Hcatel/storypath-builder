@@ -62,19 +62,19 @@ export function evaluateChoiceConditions(
   }, {} as Record<string, Condition[]>);
 
   // Evaluate each group
-  return Object.values(groupedConditions).every(group => {
-    return group.reduce((result, condition) => {
-      const variable = variables?.find(v => v.id === condition.target_variable_id);
+  return Object.values(groupedConditions).every(groupConditions => {
+    return groupConditions.reduce((result, currentCondition) => {
+      const variable = variables?.find(v => v.id === currentCondition.target_variable_id);
       if (!variable) return false;
 
       const variableValue = learnerState?.variables_state?.[variable.id] ?? variable.default_value;
-      const conditionResult = evaluateCondition(condition, variableValue);
+      const conditionResult = evaluateCondition(currentCondition, variableValue);
 
-      if (condition.condition_operator === 'AND') {
+      if (currentCondition.condition_operator === 'AND') {
         return result && conditionResult;
       } else {
         return result || conditionResult;
       }
-    }, condition.condition_operator === 'AND');
+    }, currentCondition.condition_operator === 'AND');
   });
 }
