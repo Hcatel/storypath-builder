@@ -42,10 +42,12 @@ export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
+        setIsPlaying(false);
       } else {
         videoRef.current.play().catch(error => {
           console.log("Play failed:", error);
         });
+        setIsPlaying(true);
       }
     }
   };
