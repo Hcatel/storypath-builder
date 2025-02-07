@@ -196,8 +196,8 @@ export default function BuildPage() {
             <PopoverTrigger asChild>
               <div className="w-0 h-0" />
             </PopoverTrigger>
-            <PopoverContent side="right" className="p-0 w-auto">
-              <div className="popover-header bg-secondary p-2 cursor-move">
+            <PopoverContent side="right" className="p-0 w-[400px] resize overflow-auto" style={{ maxWidth: 'none' }}>
+              <div className="popover-header bg-secondary p-2 cursor-move select-none">
                 Drag to move
               </div>
               <ResizablePanelGroup direction="horizontal">
@@ -208,7 +208,7 @@ export default function BuildPage() {
                     availableNodes={availableNodes}
                   />
                 </ResizablePanel>
-                <ResizableHandle />
+                <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={0} minSize={0} />
               </ResizablePanelGroup>
             </PopoverContent>
