@@ -26,25 +26,43 @@ type ModuleAccessType = 'private' | 'public' | 'restricted';
 export default function SharePage() {
   const { id } = useParams();
   const { toast } = useToast();
+  const isCreateMode = !id || id === 'create';
 
-  // Fetch module data
+  // Fetch module data only in edit mode
   const { data: module, isLoading, refetch } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
+      if (isCreateMode) {
+        toast({
+          title: "Create mode",
+          description: "Please save your module first to manage sharing settings.",
+        });
+        return null;
+      }
+      
       const { data, error } = await supabase
         .from("modules")
         .select("*")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
     },
+    enabled: !isCreateMode,
   });
 
   // Update access type mutation
   const { mutate: updateAccessType } = useMutation({
     mutationFn: async (accessType: ModuleAccessType) => {
+      if (isCreateMode) {
+        toast({
+          title: "Create mode",
+          description: "Please save your module first to manage sharing settings.",
+        });
+        return;
+      }
+      
       const { error } = await supabase
         .from("modules")
         .update({ access_type: accessType })
@@ -67,6 +85,31 @@ export default function SharePage() {
       });
     },
   });
+
+  if (isCreateMode) {
+    return (
+      <div className="container max-w-4xl mx-auto py-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Share & Access</CardTitle>
+            <CardDescription>
+              Save your module first to manage sharing settings
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              After creating your module, you'll be able to:
+            </p>
+            <ul className="list-disc ml-6 mt-2 text-muted-foreground">
+              <li>Control who can access your module</li>
+              <li>Share it with specific users or groups</li>
+              <li>Get a shareable link</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <div>Loading...</div>;
