@@ -50,14 +50,14 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
       ...nodeData,
       ...updates,
       type: nodeData.type // Explicitly preserve the type
-    } as NodeData; // Cast the result as NodeData to ensure type safety
+    } as NodeData;
 
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
   };
 
   const renderNodeDetails = () => {
-    const type = nodeData.type;
+    const type = (nodeData.type as ComponentType);
     console.log("Rendering details for node type:", type);
     
     switch (type) {
