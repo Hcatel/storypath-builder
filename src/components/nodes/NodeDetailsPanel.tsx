@@ -2,7 +2,18 @@
 import { useState, useEffect } from "react";
 import { Node } from "@xyflow/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { NodeData, ComponentType } from "@/types/module";
+import { 
+  NodeData, 
+  ComponentType,
+  MessageNodeData,
+  VideoNodeData,
+  RouterNodeData,
+  TextInputNodeData,
+  MultipleChoiceNodeData,
+  RankingNodeData,
+  LikertScaleNodeData,
+  MatchingNodeData
+} from "@/types/module";
 import { MessageNodeDetails } from "./details/MessageNodeDetails";
 import { VideoNodeDetails } from "./details/VideoNodeDetails";
 import { RouterNodeDetails } from "./details/RouterNodeDetails";
