@@ -20,15 +20,19 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [showConditionDialog, setShowConditionDialog] = useState(false);
 
-  const { data: variables } = useModuleVariables(data.moduleId);
-  const { data: conditions } = useRouterConditions(data.id);
-  const { createCondition, deleteCondition } = useRouterConditionMutations(data.id);
+  // Ensure moduleId and nodeId are strings
+  const moduleId = data.moduleId as string;
+  const nodeId = data.id as string;
+
+  const { data: variables } = useModuleVariables(moduleId);
+  const { data: conditions } = useRouterConditions(nodeId);
+  const { createCondition, deleteCondition } = useRouterConditionMutations(nodeId);
 
   const handleAddCondition = () => {
     if (selectedChoice !== null && variables && variables.length > 0) {
       createCondition.mutate({
-        module_id: data.moduleId as string,
-        source_node_id: data.id as string,
+        module_id: moduleId,
+        source_node_id: nodeId,
         target_variable_id: variables[0].id,
         condition_type: 'equals',
         condition_value: "",
@@ -78,4 +82,3 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
     </div>
   );
 }
-
