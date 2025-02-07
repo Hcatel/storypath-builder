@@ -45,11 +45,10 @@ export function VideoNodeDetails({ data, onUpdate }: VideoNodeDetailsProps) {
         <div className="flex flex-col gap-4">
           {data.videoUrl && (
             <div className="aspect-video bg-muted rounded-md overflow-hidden">
-              <iframe 
+              <video 
                 src={data.videoUrl} 
                 className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
+                controls
               />
             </div>
           )}
