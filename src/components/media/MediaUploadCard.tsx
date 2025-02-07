@@ -41,6 +41,18 @@ export function MediaUploadCard() {
       const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
       const uniqueFileName = `${Date.now()}-${sanitizedFileName}`;
 
+      // Create blob from file to track upload progress
+      const fileBlob = new Blob([file], { type: file.type });
+      const xhr = new XMLHttpRequest();
+      
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = (event.loaded / event.total) * 100;
+          setUploadProgress(Math.round(percentComplete));
+        }
+      });
+
       // Upload file
       const { error: uploadError, data } = await supabase.storage
         .from("media")
@@ -48,10 +60,6 @@ export function MediaUploadCard() {
           cacheControl: "3600",
           upsert: true,
           contentType: file.type,
-          onUploadProgress: (progress) => {
-            const percent = (progress.loaded / progress.total) * 100;
-            setUploadProgress(Math.round(percent));
-          },
         });
 
       if (uploadError) throw uploadError;
