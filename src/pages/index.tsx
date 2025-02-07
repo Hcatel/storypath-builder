@@ -7,14 +7,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { GalleryHorizontal, Eye } from "lucide-react";
+import { useEffect } from "react";
 
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const location = useLocation();
 
   const { data: modules, isLoading } = useQuery({
     queryKey: ['modules'],
@@ -28,6 +30,16 @@ const Index = () => {
       return data;
     },
   });
+
+  // Scroll to gallery if hash is present
+  useEffect(() => {
+    if (location.hash === '#gallery') {
+      const galleryElement = document.getElementById('module-gallery');
+      if (galleryElement) {
+        galleryElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [location.hash]);
 
   const handleCreateModule = async () => {
     if (!user) return;
@@ -110,7 +122,7 @@ const Index = () => {
           )}
 
           {/* Public Modules Gallery */}
-          <div>
+          <div id="module-gallery">
             <div className="flex items-center gap-2 mb-6">
               <GalleryHorizontal className="w-6 h-6" />
               <h2 className="text-2xl font-bold">Module Gallery</h2>
