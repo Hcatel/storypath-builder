@@ -6,9 +6,10 @@ import { GitBranch, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Condition } from "@/types/conditions";
+import { useToast } from "@/hooks/use-toast";
 
 type RouterNodeProps = {
   data: RouterNodeData;
@@ -19,6 +20,8 @@ type RouterNodeProps = {
 export function RouterNode({ data, selected, id }: RouterNodeProps) {
   const { setNodes, getNodes } = useReactFlow();
   const { id: moduleId } = useParams();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   // Fetch conditions for this router node
   const { data: conditions } = useQuery({
@@ -49,18 +52,61 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
     },
   });
 
-  // Fetch current learner state
-  const { data: learnerState } = useQuery({
+  // Fetch or create learner state
+  const { data: learnerState, isLoading: isStateLoading } = useQuery({
     queryKey: ["learner-state", moduleId],
     queryFn: async () => {
-      const { data: state, error } = await supabase
+      const { data: existingState, error: fetchError } = await supabase
         .from("learner_module_states")
         .select("*")
         .eq("module_id", moduleId as string)
         .maybeSingle();
 
+      if (fetchError) throw fetchError;
+
+      if (!existingState) {
+        const { data: newState, error: insertError } = await supabase
+          .from("learner_module_states")
+          .insert([{
+            module_id: moduleId,
+            variables_state: {},
+            history: [],
+          }])
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        return newState;
+      }
+
+      return existingState;
+    },
+    enabled: !!moduleId,
+  });
+
+  // Update learner state mutation
+  const { mutate: updateLearnerState } = useMutation({
+    mutationFn: async (updates: { variables_state: any }) => {
+      const { error } = await supabase
+        .from("learner_module_states")
+        .update(updates)
+        .eq("module_id", moduleId as string);
+
       if (error) throw error;
-      return state;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["learner-state", moduleId] });
+      toast({
+        title: "State updated",
+        description: "Your progress has been saved",
+      });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update state: " + error.message,
+      });
     },
   });
 
@@ -111,15 +157,12 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
       c.action_value === choiceIndex.toString()
     );
 
-    // If no conditions are set for this choice, it's always valid
     if (choiceConditions.length === 0) return true;
 
-    // Evaluate all conditions for this choice
     return choiceConditions.every(condition => {
       const variable = variables?.find(v => v.id === condition.target_variable_id);
       if (!variable) return false;
 
-      // Get variable value from learner state if available, otherwise use default
       const variableValue = learnerState?.variables_state?.[variable.id] ?? variable.default_value;
       return evaluateCondition(condition, variableValue);
     });
@@ -128,6 +171,10 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
   const onDelete = () => {
     setNodes(getNodes().filter(node => node.id !== id));
   };
+
+  if (isStateLoading) {
+    return <div>Loading state...</div>;
+  }
 
   return (
     <Card className={`w-[200px] ${selected ? 'border-primary' : ''}`}>
