@@ -23,7 +23,8 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
   useEffect(() => {
     if (selectedNode) {
-      setNodeData(selectedNode.data as NodeData);
+      const data = selectedNode.data as NodeData;
+      setNodeData(data);
     } else {
       setNodeData(null);
     }
@@ -45,7 +46,12 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   const updateNodeData = (updates: Partial<NodeData>) => {
     if (!selectedNode || !nodeData) return;
     
-    const updatedData = { ...nodeData, ...updates };
+    const updatedData: NodeData = {
+      ...nodeData,
+      ...updates,
+      type: nodeData.type // Ensure type remains constant
+    };
+    
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
   };
