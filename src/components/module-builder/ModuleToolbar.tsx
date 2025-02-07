@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ComponentType } from "@/types/module";
+import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { componentOptions } from "@/constants/moduleComponents";
 import { useReactFlow } from "@xyflow/react";
 import { useQuery } from "@tanstack/react-query";
@@ -57,8 +57,13 @@ export function ModuleToolbar({
     if (!version) return;
 
     try {
-      setNodes(version.nodes);
-      setEdges(version.edges);
+      // Type cast the JSON data to the correct types
+      const versionNodes = version.nodes as unknown as FlowNode[];
+      const versionEdges = version.edges as unknown as FlowEdge[];
+      
+      setNodes(versionNodes);
+      setEdges(versionEdges);
+      
       toast({
         title: "Version restored",
         description: `Restored version ${version.version_number}`,
