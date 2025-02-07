@@ -27,12 +27,19 @@ export function MediaUploadCard() {
 
       setUploading(true);
 
-      // Upload to storage
+      // Upload to storage with progress tracking
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("media")
-        .upload(`${user.id}/${file.name}`, file);
+        .upload(`${user.id}/${file.name}`, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error details:", uploadError);
+        throw uploadError;
+      }
 
       // Get public URL
       const { data: publicUrl } = supabase.storage
@@ -58,6 +65,7 @@ export function MediaUploadCard() {
         description: "File uploaded successfully",
       });
     } catch (error: any) {
+      console.error("Full error details:", error);
       toast({
         title: "Error",
         description: "Failed to upload file: " + error.message,
@@ -85,6 +93,7 @@ export function MediaUploadCard() {
             onChange={handleFileUpload}
             disabled={uploading}
             className="flex-1"
+            accept="video/*,image/*,audio/*,.pdf,.doc,.docx"
           />
           {uploading && (
             <div className="flex items-center gap-2 text-muted-foreground">
