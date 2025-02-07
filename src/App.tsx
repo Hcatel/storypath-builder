@@ -40,10 +40,6 @@ function App() {
 
           {/* Module routes */}
           <Route path="/modules">
-            {/* Create route should come before :id route to prevent create being treated as an ID */}
-            <Route path="create" element={<Navigate to="/" replace />} />
-            <Route path="create/*" element={<Navigate to="/" replace />} />
-            
             {/* Edit existing module - use regex to ensure only valid UUIDs are matched */}
             <Route 
               path=":id"
