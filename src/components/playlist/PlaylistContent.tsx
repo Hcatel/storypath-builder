@@ -14,9 +14,11 @@ interface PlaylistContentProps {
 export function PlaylistContent({ playlistId }: PlaylistContentProps) {
   const [isAddContentOpen, setIsAddContentOpen] = useState(false);
 
-  const { data: modules, isLoading } = useQuery({
+  const { data: modules, isLoading, error } = useQuery({
     queryKey: ["playlist-modules", playlistId],
     queryFn: async () => {
+      console.log("Fetching modules for playlist:", playlistId);
+      
       const { data, error } = await supabase
         .from("playlist_modules")
         .select(`
@@ -34,10 +36,24 @@ export function PlaylistContent({ playlistId }: PlaylistContentProps) {
         .eq("playlist_id", playlistId)
         .order("position");
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching playlist modules:", error);
+        throw error;
+      }
+
+      console.log("Fetched playlist modules:", data);
       return data;
     },
   });
+
+  // If there's an error, we should display it
+  if (error) {
+    return (
+      <div className="text-red-500 p-4">
+        Error loading playlist content: {(error as Error).message}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

@@ -23,6 +23,8 @@ export function AddContentDialog({ open, onOpenChange, playlistId }: AddContentD
   const { data: modules, isLoading: modulesLoading } = useQuery({
     queryKey: ["creator-modules", search],
     queryFn: async () => {
+      console.log("Fetching creator modules with search:", search);
+      
       const query = supabase
         .from("modules")
         .select(`
@@ -42,25 +44,33 @@ export function AddContentDialog({ open, onOpenChange, playlistId }: AddContentD
 
       const { data, error } = await query;
       if (error) throw error;
+
+      console.log("Fetched creator modules:", data);
       return data;
     },
   });
 
-  const { data: existingModules } = useQuery({
+  const { data: existingModules, isLoading: existingModulesLoading } = useQuery({
     queryKey: ["playlist-modules", playlistId],
     queryFn: async () => {
+      console.log("Fetching existing modules for playlist:", playlistId);
+      
       const { data, error } = await supabase
         .from("playlist_modules")
         .select("module_id")
         .eq("playlist_id", playlistId);
 
       if (error) throw error;
+
+      console.log("Fetched existing module IDs:", data);
       return data.map(m => m.module_id);
     },
   });
 
   const handleAddModule = async (moduleId: string) => {
     try {
+      console.log("Adding module to playlist:", { moduleId, playlistId });
+
       // Get the current highest position
       const { data: currentModules, error: fetchError } = await supabase
         .from("playlist_modules")
@@ -75,6 +85,8 @@ export function AddContentDialog({ open, onOpenChange, playlistId }: AddContentD
         ? currentModules[0].position + 1 
         : 0;
 
+      console.log("Inserting module at position:", newPosition);
+
       const { error } = await supabase
         .from("playlist_modules")
         .insert({
@@ -85,13 +97,16 @@ export function AddContentDialog({ open, onOpenChange, playlistId }: AddContentD
 
       if (error) throw error;
 
+      // Invalidate both queries to ensure UI is up to date
       queryClient.invalidateQueries({ queryKey: ["playlist-modules", playlistId] });
+      queryClient.invalidateQueries({ queryKey: ["creator-modules", search] });
 
       toast({
         title: "Success",
         description: "Module added to playlist successfully",
       });
     } catch (error: any) {
+      console.error("Error adding module:", error);
       toast({
         title: "Error",
         description: `Failed to add module: ${error.message}`,
@@ -121,9 +136,13 @@ export function AddContentDialog({ open, onOpenChange, playlistId }: AddContentD
             </TabsList>
 
             <TabsContent value="modules" className="space-y-4">
-              {modulesLoading ? (
+              {modulesLoading || existingModulesLoading ? (
                 <div className="flex justify-center p-8">
                   <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+              ) : modules?.length === 0 ? (
+                <div className="text-center p-8 text-muted-foreground">
+                  No modules found
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-4">
