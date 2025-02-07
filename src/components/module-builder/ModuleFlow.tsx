@@ -50,7 +50,7 @@ export function ModuleFlow({
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
 
-  useModuleFlowKeyboard(setNodes, history, currentIndex, setCurrentIndex, nodes);
+  useModuleFlowKeyboard(setNodes, history, currentIndex, setCurrentIndex, nodes, setHistory);
   useModuleFlowHistory(nodes, setHistory, setCurrentIndex, history);
 
   const handleNodeContextMenu = (event: React.MouseEvent, node: Node) => {

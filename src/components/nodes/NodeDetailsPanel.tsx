@@ -56,7 +56,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   };
 
   const renderNodeDetails = () => {
-    if (!nodeData?.type) return null;
+    if (!nodeData) return null;
     
     console.log("Rendering details for node type:", nodeData.type);
     
