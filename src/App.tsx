@@ -40,11 +40,11 @@ function App() {
 
           {/* Module creator routes */}
           <Route path="/modules/:id" element={<ModuleCreator />}>
+            <Route path="summary" element={<SummaryPage />} />
             <Route path="build" element={<BuildPage />} />
             <Route path="media" element={<MediaPage />} />
             <Route path="share" element={<SharePage />} />
             <Route path="results" element={<ResultsPage />} />
-            <Route path="summary" element={<SummaryPage />} />
           </Route>
 
           {/* Playlist routes */}
