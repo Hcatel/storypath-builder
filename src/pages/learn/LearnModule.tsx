@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,11 +7,14 @@ import { ModuleNavigation } from "@/components/learn/ModuleNavigation";
 import { ModuleContent } from "@/components/learn/ModuleContent";
 import { ModuleNotFound } from "@/components/learn/ModuleNotFound";
 import { useModuleLearning } from "@/hooks/useModuleLearning";
+import { RouterNodeData } from "@/types/module";
+import { RouterNodeRenderer } from "@/components/nodes/learn/RouterNodeRenderer";
 
 const LearnModule = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const [currentNodeIndex, setCurrentNodeIndex] = useState(0);
+  const [overlayRouter, setOverlayRouter] = useState<RouterNodeData | null>(null);
 
   const {
     module,
@@ -39,14 +41,30 @@ const LearnModule = () => {
 
     const nextIndex = currentNodeIndex + 1;
     if (nextIndex < module.nodes.length) {
+      const nextNode = module.nodes[nextIndex];
+      
+      // If next node is a router with overlay, show it without changing the page
+      if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+        setOverlayRouter(nextNode.data as RouterNodeData);
+        updateProgress(nextNode.id);
+        return;
+      }
+
       setCurrentNodeIndex(nextIndex);
-      updateProgress(module.nodes[nextIndex].id);
+      updateProgress(nextNode.id);
     }
   };
 
   const handlePrevious = () => {
     if (currentNodeIndex > 0) {
       setCurrentNodeIndex(currentNodeIndex - 1);
+    }
+  };
+
+  const handleRouterChoice = (choiceIndex: number) => {
+    if (overlayRouter) {
+      setOverlayRouter(null);
+      setCurrentNodeIndex(currentNodeIndex + 1);
     }
   };
 
@@ -73,7 +91,13 @@ const LearnModule = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 flex flex-col">
-        <ModuleContent currentNode={currentNode} />
+        <ModuleContent currentNode={currentNode} onRouterChoice={handleRouterChoice} />
+        {overlayRouter && (
+          <RouterNodeRenderer 
+            data={overlayRouter}
+            onChoiceSelect={handleRouterChoice}
+          />
+        )}
         <ModuleNavigation
           currentIndex={currentNodeIndex}
           totalNodes={module.nodes.length}
