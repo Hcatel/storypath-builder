@@ -11,7 +11,6 @@ interface RankingNodeRendererProps {
 
 export function RankingNodeRenderer({ data, onRankingChange }: RankingNodeRendererProps) {
   const [items, setItems] = useState<string[]>(data.options);
-  const isVertical = data.displayOrientation !== 'horizontal';
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -33,12 +32,12 @@ export function RankingNodeRenderer({ data, onRankingChange }: RankingNodeRender
         )}
         
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="ranking-list" direction={isVertical ? "vertical" : "horizontal"}>
+          <Droppable droppableId="ranking-list" direction="vertical">
             {(provided) => (
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className={`flex gap-4 ${isVertical ? 'flex-col' : 'flex-row flex-wrap justify-center'}`}
+                className="flex flex-col gap-4"
               >
                 {items.map((item, index) => (
                   <Draggable key={item} draggableId={item} index={index}>
@@ -48,9 +47,8 @@ export function RankingNodeRenderer({ data, onRankingChange }: RankingNodeRender
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                         className={`
-                          flex items-center gap-4 p-4 bg-background border rounded-lg shadow-sm
+                          flex items-center gap-4 p-4 bg-background border rounded-lg shadow-sm w-full
                           ${snapshot.isDragging ? 'shadow-lg' : ''}
-                          ${isVertical ? 'w-full' : 'flex-1 min-w-[200px]'}
                         `}
                       >
                         <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold">

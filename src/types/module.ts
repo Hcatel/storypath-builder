@@ -63,7 +63,6 @@ export interface RankingNodeData extends BaseNodeData {
   title: string;
   instructions: string;
   options: string[];
-  displayOrientation?: 'horizontal' | 'vertical';
 }
 
 export type NodeData = 
