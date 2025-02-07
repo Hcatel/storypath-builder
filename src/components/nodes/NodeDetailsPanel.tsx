@@ -26,7 +26,7 @@ import { MatchingNodeDetails } from "./details/MatchingNodeDetails";
 type NodeDetailsPanelProps = {
   selectedNode: Node<NodeData> | null;
   onNodeUpdate: (nodeId: string, data: NodeData) => void;
-  availableNodes: Node[];
+  availableNodes: Node<NodeData>[];
 };
 
 export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }: NodeDetailsPanelProps) {
@@ -100,7 +100,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     const updatedData = {
       ...nodeData,
       ...updates,
-      type: nodeType // Explicitly preserve the type
+      type: nodeType
     } as NodeData;
 
     setNodeData(updatedData);
@@ -128,7 +128,6 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
       case 'matching':
         return <MatchingNodeDetails data={nodeData as MatchingNodeData} onUpdate={updateNodeData} />;
       default: {
-        // This helps TypeScript know that we've handled all possible cases
         const _exhaustiveCheck: never = nodeType;
         return null;
       }

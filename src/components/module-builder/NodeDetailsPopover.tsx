@@ -11,11 +11,11 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { NodeDetailsPanel } from "@/components/nodes/NodeDetailsPanel";
 
 type NodeDetailsPopoverProps = {
-  selectedNode: Node | null;
+  selectedNode: Node<NodeData> | null;
   popoverPosition: { x: number; y: number } | null;
   onNodeUpdate: (nodeId: string, data: NodeData) => void;
   onClose: () => void;
-  availableNodes: Node[];
+  availableNodes: Node<NodeData>[];
   onPositionChange?: (position: { x: number; y: number }) => void;
 };
 
