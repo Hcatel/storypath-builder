@@ -104,10 +104,10 @@ export type Database = {
           current_node_id: string | null
           history: Json | null
           id: string
-          module_id: string | null
+          module_id: string
           score: number | null
           updated_at: string | null
-          user_id: string | null
+          user_id: string
           variables_state: Json | null
         }
         Insert: {
@@ -115,10 +115,10 @@ export type Database = {
           current_node_id?: string | null
           history?: Json | null
           id?: string
-          module_id?: string | null
+          module_id: string
           score?: number | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
           variables_state?: Json | null
         }
         Update: {
@@ -126,10 +126,10 @@ export type Database = {
           current_node_id?: string | null
           history?: Json | null
           id?: string
-          module_id?: string | null
+          module_id?: string
           score?: number | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
           variables_state?: Json | null
         }
         Relationships: [
