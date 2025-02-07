@@ -1,109 +1,26 @@
 
 import { useParams } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import { ComponentType, FlowNode, FlowEdge, NodeData, MessageNodeData, TextInputNodeData, VideoNodeData } from "@/types/module";
 import { useState, useEffect } from "react";
-import { MessageNodeRenderer } from "@/components/nodes/learn/MessageNodeRenderer";
-import { TextInputNodeRenderer } from "@/components/nodes/learn/TextInputNodeRenderer";
-import { VideoNodeRenderer } from "@/components/nodes/learn/VideoNodeRenderer";
 import { ModuleNavigation } from "@/components/learn/ModuleNavigation";
+import { ModuleContent } from "@/components/learn/ModuleContent";
+import { ModuleNotFound } from "@/components/learn/ModuleNotFound";
+import { useModuleLearning } from "@/hooks/useModuleLearning";
 
 const LearnModule = () => {
   const { id } = useParams();
   const { user } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [currentNodeIndex, setCurrentNodeIndex] = useState(0);
 
-  // Fetch module data
-  const { data: module, isLoading: isModuleLoading } = useQuery({
-    queryKey: ["module", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("modules")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to load module",
-          variant: "destructive",
-        });
-        throw error;
-      }
-
-      if (data) {
-        const nodes = (data.nodes as unknown) as FlowNode[];
-        const edges = (data.edges as unknown) as FlowEdge[];
-
-        return {
-          ...data,
-          nodes,
-          edges,
-        };
-      }
-
-      return null;
-    },
-  });
-
-  // Fetch learner progress
-  const { data: progress, isLoading: isProgressLoading } = useQuery({
-    queryKey: ["learner-progress", id],
-    queryFn: async () => {
-      if (!user) return null;
-
-      const { data, error } = await supabase
-        .from("learner_progress")
-        .select("*")
-        .eq("module_id", id)
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      return data;
-    },
-    enabled: !!user && !!id,
-  });
-
-  // Update progress mutation
-  const { mutate: updateProgress } = useMutation({
-    mutationFn: async (nodeId: string) => {
-      if (!user || !id) return;
-
-      const completedNodes = progress?.completed_nodes || [];
-      if (!completedNodes.includes(nodeId)) {
-        completedNodes.push(nodeId);
-      }
-
-      const { error } = await supabase
-        .from("learner_progress")
-        .upsert({
-          user_id: user.id,
-          module_id: id,
-          current_node_id: nodeId,
-          completed_nodes: completedNodes,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["learner-progress", id] });
-    },
-  });
+  const {
+    module,
+    isModuleLoading,
+    progress,
+    isProgressLoading,
+    updateProgress,
+  } = useModuleLearning(id, user?.id);
 
   // Initialize progress if none exists
   useEffect(() => {
@@ -133,31 +50,6 @@ const LearnModule = () => {
     }
   };
 
-  const renderNodeContent = (node: FlowNode) => {
-    switch (node.type) {
-      case "message":
-        if ("title" in node.data && "content" in node.data) {
-          return <MessageNodeRenderer data={node.data as MessageNodeData} />;
-        }
-        return <div>Invalid message node data</div>;
-      
-      case "text_input":
-        if ("question" in node.data) {
-          return <TextInputNodeRenderer data={node.data as TextInputNodeData} />;
-        }
-        return <div>Invalid text input node data</div>;
-      
-      case "video":
-        if ("title" in node.data && "videoUrl" in node.data) {
-          return <VideoNodeRenderer data={node.data as VideoNodeData} />;
-        }
-        return <div>Invalid video node data</div>;
-      
-      default:
-        return <div>Unsupported node type: {node.type}</div>;
-    }
-  };
-
   if (isModuleLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -172,25 +64,7 @@ const LearnModule = () => {
   }
 
   if (!module || !module.nodes || module.nodes.length === 0) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Module Not Found</h1>
-            <p className="text-gray-600 mb-8">
-              This module may have been removed or you don't have permission to view it.
-            </p>
-            <Link to="/">
-              <Button>
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
-          </div>
-        </main>
-      </div>
-    );
+    return <ModuleNotFound />;
   }
 
   const currentNode = module.nodes[currentNodeIndex];
@@ -199,10 +73,7 @@ const LearnModule = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 flex flex-col">
-        <div className="flex-1 flex items-center justify-center p-8">
-          {renderNodeContent(currentNode)}
-        </div>
-
+        <ModuleContent currentNode={currentNode} />
         <ModuleNavigation
           currentIndex={currentNodeIndex}
           totalNodes={module.nodes.length}
