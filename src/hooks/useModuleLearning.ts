@@ -71,16 +71,26 @@ export function useModuleLearning(id: string | undefined, userId: string | undef
 
       const { error } = await supabase
         .from("learner_progress")
-        .upsert({
-          user_id: userId,
-          module_id: id,
-          current_node_id: nodeId,
-          completed_nodes: completedNodes,
-        })
-        .select()
-        .single();
+        .upsert(
+          {
+            user_id: userId,
+            module_id: id,
+            current_node_id: nodeId,
+            completed_nodes: completedNodes,
+          },
+          {
+            onConflict: 'user_id,module_id',
+          }
+        );
 
-      if (error) throw error;
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update progress",
+          variant: "destructive",
+        });
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["learner-progress", id] });
