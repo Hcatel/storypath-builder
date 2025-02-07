@@ -8,10 +8,12 @@ import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ModuleDetails } from "@/components/modules/ModuleDetails";
 import { ModuleStatus } from "@/components/modules/ModuleStatus";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SummaryPage() {
   const { id } = useParams();
   const { toast } = useToast();
+  const { user } = useAuth();
   const isCreateMode = !id || id === 'create';
 
   // Fetch module data only in edit mode
@@ -45,12 +47,18 @@ export default function SummaryPage() {
       description?: string;
       thumbnail_url?: string;
     }) => {
+      if (!user) throw new Error("No user found");
+
       if (isCreateMode) {
         console.log("Create mode - creating new module");
         const { data, error } = await supabase
           .from("modules")
           .insert([{
-            ...values,
+            title: values.title || "",
+            description: values.description,
+            thumbnail_url: values.thumbnail_url,
+            user_id: user.id,
+            access_type: "private",
             nodes: [],
             edges: [],
           }])
@@ -120,13 +128,11 @@ export default function SummaryPage() {
   };
 
   const handleSave = () => {
-    const currentData = isCreateMode ? {} : module;
-    if (currentData || isCreateMode) {
-      updateModule({
-        title: currentData?.title || "",
-        description: currentData?.description || ""
-      });
-    }
+    updateModule({
+      title: module?.title || "",
+      description: module?.description || "",
+      thumbnail_url: module?.thumbnail_url
+    });
   };
 
   if (isLoading && !isCreateMode) {
