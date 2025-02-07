@@ -49,12 +49,12 @@ export function ModuleToolbar({
 
   // Save state to history when nodes change
   React.useEffect(() => {
-    const currentNodes = getNodes();
+    const currentNodes = getNodes() as FlowNode[];
     if (currentNodes.length > 0) {
       setHistory(prev => [...prev.slice(0, currentIndex + 1), currentNodes]);
       setCurrentIndex(prev => prev + 1);
     }
-  }, [getNodes]);
+  }, [getNodes, currentIndex]);
 
   return (
     <div className="flex items-center gap-2 p-2">
