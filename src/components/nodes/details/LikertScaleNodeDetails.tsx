@@ -1,5 +1,8 @@
-import { LikertScaleNodeData } from "@/types/module";
+
+import { LikertScaleNodeData, LikertDisplayType } from "@/types/module";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface LikertScaleNodeDetailsProps {
   data: LikertScaleNodeData;
@@ -12,19 +15,45 @@ export function LikertScaleNodeDetails({ data, onUpdate }: LikertScaleNodeDetail
     onUpdate({ labels: newLabels });
   };
 
+  const displayOptions: { value: LikertDisplayType; label: string }[] = [
+    { value: 'numbers', label: 'Numbers' },
+    { value: 'slider', label: 'Slider' },
+    { value: 'stars', label: 'Stars' },
+  ];
+
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-sm font-medium">Question</label>
+        <Label>Question</Label>
         <Input
           value={data.question || ""}
           onChange={(e) => onUpdate({ question: e.target.value })}
           placeholder="Enter question"
         />
       </div>
+
+      <div>
+        <Label>Display Type</Label>
+        <Select
+          value={data.displayType}
+          onValueChange={(value: LikertDisplayType) => onUpdate({ displayType: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select display type" />
+          </SelectTrigger>
+          <SelectContent>
+            {displayOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="text-sm font-medium">Scale Start</label>
+          <Label>Scale Start</Label>
           <Input
             type="number"
             value={data.scaleStart}
@@ -32,7 +61,7 @@ export function LikertScaleNodeDetails({ data, onUpdate }: LikertScaleNodeDetail
           />
         </div>
         <div>
-          <label className="text-sm font-medium">Scale End</label>
+          <Label>Scale End</Label>
           <Input
             type="number"
             value={data.scaleEnd}
@@ -40,8 +69,36 @@ export function LikertScaleNodeDetails({ data, onUpdate }: LikertScaleNodeDetail
           />
         </div>
       </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          <Label>Start Text</Label>
+          <Input
+            value={data.startText || ""}
+            onChange={(e) => onUpdate({ startText: e.target.value })}
+            placeholder="e.g., Strongly Disagree"
+          />
+        </div>
+        <div>
+          <Label>Middle Text</Label>
+          <Input
+            value={data.middleText || ""}
+            onChange={(e) => onUpdate({ middleText: e.target.value })}
+            placeholder="e.g., Neutral"
+          />
+        </div>
+        <div>
+          <Label>End Text</Label>
+          <Input
+            value={data.endText || ""}
+            onChange={(e) => onUpdate({ endText: e.target.value })}
+            placeholder="e.g., Strongly Agree"
+          />
+        </div>
+      </div>
+
       <div>
-        <label className="text-sm font-medium">Scale Labels</label>
+        <Label>Scale Labels</Label>
         <div className="space-y-2 mt-2">
           {Array.from(
             { length: data.scaleEnd - data.scaleStart + 1 },

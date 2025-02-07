@@ -1,4 +1,3 @@
-
 import { Edge, Node } from '@xyflow/react';
 
 export type ComponentType = 
@@ -60,12 +59,18 @@ export interface RankingNodeData extends BaseNodeData {
   options: string[];
 }
 
+export type LikertDisplayType = 'numbers' | 'slider' | 'stars';
+
 export interface LikertScaleNodeData extends BaseNodeData {
   type: 'likert_scale';
   question: string;
   scaleStart: number;
   scaleEnd: number;
   labels: { [key: number]: string };
+  displayType: LikertDisplayType;
+  startText?: string;
+  middleText?: string;
+  endText?: string;
 }
 
 export interface MatchingPair {
