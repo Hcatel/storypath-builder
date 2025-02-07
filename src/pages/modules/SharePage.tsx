@@ -20,6 +20,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Globe2, Lock, Users } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 type ModuleAccessType = 'private' | 'public' | 'restricted';
 
@@ -35,6 +37,7 @@ export default function SharePage() {
       if (isCreateMode) {
         return {
           access_type: 'private' as ModuleAccessType,
+          published: false,
           id: 'create'
         };
       }
@@ -85,6 +88,40 @@ export default function SharePage() {
     },
   });
 
+  // Update publish status mutation
+  const { mutate: updatePublishStatus } = useMutation({
+    mutationFn: async (published: boolean) => {
+      if (isCreateMode) {
+        toast({
+          title: "Info",
+          description: "Save the module first before publishing",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from("modules")
+        .update({ published })
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Module publish status updated successfully",
+      });
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update publish status: " + error.message,
+      });
+    },
+  });
+
   if (isLoading && !isCreateMode) {
     return <div>Loading...</div>;
   }
@@ -97,12 +134,31 @@ export default function SharePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Access Control</CardTitle>
+          <CardTitle>Module Status</CardTitle>
           <CardDescription>
-            Choose who can view and interact with this module
+            Control the visibility and publish status of your module
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
+          <div className="flex items-center space-x-4">
+            <Switch
+              id="publish-status"
+              checked={module?.published || false}
+              onCheckedChange={(checked) => updatePublishStatus(checked)}
+              disabled={isCreateMode}
+            />
+            <div className="space-y-1">
+              <Label htmlFor="publish-status">
+                {module?.published ? "Published" : "Draft"}
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                {module?.published
+                  ? "This module is live and can be viewed by others based on access settings"
+                  : "This module is in draft mode and only visible to you"}
+              </p>
+            </div>
+          </div>
+
           <div className="space-y-4">
             <Select
               value={module?.access_type || "private"}
