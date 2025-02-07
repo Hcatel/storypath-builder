@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ComponentType, FlowNode, FlowEdge, NodeData } from "@/types/module";
+import { ComponentType, FlowNode, FlowEdge, NodeData, MessageNodeData, TextInputNodeData, VideoNodeData } from "@/types/module";
 import { useState, useEffect } from "react";
 import { MessageNodeRenderer } from "@/components/nodes/learn/MessageNodeRenderer";
 import { TextInputNodeRenderer } from "@/components/nodes/learn/TextInputNodeRenderer";
@@ -137,19 +137,19 @@ const LearnModule = () => {
     switch (node.type) {
       case "message":
         if ("title" in node.data && "content" in node.data) {
-          return <MessageNodeRenderer data={node.data} />;
+          return <MessageNodeRenderer data={node.data as MessageNodeData} />;
         }
         return <div>Invalid message node data</div>;
       
       case "text_input":
         if ("question" in node.data) {
-          return <TextInputNodeRenderer data={node.data} />;
+          return <TextInputNodeRenderer data={node.data as TextInputNodeData} />;
         }
         return <div>Invalid text input node data</div>;
       
       case "video":
         if ("title" in node.data && "videoUrl" in node.data) {
-          return <VideoNodeRenderer data={node.data} />;
+          return <VideoNodeRenderer data={node.data as VideoNodeData} />;
         }
         return <div>Invalid video node data</div>;
       
