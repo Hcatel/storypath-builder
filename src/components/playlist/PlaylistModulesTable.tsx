@@ -67,6 +67,16 @@ export function PlaylistModulesTable({ modules, isLoading, playlistId }: Playlis
   };
 
   const handleDelete = async (moduleId: string) => {
+    // Add validation to ensure moduleId exists
+    if (!moduleId) {
+      toast({
+        title: "Error",
+        description: "Invalid module ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from("playlist_modules")
@@ -118,7 +128,7 @@ export function PlaylistModulesTable({ modules, isLoading, playlistId }: Playlis
               {modules.map((item, index) => (
                 <Draggable 
                   key={item.id} 
-                  draggableId={item.id} 
+                  draggableId={item.id.toString()} 
                   index={index}
                 >
                   {(provided) => (
