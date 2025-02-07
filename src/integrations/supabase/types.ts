@@ -98,6 +98,50 @@ export type Database = {
         }
         Relationships: []
       }
+      learner_module_states: {
+        Row: {
+          created_at: string | null
+          current_node_id: string | null
+          history: Json | null
+          id: string
+          module_id: string | null
+          score: number | null
+          updated_at: string | null
+          user_id: string | null
+          variables_state: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_node_id?: string | null
+          history?: Json | null
+          id?: string
+          module_id?: string | null
+          score?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          variables_state?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          current_node_id?: string | null
+          history?: Json | null
+          id?: string
+          module_id?: string | null
+          score?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          variables_state?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learner_module_states_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media: {
         Row: {
           created_at: string
@@ -179,6 +223,63 @@ export type Database = {
           },
         ]
       }
+      module_conditions: {
+        Row: {
+          action_type: string
+          action_value: Json
+          condition_type: string
+          condition_value: Json
+          created_at: string | null
+          id: string
+          module_id: string | null
+          priority: number | null
+          source_node_id: string
+          target_variable_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          action_type: string
+          action_value: Json
+          condition_type: string
+          condition_value: Json
+          created_at?: string | null
+          id?: string
+          module_id?: string | null
+          priority?: number | null
+          source_node_id: string
+          target_variable_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          action_type?: string
+          action_value?: Json
+          condition_type?: string
+          condition_value?: Json
+          created_at?: string | null
+          id?: string
+          module_id?: string | null
+          priority?: number | null
+          source_node_id?: string
+          target_variable_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_conditions_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_conditions_target_variable_id_fkey"
+            columns: ["target_variable_id"]
+            isOneToOne: false
+            referencedRelation: "module_variables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       module_group_access: {
         Row: {
           created_at: string
@@ -208,6 +309,47 @@ export type Database = {
           },
           {
             foreignKeyName: "module_group_access_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      module_variables: {
+        Row: {
+          created_at: string | null
+          default_value: Json | null
+          description: string | null
+          id: string
+          module_id: string | null
+          name: string
+          updated_at: string | null
+          var_type: Database["public"]["Enums"]["variable_type"]
+        }
+        Insert: {
+          created_at?: string | null
+          default_value?: Json | null
+          description?: string | null
+          id?: string
+          module_id?: string | null
+          name: string
+          updated_at?: string | null
+          var_type: Database["public"]["Enums"]["variable_type"]
+        }
+        Update: {
+          created_at?: string | null
+          default_value?: Json | null
+          description?: string | null
+          id?: string
+          module_id?: string | null
+          name?: string
+          updated_at?: string | null
+          var_type?: Database["public"]["Enums"]["variable_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_variables_module_id_fkey"
             columns: ["module_id"]
             isOneToOne: false
             referencedRelation: "modules"
@@ -483,6 +625,7 @@ export type Database = {
         | "likert_scale"
         | "matching"
       module_access_type: "private" | "public" | "restricted"
+      variable_type: "number" | "string" | "boolean" | "array"
     }
     CompositeTypes: {
       [_ in never]: never
