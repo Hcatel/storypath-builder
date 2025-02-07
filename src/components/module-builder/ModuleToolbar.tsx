@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Undo2, Redo2 } from "lucide-react";
 import {
@@ -31,6 +31,15 @@ export function ModuleToolbar({
   const [history, setHistory] = useState<FlowNode[][]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
 
+  // Initialize history with current nodes
+  useEffect(() => {
+    const currentNodes = getNodes() as FlowNode[];
+    if (currentNodes.length > 0 && history.length === 0) {
+      setHistory([currentNodes]);
+      setCurrentIndex(0);
+    }
+  }, [getNodes, history.length]);
+
   const onUndo = () => {
     if (currentIndex > 0) {
       const previousState = history[currentIndex - 1];
@@ -48,13 +57,20 @@ export function ModuleToolbar({
   };
 
   // Save state to history when nodes change
-  React.useEffect(() => {
+  useEffect(() => {
     const currentNodes = getNodes() as FlowNode[];
     if (currentNodes.length > 0) {
-      setHistory(prev => [...prev.slice(0, currentIndex + 1), currentNodes]);
-      setCurrentIndex(prev => prev + 1);
+      // Only add to history if the state is different
+      const lastState = history[currentIndex];
+      const isStateChanged = !lastState || 
+        JSON.stringify(lastState) !== JSON.stringify(currentNodes);
+
+      if (isStateChanged) {
+        setHistory(prev => [...prev.slice(0, currentIndex + 1), currentNodes]);
+        setCurrentIndex(prev => prev + 1);
+      }
     }
-  }, [getNodes, currentIndex]);
+  }, [getNodes, currentIndex, history]);
 
   return (
     <div className="flex items-center gap-2 p-2">
