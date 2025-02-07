@@ -9,6 +9,7 @@ import { RouterConditions } from "./router/RouterConditions";
 import { useModuleVariables } from "@/hooks/useModuleVariables";
 import { useRouterConditions } from "@/hooks/useRouterConditions";
 import { useRouterConditionMutations } from "@/hooks/useRouterConditionMutations";
+import { useToast } from "@/hooks/use-toast";
 
 type RouterNodeDetailsProps = {
   data: RouterNodeData;
@@ -19,30 +20,56 @@ type RouterNodeDetailsProps = {
 export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNodeDetailsProps) {
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [showConditionDialog, setShowConditionDialog] = useState(false);
+  const { toast } = useToast();
 
-  // Ensure moduleId and nodeId are strings
+  // Ensure moduleId and nodeId are strings and exist
   const moduleId = data.moduleId as string;
-  const nodeId = data.id as string;
+  const nodeId = data.id;
+
+  if (!nodeId || !moduleId) {
+    console.error("Missing required IDs:", { nodeId, moduleId });
+    return (
+      <div className="p-4 text-red-500">
+        Error: Missing required node or module ID
+      </div>
+    );
+  }
 
   const { data: variables } = useModuleVariables(moduleId);
   const { data: conditions } = useRouterConditions(nodeId);
   const { createCondition, deleteCondition } = useRouterConditionMutations(nodeId);
 
   const handleAddCondition = () => {
-    if (selectedChoice !== null && variables && variables.length > 0) {
-      createCondition.mutate({
-        module_id: moduleId,
-        source_node_id: nodeId,
-        target_variable_id: variables[0].id,
-        condition_type: 'equals',
-        condition_value: "",
-        action_type: 'set_variable',
-        action_value: selectedChoice.toString(),
-        priority: conditions?.length || 0,
-        condition_operator: 'AND',
-        expression_type: 'simple'
+    if (selectedChoice === null) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please select a choice first",
       });
+      return;
     }
+
+    if (!variables || variables.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No variables available. Please create variables first.",
+      });
+      return;
+    }
+
+    createCondition.mutate({
+      module_id: moduleId,
+      source_node_id: nodeId,
+      target_variable_id: variables[0].id,
+      condition_type: 'equals',
+      condition_value: "",
+      action_type: 'set_variable',
+      action_value: selectedChoice.toString(),
+      priority: conditions?.length || 0,
+      condition_operator: 'AND',
+      expression_type: 'simple'
+    });
   };
 
   return (
