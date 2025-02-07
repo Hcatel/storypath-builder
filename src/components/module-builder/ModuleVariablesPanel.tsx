@@ -14,6 +14,19 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+type VariableType = "string" | "number" | "boolean" | "array";
+
+interface ModuleVariable {
+  id: string;
+  name: string;
+  var_type: VariableType;
+  description: string | null;
+  default_value: any | null;
+  module_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface ModuleVariablesPanelProps {
   moduleId: string;
 }
@@ -21,11 +34,12 @@ interface ModuleVariablesPanelProps {
 export function ModuleVariablesPanel({ moduleId }: ModuleVariablesPanelProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [newVariable, setNewVariable] = useState({
+  const [newVariable, setNewVariable] = useState<Omit<ModuleVariable, "id" | "created_at" | "updated_at">>({
     name: "",
     var_type: "string",
     description: "",
     default_value: null,
+    module_id: moduleId
   });
 
   const { data: variables, isLoading } = useQuery({
@@ -38,20 +52,15 @@ export function ModuleVariablesPanel({ moduleId }: ModuleVariablesPanelProps) {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data;
+      return data as ModuleVariable[];
     },
   });
 
   const { mutate: createVariable } = useMutation({
-    mutationFn: async (variable: typeof newVariable) => {
+    mutationFn: async (variable: Omit<ModuleVariable, "id" | "created_at" | "updated_at">) => {
       const { data, error } = await supabase
         .from("module_variables")
-        .insert([
-          {
-            ...variable,
-            module_id: moduleId,
-          },
-        ])
+        .insert([variable])
         .select()
         .single();
 
@@ -65,6 +74,7 @@ export function ModuleVariablesPanel({ moduleId }: ModuleVariablesPanelProps) {
         var_type: "string",
         description: "",
         default_value: null,
+        module_id: moduleId
       });
       toast({
         title: "Variable created",
@@ -137,7 +147,7 @@ export function ModuleVariablesPanel({ moduleId }: ModuleVariablesPanelProps) {
           />
           <Select
             value={newVariable.var_type}
-            onValueChange={(value) =>
+            onValueChange={(value: VariableType) =>
               setNewVariable({ ...newVariable, var_type: value })
             }
           >
@@ -158,7 +168,7 @@ export function ModuleVariablesPanel({ moduleId }: ModuleVariablesPanelProps) {
         </div>
         <Input
           placeholder="Description (optional)"
-          value={newVariable.description}
+          value={newVariable.description || ""}
           onChange={(e) =>
             setNewVariable({ ...newVariable, description: e.target.value })
           }
