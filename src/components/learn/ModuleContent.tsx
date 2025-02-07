@@ -1,10 +1,11 @@
 
-import { FlowNode, MessageNodeData, TextInputNodeData, VideoNodeData, RouterNodeData, MultipleChoiceNodeData } from "@/types/module";
+import { FlowNode, MessageNodeData, TextInputNodeData, VideoNodeData, RouterNodeData, MultipleChoiceNodeData, RankingNodeData } from "@/types/module";
 import { MessageNodeRenderer } from "@/components/nodes/learn/MessageNodeRenderer";
 import { TextInputNodeRenderer } from "@/components/nodes/learn/TextInputNodeRenderer";
 import { VideoNodeRenderer } from "@/components/nodes/learn/VideoNodeRenderer";
 import { RouterNodeRenderer } from "@/components/nodes/learn/RouterNodeRenderer";
 import { MultipleChoiceNodeRenderer } from "@/components/nodes/learn/MultipleChoiceNodeRenderer";
+import { RankingNodeRenderer } from "@/components/nodes/learn/RankingNodeRenderer";
 
 interface ModuleContentProps {
   currentNode: FlowNode;
@@ -53,6 +54,17 @@ export function ModuleContent({ currentNode, onRouterChoice }: ModuleContentProp
           );
         }
         return <div>Invalid multiple choice node data</div>;
+
+      case "ranking":
+        if ("question" in node.data && "items" in node.data) {
+          return (
+            <RankingNodeRenderer
+              data={node.data as RankingNodeData}
+              onRankingChange={onRouterChoice}
+            />
+          );
+        }
+        return <div>Invalid ranking node data</div>;
       
       default:
         return <div>Unsupported node type: {node.type}</div>;
