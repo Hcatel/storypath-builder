@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Node } from "@xyflow/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { NodeData } from "@/types/module";
+import { NodeData, ComponentType } from "@/types/module";
 import { MessageNodeDetails } from "./details/MessageNodeDetails";
 import { VideoNodeDetails } from "./details/VideoNodeDetails";
 import { RouterNodeDetails } from "./details/RouterNodeDetails";
@@ -23,7 +23,12 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
   useEffect(() => {
     if (selectedNode) {
-      setNodeData(selectedNode.data as NodeData);
+      const nodeType = selectedNode.type as ComponentType;
+      const initialData: NodeData = {
+        ...selectedNode.data,
+        type: nodeType
+      };
+      setNodeData(initialData);
     } else {
       setNodeData(null);
     }
@@ -48,26 +53,14 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     const updatedData = {
       ...nodeData,
       ...updates,
+      type: nodeData.type // Preserve the original type
     };
 
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
   };
 
-  const nodeTypeComponents = {
-    message: MessageNodeDetails,
-    video: VideoNodeDetails,
-    router: RouterNodeDetails,
-    text_input: TextInputNodeDetails,
-    multiple_choice: MultipleChoiceNodeDetails,
-    ranking: RankingNodeDetails,
-    likert_scale: LikertScaleNodeDetails,
-    matching: MatchingNodeDetails,
-  } as const;
-
   const renderNodeDetails = () => {
-    if (!nodeData) return null;
-    
     const type = nodeData.type;
     console.log("Rendering details for node type:", type);
     

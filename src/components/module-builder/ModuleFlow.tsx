@@ -7,13 +7,12 @@ import {
   Node,
   NodeTypes,
   useReactFlow,
-  useKeyPress,
 } from '@xyflow/react';
 import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { ModuleToolbar } from "@/components/module-builder/ModuleToolbar";
 import { Panel } from "@xyflow/react";
 import { nodeTypes } from "@/constants/moduleComponents";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ModuleFlowContextMenu } from "./ModuleFlowContextMenu";
 import { useModuleFlowKeyboard } from "@/hooks/useModuleFlowKeyboard";
 import { useModuleFlowHistory } from "@/hooks/useModuleFlowHistory";
@@ -78,8 +77,7 @@ export function ModuleFlow({
     onPaneClick();
   };
 
-  // Register a global event listener for delete node events from node components
-  useState(() => {
+  useEffect(() => {
     const handleDeleteEvent = (event: CustomEvent) => {
       const nodeId = event.detail.id;
       const newNodes = nodes.filter(n => n.id !== nodeId);
