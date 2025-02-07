@@ -38,7 +38,8 @@ export default function BuildPage() {
   const { id } = useParams();
   const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
   const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
-  const [popoverAnchor, setPopoverAnchor] = useState<{ x: number; y: number } | null>(null);
+  const [popoverPosition, setPopoverPosition] = useState<{ x: number; y: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const isCreateMode = !id || id === 'create';
 
   const { data: module, isLoading } = useQuery({
@@ -100,13 +101,15 @@ export default function BuildPage() {
   const onNodeClick = (event: React.MouseEvent, node: Node) => {
     event.stopPropagation();
     const bounds = (event.target as HTMLElement).getBoundingClientRect();
-    setPopoverAnchor({ x: bounds.right, y: bounds.top });
+    setPopoverPosition({ x: bounds.right + 10, y: bounds.top });
     setSelectedNode(node as FlowNode);
   };
 
   const onPaneClick = () => {
-    setSelectedNode(null);
-    setPopoverAnchor(null);
+    if (!isDragging) {
+      setSelectedNode(null);
+      setPopoverPosition(null);
+    }
   };
 
   const onNodeUpdate = (nodeId: string, data: NodeData) => {
@@ -121,6 +124,31 @@ export default function BuildPage() {
         return node;
       })
     );
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
+      setIsDragging(true);
+      
+      const startX = e.clientX - (popoverPosition?.x || 0);
+      const startY = e.clientY - (popoverPosition?.y || 0);
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        setPopoverPosition({
+          x: moveEvent.clientX - startX,
+          y: moveEvent.clientY - startY,
+        });
+      };
+
+      const handleMouseUp = () => {
+        setIsDragging(false);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
   };
 
   if (isLoading && !isCreateMode) {
@@ -154,20 +182,24 @@ export default function BuildPage() {
           />
         </Panel>
       </ReactFlow>
-      {selectedNode && popoverAnchor && (
+      {selectedNode && popoverPosition && (
         <div 
           className="fixed"
           style={{ 
-            left: popoverAnchor.x, 
-            top: popoverAnchor.y,
+            left: popoverPosition.x, 
+            top: popoverPosition.y,
             zIndex: 1000 
           }}
+          onMouseDown={handleMouseDown}
         >
           <Popover open={selectedNode !== null} onOpenChange={() => setSelectedNode(null)}>
             <PopoverTrigger asChild>
               <div className="w-0 h-0" />
             </PopoverTrigger>
-            <PopoverContent side="right" className="p-0">
+            <PopoverContent side="right" className="p-0 w-auto">
+              <div className="popover-header bg-secondary p-2 cursor-move">
+                Drag to move
+              </div>
               <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={100}>
                   <NodeDetailsPanel 
@@ -177,6 +209,7 @@ export default function BuildPage() {
                   />
                 </ResizablePanel>
                 <ResizableHandle />
+                <ResizablePanel defaultSize={0} minSize={0} />
               </ResizablePanelGroup>
             </PopoverContent>
           </Popover>
