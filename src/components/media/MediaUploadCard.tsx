@@ -14,6 +14,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+const MAX_FILE_SIZE = 512 * 1024 * 1024; // 512MB in bytes
+
 export function MediaUploadCard() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -25,26 +27,40 @@ export function MediaUploadCard() {
       const file = event.target.files?.[0];
       if (!file || !user) return;
 
+      // Check file size before attempting upload
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error(`File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
+      }
+
       setUploading(true);
+
+      // Sanitize filename to remove special characters
+      const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const uniqueFileName = `${Date.now()}-${sanitizedFileName}`;
 
       // Upload to storage with progress tracking
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("media")
-        .upload(`${user.id}/${file.name}`, file, {
+        .upload(`${user.id}/${uniqueFileName}`, file, {
           cacheControl: "3600",
-          upsert: false,
+          upsert: true, // Allow overwriting in case of retry
           contentType: file.type
         });
 
       if (uploadError) {
         console.error("Upload error details:", uploadError);
-        throw uploadError;
+        
+        // More specific error messages based on status code
+        if (uploadError.statusCode === "413") {
+          throw new Error("File size exceeds the server's limit. Please try a smaller file or compress this one.");
+        }
+        throw new Error(uploadError.message || "Failed to upload file");
       }
 
       // Get public URL
       const { data: publicUrl } = supabase.storage
         .from("media")
-        .getPublicUrl(`${user.id}/${file.name}`);
+        .getPublicUrl(`${user.id}/${uniqueFileName}`);
 
       // Save to database
       const { error: dbError } = await supabase.from("media").insert([
@@ -68,7 +84,7 @@ export function MediaUploadCard() {
       console.error("Full error details:", error);
       toast({
         title: "Error",
-        description: "Failed to upload file: " + error.message,
+        description: error.message || "Failed to upload file",
         variant: "destructive",
       });
     } finally {
@@ -83,7 +99,7 @@ export function MediaUploadCard() {
       <CardHeader>
         <CardTitle>Upload Media</CardTitle>
         <CardDescription>
-          Supported formats: images, videos, audio, and documents
+          Supported formats: images, videos, audio, and documents (max {MAX_FILE_SIZE / (1024 * 1024)}MB)
         </CardDescription>
       </CardHeader>
       <CardContent>
