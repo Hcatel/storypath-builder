@@ -19,6 +19,7 @@ import CreatorLearners from "@/pages/creator/Learners";
 import CreatorSettings from "@/pages/creator/Settings";
 import PlaylistDetail from "@/pages/playlists/PlaylistDetail";
 import LearnModule from "@/pages/learn/LearnModule";
+import ExplorePage from "@/pages/explore";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/explore" element={<ExplorePage />} />
           
           {/* Creator routes */}
           <Route path="/creator">
