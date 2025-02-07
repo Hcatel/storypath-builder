@@ -105,14 +105,21 @@ export default function BuildPage() {
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === nodeId) {
-          return {
+          // Create a new node object with the updated data
+          const updatedNode = {
             ...node,
-            data,
+            data: {
+              ...node.data,
+              ...data,
+            },
           };
+          return updatedNode;
         }
         return node;
       })
     );
+    // Automatically save changes when a node is updated
+    saveChanges();
   };
 
   const handlePositionChange = (position: { x: number; y: number }) => {
