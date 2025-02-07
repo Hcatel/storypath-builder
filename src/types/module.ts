@@ -1,4 +1,3 @@
-
 import { Edge, Node } from '@xyflow/react';
 
 export type ComponentType = 
@@ -39,6 +38,7 @@ export interface RouterNodeData extends BaseNodeData {
   type: 'router';
   question: string;
   choices: RouterChoice[];
+  moduleId?: string;
 }
 
 export interface TextInputNodeData extends BaseNodeData {

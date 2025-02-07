@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RouterNodeData } from "@/types/module";
 import { GitBranch, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useParams } from "react-router-dom";
 
 type RouterNodeProps = {
   data: RouterNodeData;
@@ -13,6 +14,18 @@ type RouterNodeProps = {
 
 export function RouterNode({ data, selected, id }: RouterNodeProps) {
   const { setNodes, getNodes } = useReactFlow();
+  const { id: moduleId } = useParams();
+  
+  // Add moduleId to the node data if it's not already present
+  if (!data.moduleId && moduleId) {
+    setNodes(nodes => 
+      nodes.map(node => 
+        node.id === id 
+          ? { ...node, data: { ...node.data, moduleId } }
+          : node
+      )
+    );
+  }
   
   const onDelete = () => {
     setNodes(getNodes().filter(node => node.id !== id));

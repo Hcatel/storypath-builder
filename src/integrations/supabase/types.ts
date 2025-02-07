@@ -615,6 +615,13 @@ export type Database = {
       }
     }
     Enums: {
+      action_type:
+        | "set_variable"
+        | "increment"
+        | "decrement"
+        | "append_to_array"
+        | "remove_from_array"
+        | "clear_array"
       component_type:
         | "message"
         | "video"
@@ -624,6 +631,16 @@ export type Database = {
         | "ranking"
         | "likert_scale"
         | "matching"
+      condition_type:
+        | "equals"
+        | "not_equals"
+        | "greater_than"
+        | "less_than"
+        | "contains"
+        | "starts_with"
+        | "ends_with"
+        | "in_array"
+        | "not_in_array"
       module_access_type: "private" | "public" | "restricted"
       variable_type: "number" | "string" | "boolean" | "array"
     }
