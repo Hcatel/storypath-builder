@@ -55,7 +55,7 @@ export function useModuleFlowKeyboard(
             const newNodes = nodes.filter(node => !selectedNodes.find(n => n.id === node.id));
             setNodes(newNodes);
             setHistory(prev => [...prev.slice(0, currentIndex + 1), newNodes]);
-            setCurrentIndex(prev => prev + 1);
+            setCurrentIndex(currentIndex + 1);
           }
         }
         
@@ -77,7 +77,7 @@ export function useModuleFlowKeyboard(
             const updatedNodes = [...getNodes(), ...newNodes];
             setNodes(updatedNodes);
             setHistory(prev => [...prev.slice(0, currentIndex + 1), updatedNodes]);
-            setCurrentIndex(prev => prev + 1);
+            setCurrentIndex(currentIndex + 1);
           } catch (error) {
             console.error('Failed to paste nodes:', error);
           }

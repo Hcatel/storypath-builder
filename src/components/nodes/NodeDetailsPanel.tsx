@@ -60,19 +60,27 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     
     console.log("Rendering details for node type:", nodeData.type);
     
-    const nodeType = nodeData.type as keyof typeof nodeTypeComponentMap;
-    const nodeTypeComponentMap = {
-      message: () => <MessageNodeDetails data={nodeData} onUpdate={updateNodeData} />,
-      video: () => <VideoNodeDetails data={nodeData} onUpdate={updateNodeData} />,
-      router: () => <RouterNodeDetails data={nodeData} onUpdate={updateNodeData} availableNodes={availableNodes} />,
-      text_input: () => <TextInputNodeDetails data={nodeData} onUpdate={updateNodeData} />,
-      multiple_choice: () => <MultipleChoiceNodeDetails data={nodeData} onUpdate={updateNodeData} />,
-      ranking: () => <RankingNodeDetails data={nodeData} onUpdate={updateNodeData} />,
-      likert_scale: () => <LikertScaleNodeDetails data={nodeData} onUpdate={updateNodeData} />,
-      matching: () => <MatchingNodeDetails data={nodeData} onUpdate={updateNodeData} />,
-    };
-
-    return nodeTypeComponentMap[nodeType]?.() || null;
+    switch (nodeData.type) {
+      case 'message':
+        return <MessageNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'video':
+        return <VideoNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'router':
+        return <RouterNodeDetails data={nodeData} onUpdate={updateNodeData} availableNodes={availableNodes} />;
+      case 'text_input':
+        return <TextInputNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'multiple_choice':
+        return <MultipleChoiceNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'ranking':
+        return <RankingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'likert_scale':
+        return <LikertScaleNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      case 'matching':
+        return <MatchingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
+      default:
+        console.warn("Unknown node type:", nodeData.type);
+        return null;
+    }
   };
 
   return (
