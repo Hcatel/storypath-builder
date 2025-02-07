@@ -26,11 +26,19 @@ type ModuleAccessType = 'private' | 'public' | 'restricted';
 export default function SharePage() {
   const { id } = useParams();
   const { toast } = useToast();
+  const isCreateMode = !id || id === 'create';
 
   // Fetch module data
   const { data: module, isLoading, refetch } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
+      if (isCreateMode) {
+        return {
+          access_type: 'private' as ModuleAccessType,
+          id: 'create'
+        };
+      }
+
       const { data, error } = await supabase
         .from("modules")
         .select("*")
@@ -40,11 +48,20 @@ export default function SharePage() {
       if (error) throw error;
       return data;
     },
+    enabled: !!id,
   });
 
   // Update access type mutation
   const { mutate: updateAccessType } = useMutation({
     mutationFn: async (accessType: ModuleAccessType) => {
+      if (isCreateMode) {
+        toast({
+          title: "Info",
+          description: "Save the module first before changing access settings",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from("modules")
         .update({ access_type: accessType })
@@ -68,7 +85,7 @@ export default function SharePage() {
     },
   });
 
-  if (isLoading) {
+  if (isLoading && !isCreateMode) {
     return <div>Loading...</div>;
   }
 
@@ -90,6 +107,7 @@ export default function SharePage() {
             <Select
               value={module?.access_type || "private"}
               onValueChange={(value: ModuleAccessType) => updateAccessType(value)}
+              disabled={isCreateMode}
             >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Select access type" />
@@ -117,19 +135,25 @@ export default function SharePage() {
             </Select>
 
             <div className="text-sm text-muted-foreground">
-              {module?.access_type === "private" && (
-                <p>Only you can access this module</p>
-              )}
-              {module?.access_type === "public" && (
-                <p>Anyone can access this module</p>
-              )}
-              {module?.access_type === "restricted" && (
-                <p>Only specific users or groups can access this module</p>
+              {isCreateMode ? (
+                <p>Save the module first to configure access settings</p>
+              ) : (
+                <>
+                  {module?.access_type === "private" && (
+                    <p>Only you can access this module</p>
+                  )}
+                  {module?.access_type === "public" && (
+                    <p>Anyone can access this module</p>
+                  )}
+                  {module?.access_type === "restricted" && (
+                    <p>Only specific users or groups can access this module</p>
+                  )}
+                </>
               )}
             </div>
           </div>
 
-          {module?.access_type === "restricted" && (
+          {module?.access_type === "restricted" && !isCreateMode && (
             <Card className="mt-6">
               <CardHeader>
                 <CardTitle>Manage Access</CardTitle>
@@ -148,37 +172,39 @@ export default function SharePage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Share Link</CardTitle>
-          <CardDescription>
-            Share this module directly using a link
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={`${window.location.origin}/modules/${id}`}
-              readOnly
-              className="flex-1 px-3 py-2 bg-muted rounded-md text-sm"
-            />
-            <Button
-              onClick={() => {
-                navigator.clipboard.writeText(
-                  `${window.location.origin}/modules/${id}`
-                );
-                toast({
-                  title: "Link copied",
-                  description: "Module link copied to clipboard",
-                });
-              }}
-            >
-              Copy Link
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {!isCreateMode && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Share Link</CardTitle>
+            <CardDescription>
+              Share this module directly using a link
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={`${window.location.origin}/modules/${id}`}
+                readOnly
+                className="flex-1 px-3 py-2 bg-muted rounded-md text-sm"
+              />
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    `${window.location.origin}/modules/${id}`
+                  );
+                  toast({
+                    title: "Link copied",
+                    description: "Module link copied to clipboard",
+                  });
+                }}
+              >
+                Copy Link
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
