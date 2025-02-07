@@ -79,43 +79,48 @@ export function ModuleToolbar({
   };
 
   return (
-    <div className="flex items-center gap-2 p-2">
-      <Select
-        value={selectedComponentType}
-        onValueChange={onComponentTypeChange}
-      >
-        <SelectTrigger className="w-[180px] bg-background">
-          <SelectValue placeholder="Select component type" />
-        </SelectTrigger>
-        <SelectContent>
-          {componentOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Button onClick={onAddNode} size="sm">
-        <Plus className="w-4 h-4 mr-2" />
-        Add Node
-      </Button>
-      <Button onClick={onSave} size="sm">
-        Save Changes
-      </Button>
-      {versions && versions.length > 0 && (
-        <Select onValueChange={handleVersionChange}>
+    <div className="flex items-center gap-2 p-2 border-b">
+      <div className="flex items-center gap-2 flex-1">
+        <Select
+          value={selectedComponentType}
+          onValueChange={onComponentTypeChange}
+        >
           <SelectTrigger className="w-[180px] bg-background">
-            <History className="w-4 h-4 mr-2" />
-            <SelectValue placeholder="Restore version" />
+            <SelectValue placeholder="Select component type" />
           </SelectTrigger>
           <SelectContent>
-            {versions.map((version) => (
-              <SelectItem key={version.id} value={version.id}>
-                Version {version.version_number}
+            {componentOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+        <Button onClick={onAddNode} size="sm">
+          <Plus className="w-4 h-4 mr-2" />
+          Add Node
+        </Button>
+        <Button onClick={onSave} size="sm" variant="secondary">
+          Save Changes
+        </Button>
+      </div>
+
+      {versions && versions.length > 0 && (
+        <div className="flex items-center gap-2 border-l pl-2">
+          <History className="w-4 h-4 text-muted-foreground" />
+          <Select onValueChange={handleVersionChange}>
+            <SelectTrigger className="w-[180px] bg-background">
+              <SelectValue placeholder="Version history" />
+            </SelectTrigger>
+            <SelectContent>
+              {versions.map((version) => (
+                <SelectItem key={version.id} value={version.id}>
+                  Version {version.version_number} ({new Date(version.created_at).toLocaleDateString()})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       )}
     </div>
   );
