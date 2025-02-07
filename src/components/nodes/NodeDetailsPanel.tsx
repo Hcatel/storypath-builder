@@ -20,18 +20,20 @@ type NodeDetailsPanelProps = {
 
 export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }: NodeDetailsPanelProps) {
   const [nodeData, setNodeData] = useState<NodeData | null>(null);
+  const [nodeType, setNodeType] = useState<ComponentType | null>(null);
 
   useEffect(() => {
     if (selectedNode) {
-      // Ensure we're properly typing the node data
-      const typedNodeData = selectedNode.data as NodeData;
-      setNodeData(typedNodeData);
+      const data = selectedNode.data as NodeData;
+      setNodeData(data);
+      setNodeType(data.type);
     } else {
       setNodeData(null);
+      setNodeType(null);
     }
   }, [selectedNode]);
 
-  if (!selectedNode || !nodeData) {
+  if (!selectedNode || !nodeData || !nodeType) {
     return (
       <Card>
         <CardHeader>
@@ -50,7 +52,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     const updatedData = {
       ...nodeData,
       ...updates,
-      type: nodeData.type // Explicitly preserve the type
+      type: nodeType // Explicitly preserve the type
     } as NodeData;
 
     setNodeData(updatedData);
@@ -58,11 +60,9 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   };
 
   const renderNodeDetails = () => {
-    // Ensure we're working with the correct type at runtime
-    const type = nodeData.type;
-    console.log("Rendering details for node type:", type);
+    console.log("Rendering details for node type:", nodeType);
 
-    switch (type) {
+    switch (nodeType) {
       case 'message':
         return <MessageNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       case 'video':
@@ -81,7 +81,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
         return <MatchingNodeDetails data={nodeData} onUpdate={updateNodeData} />;
       default: {
         // This helps TypeScript know that we've handled all possible cases
-        const _exhaustiveCheck: never = type;
+        const _exhaustiveCheck: never = nodeType;
         return null;
       }
     }
@@ -90,7 +90,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit {nodeData.type.replace('_', ' ').toUpperCase()}</CardTitle>
+        <CardTitle>Edit {nodeType.replace('_', ' ').toUpperCase()}</CardTitle>
       </CardHeader>
       <CardContent>
         {renderNodeDetails()}
