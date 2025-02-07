@@ -49,7 +49,6 @@ const Index = () => {
 
       if (error) throw error;
 
-      // Navigate directly to the module summary page
       navigate(`/modules/${data.id}/summary`);
     } catch (error: any) {
       console.error("Error creating module:", error);

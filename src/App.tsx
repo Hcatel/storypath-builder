@@ -39,7 +39,7 @@ function App() {
           </Route>
 
           {/* Module creator routes */}
-          <Route path="/modules/:id" element={<ModuleCreator />}>
+          <Route path="/modules/:id/*" element={<ModuleCreator />}>
             <Route path="summary" element={<SummaryPage />} />
             <Route path="build" element={<BuildPage />} />
             <Route path="media" element={<MediaPage />} />
