@@ -12,8 +12,9 @@ import { ModuleStatus } from "@/components/modules/ModuleStatus";
 export default function SummaryPage() {
   const { id } = useParams();
   const { toast } = useToast();
+  const isCreateMode = !id || id === 'create';
 
-  // Fetch module data
+  // Fetch module data only in edit mode
   const { data: module, isLoading, refetch } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
@@ -26,6 +27,7 @@ export default function SummaryPage() {
       if (error) throw error;
       return data;
     },
+    enabled: !isCreateMode && !!id, // Only run query if we're not in create mode
   });
 
   // Update module mutation
@@ -35,6 +37,8 @@ export default function SummaryPage() {
       description?: string;
       thumbnail_url?: string;
     }) => {
+      if (isCreateMode) return; // Don't update in create mode
+      
       const { error } = await supabase
         .from("modules")
         .update(values)
@@ -62,11 +66,11 @@ export default function SummaryPage() {
   const checkForErrors = () => {
     const errors = [];
 
-    if (!module?.title) {
+    if (!module?.title && !isCreateMode) {
       errors.push("Module title is required");
     }
 
-    if (!module?.nodes || !Array.isArray(module.nodes) || module.nodes.length === 0) {
+    if (!module?.nodes || !Array.isArray(module?.nodes) || module?.nodes.length === 0) {
       errors.push("Module must have at least one content node");
     }
 
@@ -97,7 +101,7 @@ export default function SummaryPage() {
     });
   };
 
-  if (isLoading) {
+  if (isLoading && !isCreateMode) {
     return <div>Loading...</div>;
   }
 
@@ -109,10 +113,12 @@ export default function SummaryPage() {
           <Button onClick={checkForErrors} variant="outline">
             Check for Errors
           </Button>
-          <Button onClick={handleSave}>
-            <Save className="w-4 h-4 mr-2" />
-            Save Changes
-          </Button>
+          {!isCreateMode && (
+            <Button onClick={handleSave}>
+              <Save className="w-4 h-4 mr-2" />
+              Save Changes
+            </Button>
+          )}
         </div>
       </div>
 
