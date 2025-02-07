@@ -46,6 +46,9 @@ export function ModuleFlow({
   const isCPressed = useKeyPress('c');
   const isVPressed = useKeyPress('v');
   const isXPressed = useKeyPress('x');
+  const isZPressed = useKeyPress('z');
+  const isYPressed = useKeyPress('y');
+  const { undo, redo } = useReactFlow();
 
   // Handle clipboard operations
   useEffect(() => {
@@ -53,54 +56,66 @@ export function ModuleFlow({
       const selectedNodes = getNodes().filter(node => node.selected);
       
       // Only proceed if we have selected nodes and Control/Command is pressed
-      if (selectedNodes.length > 0 && (event.ctrlKey || event.metaKey)) {
-        // Copy
-        if (event.key === 'c') {
-          const nodesToCopy = selectedNodes.map(node => ({
-            ...node,
-            id: `${node.id}-copy`, // Ensure new IDs for pasting
-            position: { 
-              x: node.position.x + 50, 
-              y: node.position.y + 50 
-            }
-          }));
-          await navigator.clipboard.writeText(JSON.stringify(nodesToCopy));
+      if ((event.ctrlKey || event.metaKey)) {
+        // Undo
+        if (event.key === 'z') {
+          undo();
         }
         
-        // Cut
-        if (event.key === 'x') {
-          await navigator.clipboard.writeText(JSON.stringify(selectedNodes));
-          setNodes(nodes => nodes.filter(node => !selectedNodes.find(n => n.id === node.id)));
+        // Redo
+        if (event.key === 'y' || (event.shiftKey && event.key === 'z')) {
+          redo();
         }
-      }
-      
-      // Paste
-      if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
-        try {
-          const clipboardText = await navigator.clipboard.readText();
-          const pastedNodes = JSON.parse(clipboardText);
+
+        // Copy/Cut/Paste operations
+        if (selectedNodes.length > 0) {
+          // Copy
+          if (event.key === 'c') {
+            const nodesToCopy = selectedNodes.map(node => ({
+              ...node,
+              id: `${node.id}-copy`,
+              position: { 
+                x: node.position.x + 50, 
+                y: node.position.y + 50 
+              }
+            }));
+            await navigator.clipboard.writeText(JSON.stringify(nodesToCopy));
+          }
           
-          // Generate new IDs for pasted nodes to avoid conflicts
-          const timestamp = Date.now();
-          const newNodes = pastedNodes.map((node: FlowNode, index: number) => ({
-            ...node,
-            id: `${timestamp}-${index}`,
-            position: {
-              x: node.position.x + 100,
-              y: node.position.y + 100
-            }
-          }));
-          
-          setNodes(nodes => [...nodes, ...newNodes]);
-        } catch (error) {
-          console.error('Failed to paste nodes:', error);
+          // Cut
+          if (event.key === 'x') {
+            await navigator.clipboard.writeText(JSON.stringify(selectedNodes));
+            setNodes(nodes => nodes.filter(node => !selectedNodes.find(n => n.id === node.id)));
+          }
+        }
+        
+        // Paste
+        if (event.key === 'v') {
+          try {
+            const clipboardText = await navigator.clipboard.readText();
+            const pastedNodes = JSON.parse(clipboardText);
+            
+            const timestamp = Date.now();
+            const newNodes = pastedNodes.map((node: FlowNode, index: number) => ({
+              ...node,
+              id: `${timestamp}-${index}`,
+              position: {
+                x: node.position.x + 100,
+                y: node.position.y + 100
+              }
+            }));
+            
+            setNodes(nodes => [...nodes, ...newNodes]);
+          } catch (error) {
+            console.error('Failed to paste nodes:', error);
+          }
         }
       }
     };
 
     document.addEventListener('keydown', handleKeyboard);
     return () => document.removeEventListener('keydown', handleKeyboard);
-  }, [getNodes, setNodes]);
+  }, [getNodes, setNodes, undo, redo]);
 
   return (
     <ReactFlow

@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Undo2, Redo2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { ComponentType } from "@/types/module";
 import { componentOptions } from "@/constants/moduleComponents";
+import { useReactFlow } from "@xyflow/react";
 
 interface ModuleToolbarProps {
   selectedComponentType: ComponentType;
@@ -24,6 +25,8 @@ export function ModuleToolbar({
   onAddNode,
   onSave,
 }: ModuleToolbarProps) {
+  const { undo, redo, canUndo, canRedo } = useReactFlow();
+
   return (
     <div className="flex items-center gap-2 p-2">
       <Select
@@ -48,6 +51,24 @@ export function ModuleToolbar({
       <Button onClick={onSave} size="sm">
         Save Changes
       </Button>
+      <div className="flex items-center gap-1">
+        <Button 
+          onClick={undo} 
+          size="sm" 
+          variant="outline"
+          disabled={!canUndo}
+        >
+          <Undo2 className="w-4 h-4" />
+        </Button>
+        <Button 
+          onClick={redo} 
+          size="sm" 
+          variant="outline"
+          disabled={!canRedo}
+        >
+          <Redo2 className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 }
