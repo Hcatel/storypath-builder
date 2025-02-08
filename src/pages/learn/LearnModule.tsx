@@ -1,17 +1,18 @@
+
 import { useParams, useLocation } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { ModuleNavigation } from "@/components/learn/ModuleNavigation";
 import { ModuleContent } from "@/components/learn/ModuleContent";
 import { ModuleNotFound } from "@/components/learn/ModuleNotFound";
 import { ModuleCompletion } from "@/components/learn/ModuleCompletion";
+import { ModuleLoading } from "@/components/learn/ModuleLoading";
 import { useModuleLearning } from "@/hooks/useModuleLearning";
-import { RouterNodeData, ComponentType } from "@/types/module";
+import { RouterNodeData } from "@/types/module";
 import { RouterNodeRenderer } from "@/components/nodes/learn/RouterNodeRenderer";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useMediaControl } from "@/hooks/useMediaControl";
+import { useNextModuleInPlaylist } from "@/hooks/useNextModuleInPlaylist";
 
 const LearnModule = () => {
   const { id } = useParams();
@@ -20,10 +21,9 @@ const LearnModule = () => {
   const [overlayRouter, setOverlayRouter] = useState<RouterNodeData | null>(null);
   const [showCompletion, setShowCompletion] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const location = useLocation();
   const playlistModuleId = new URLSearchParams(location.search).get("playlist_module_id");
+  const { pauseAllMedia } = useMediaControl();
 
   const {
     module,
@@ -33,31 +33,7 @@ const LearnModule = () => {
     updateProgress,
   } = useModuleLearning(id, user?.id);
 
-  // Query to get next module in playlist if this module is part of a playlist
-  const { data: nextModule } = useQuery({
-    queryKey: ["next-module", playlistModuleId],
-    queryFn: async () => {
-      if (!playlistModuleId) return null;
-
-      const { data: currentModule } = await supabase
-        .from("playlist_modules")
-        .select("position, playlist_id")
-        .eq("id", playlistModuleId)
-        .single();
-
-      if (!currentModule) return null;
-
-      const { data: nextModule } = await supabase
-        .from("playlist_modules")
-        .select("id, module:modules(id)")
-        .eq("playlist_id", currentModule.playlist_id)
-        .eq("position", currentModule.position + 1)
-        .single();
-
-      return nextModule;
-    },
-    enabled: !!playlistModuleId,
-  });
+  const { data: nextModule } = useNextModuleInPlaylist(playlistModuleId);
 
   // Initialize progress if none exists
   useEffect(() => {
@@ -70,25 +46,6 @@ const LearnModule = () => {
       updateProgress(module.nodes[0].id);
     }
   }, [isProgressLoading, progress, user, module]);
-
-  // Function to pause all media content
-  const pauseAllMedia = () => {
-    // Pause video if it exists and is playing
-    const videoElements = document.querySelectorAll('video');
-    videoElements.forEach(video => {
-      if (!video.paused) {
-        video.pause();
-      }
-    });
-
-    // Pause audio if it exists and is playing
-    const audioElements = document.querySelectorAll('audio');
-    audioElements.forEach(audio => {
-      if (!audio.paused) {
-        audio.pause();
-      }
-    });
-  };
 
   const canProceed = () => {
     if (!module?.nodes) return false;
@@ -168,16 +125,7 @@ const LearnModule = () => {
   };
 
   if (isModuleLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <Skeleton className="h-8 w-64 mb-4" />
-          <Skeleton className="h-4 w-full max-w-2xl mb-8" />
-          <Skeleton className="h-[600px] w-full" />
-        </main>
-      </div>
-    );
+    return <ModuleLoading />;
   }
 
   if (!module || !module.nodes || module.nodes.length === 0) {
