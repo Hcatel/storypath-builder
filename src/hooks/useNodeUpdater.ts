@@ -6,9 +6,14 @@ export function useNodeUpdater(
   edges: FlowEdge[],
   setNodes: (nodes: FlowNode[]) => void,
   setEdges: (edges: FlowEdge[]) => void,
-  // Remove saveChanges parameter as it's not needed
 ) {
   const onNodeUpdate = (nodeId: string, data: any) => {
+    // Only update if there are actual changes
+    const currentNode = nodes.find(node => node.id === nodeId);
+    if (!currentNode || JSON.stringify(currentNode.data) === JSON.stringify(data)) {
+      return;
+    }
+
     if (data.type === 'router' && data.choices) {
       const existingRouterEdges = edges.filter(edge => 
         edge.source === nodeId && edge.sourceHandle?.startsWith('choice-')
