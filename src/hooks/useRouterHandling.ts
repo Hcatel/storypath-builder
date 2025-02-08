@@ -1,6 +1,6 @@
 
 import { useMediaControl } from "./useMediaControl";
-import { FlowNode } from "@/types/module";
+import { FlowNode, RouterNodeData } from "@/types/module";
 
 export function useRouterHandling(
   nodes: FlowNode[] | undefined,

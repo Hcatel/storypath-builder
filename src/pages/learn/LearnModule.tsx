@@ -1,5 +1,6 @@
 
-import { useParams, useLocation, useEffect } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { ModuleNavigation } from "@/components/learn/ModuleNavigation";
