@@ -1,7 +1,7 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RouterChoices } from '../RouterChoices';
-import { RouterNodeData } from '@/types/module';
+import { RouterNodeData, FlowNode } from '@/types/module';
 import '@testing-library/jest-dom';
 
 describe('RouterChoices', () => {
@@ -15,7 +15,7 @@ describe('RouterChoices', () => {
     ]
   };
 
-  const mockAvailableNodes = [
+  const mockAvailableNodes: FlowNode[] = [
     { 
       id: 'node1', 
       data: { 
