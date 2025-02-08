@@ -16,6 +16,7 @@ type NodeDetailsPopoverProps = {
   onNodeUpdate: (nodeId: string, data: NodeData) => void;
   onClose: () => void;
   availableNodes: Node<NodeData>[];
+  edges: { source: string; target: string; }[];
   onPositionChange?: (position: { x: number; y: number }) => void;
 };
 
@@ -25,6 +26,7 @@ export function NodeDetailsPopover({
   onNodeUpdate,
   onClose,
   availableNodes,
+  edges,
   onPositionChange,
 }: NodeDetailsPopoverProps) {
   const [isDragging, setIsDragging] = useState(false);
@@ -112,6 +114,7 @@ export function NodeDetailsPopover({
                 selectedNode={selectedNode}
                 onNodeUpdate={onNodeUpdate}
                 availableNodes={availableNodes}
+                edges={edges}
               />
             </ResizablePanel>
             <ResizableHandle withHandle />
