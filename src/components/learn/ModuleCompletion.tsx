@@ -5,6 +5,9 @@ import { Share, Trophy, Compass, Play, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ModuleShareLink } from "@/components/modules/share/ModuleShareLink";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ModuleCompletionProps {
   moduleId: string;
@@ -21,6 +24,33 @@ export function ModuleCompletion({
 }: ModuleCompletionProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const storeCompletion = async () => {
+      if (!user) return;
+
+      try {
+        const { error } = await supabase
+          .from('module_completions')
+          .insert({
+            module_id: moduleId,
+            user_id: user.id,
+          });
+
+        if (error) throw error;
+      } catch (error: any) {
+        console.error('Error storing module completion:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save your progress",
+          variant: "destructive",
+        });
+      }
+    };
+
+    storeCompletion();
+  }, [moduleId, user, toast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-primary-100 to-secondary-100">
