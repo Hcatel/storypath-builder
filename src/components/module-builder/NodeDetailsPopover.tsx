@@ -75,8 +75,9 @@ export function NodeDetailsPopover({
           setPosition(newPosition);
           onPositionChange?.(newPosition);
 
-          // Apply position directly to the wrapper
-          wrapper.style.transform = `translate3d(${newPosition.x}px, ${newPosition.y}px, 0)`;
+          // Type assertion to HTMLElement
+          const wrapperElement = wrapper as HTMLElement;
+          wrapperElement.style.transform = `translate3d(${newPosition.x}px, ${newPosition.y}px, 0)`;
         }
       };
 
