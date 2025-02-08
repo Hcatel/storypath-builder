@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { RouterChoice } from "./RouterChoice";
 import { RouterNodeData, NodeData } from "@/types/module";
 import { Node } from "@xyflow/react";
+import { useEffect, useState } from "react";
 
 interface RouterChoicesProps {
   data: RouterNodeData;
@@ -18,26 +19,38 @@ export function RouterChoices({
   onUpdate,
   onConfigureConditions,
 }: RouterChoicesProps) {
+  // Local state to track choices
+  const [choices, setChoices] = useState(data.choices);
+
+  // Update local state when data prop changes
+  useEffect(() => {
+    setChoices(data.choices);
+  }, [data.choices]);
+
   const handleChoiceUpdate = (index: number, updates: { text?: string; nextNodeId?: string }) => {
-    const newChoices = [...data.choices];
+    const newChoices = [...choices];
     newChoices[index] = { ...newChoices[index], ...updates };
+    setChoices(newChoices);
+    onUpdate({ ...data, choices: newChoices });
+  };
+
+  const handleDeleteChoice = (index: number) => {
+    const newChoices = choices.filter((_, i) => i !== index);
+    setChoices(newChoices);
     onUpdate({ ...data, choices: newChoices });
   };
 
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">Choices</label>
-      {data.choices.map((choice, index) => (
+      {choices.map((choice, index) => (
         <RouterChoice
-          key={`${choice.nextNodeId}-${index}-${availableNodes.length}`}
+          key={`choice-${index}-${choice.nextNodeId}`}
           choice={choice}
           index={index}
           availableNodes={availableNodes}
           onUpdate={handleChoiceUpdate}
-          onDelete={() => {
-            const newChoices = data.choices.filter((_, i) => i !== index);
-            onUpdate({ ...data, choices: newChoices });
-          }}
+          onDelete={handleDeleteChoice}
           onConfigureConditions={onConfigureConditions}
         />
       ))}
@@ -45,7 +58,8 @@ export function RouterChoices({
         variant="outline"
         size="sm"
         onClick={() => {
-          const newChoices = [...data.choices, { text: '', nextNodeId: '' }];
+          const newChoices = [...choices, { text: '', nextNodeId: '' }];
+          setChoices(newChoices);
           onUpdate({ ...data, choices: newChoices });
         }}
       >
