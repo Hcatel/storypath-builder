@@ -8,6 +8,7 @@ interface ModuleNavigationProps {
   onPrevious: () => void;
   onNext: () => void;
   isLastNode?: boolean;
+  canProceed?: boolean;
 }
 
 export function ModuleNavigation({
@@ -16,6 +17,7 @@ export function ModuleNavigation({
   onPrevious,
   onNext,
   isLastNode,
+  canProceed = true,
 }: ModuleNavigationProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t">
@@ -35,7 +37,7 @@ export function ModuleNavigation({
 
         <Button
           onClick={onNext}
-          disabled={!isLastNode && currentIndex === totalNodes - 1}
+          disabled={!canProceed || (!isLastNode && currentIndex === totalNodes - 1)}
           className={isLastNode ? "bg-green-500 hover:bg-green-600" : ""}
         >
           {isLastNode ? (

@@ -1,4 +1,3 @@
-
 import { useParams, useLocation } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,7 +12,6 @@ import { RouterNodeData, ComponentType } from "@/types/module";
 import { RouterNodeRenderer } from "@/components/nodes/learn/RouterNodeRenderer";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 const LearnModule = () => {
   const { id } = useParams();
@@ -26,7 +24,6 @@ const LearnModule = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const location = useLocation();
   const playlistModuleId = new URLSearchParams(location.search).get("playlist_module_id");
-  const { toast } = useToast();
 
   const {
     module,
@@ -99,11 +96,6 @@ const LearnModule = () => {
     
     // If the node is required and there's been no interaction, prevent proceeding
     if (currentNode.data.isRequired && !hasInteracted) {
-      toast({
-        title: "Required Input",
-        description: "Please complete this step before continuing.",
-        variant: "destructive",
-      });
       return false;
     }
     
@@ -112,10 +104,7 @@ const LearnModule = () => {
 
   const handleNext = () => {
     if (!module?.nodes) return;
-
-    // Check if we can proceed
-    if (!canProceed()) return;
-
+    
     const nextIndex = currentNodeIndex + 1;
     
     // If we're at the last node, show completion page
@@ -234,6 +223,7 @@ const LearnModule = () => {
           onPrevious={handlePrevious}
           onNext={handleNext}
           isLastNode={isLastNode}
+          canProceed={canProceed()}
         />
       </main>
     </div>
