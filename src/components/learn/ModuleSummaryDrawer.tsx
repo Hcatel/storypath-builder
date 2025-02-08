@@ -41,7 +41,7 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
     .sort((a: any, b: any) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime())
     .findIndex((c: any) => c.id === completion.id) + 1;
 
-  // Ensure choices is an array
+  // Ensure choices is an array and handle older completions that might not have choices
   const choices = Array.isArray(completion.choices) ? completion.choices : [];
   console.log('Processed choices:', choices);
 

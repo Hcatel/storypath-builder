@@ -41,7 +41,7 @@ export function ModuleCompletion({
       if (!user) return;
 
       try {
-        // Get learner state to access choices
+        // Get learner state to access history
         const { data: learnerState, error: stateError } = await supabase
           .from('learner_module_states')
           .select('*')
@@ -51,24 +51,10 @@ export function ModuleCompletion({
 
         if (stateError) throw stateError;
 
-        // Try to get existing completion
-        const { data: existingCompletion, error: fetchError } = await supabase
-          .from('module_completions')
-          .select('*')
-          .eq('module_id', moduleId)
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (fetchError) throw fetchError;
-
-        // If completion exists, don't create a new one
-        if (existingCompletion) {
-          console.log('Module already completed by user');
-          return;
-        }
-
-        // Extract choices from learner state history and ensure it's an array
+        // Extract history from learner state and ensure it's an array
         const history = Array.isArray(learnerState?.history) ? learnerState.history as unknown as HistoryEntry[] : [];
+        
+        // Filter out only the interaction entries we want to store
         const choices = history.filter(entry => 
           entry.type === 'text_input' || 
           entry.type === 'router' || 
@@ -76,15 +62,23 @@ export function ModuleCompletion({
           entry.type === 'ranking'
         );
 
+        // Calculate time spent (if we have start time in learner state)
+        const timeSpentSeconds = learnerState?.created_at 
+          ? Math.round((Date.now() - new Date(learnerState.created_at).getTime()) / 1000)
+          : null;
+
         console.log('Storing completion with choices:', choices);
 
-        // Insert new completion with choices
+        // Insert new completion with all the data
         const { error: insertError } = await supabase
           .from('module_completions')
           .insert({
             module_id: moduleId,
             user_id: user.id,
-            choices: choices as unknown as Json
+            choices: choices as unknown as Json,
+            time_spent_seconds: timeSpentSeconds,
+            started_at: learnerState?.created_at,
+            completed_at: new Date().toISOString()
           });
 
         if (insertError) throw insertError;
