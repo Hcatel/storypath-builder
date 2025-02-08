@@ -16,8 +16,18 @@ describe('RouterChoices', () => {
   };
 
   const mockAvailableNodes = [
-    { id: 'node1', data: { label: 'Node 1', type: 'message' } },
-    { id: 'node2', data: { label: 'Node 2', type: 'message' } }
+    { 
+      id: 'node1', 
+      data: { label: 'Node 1', type: 'message' },
+      position: { x: 0, y: 0 },
+      type: 'message'
+    },
+    { 
+      id: 'node2', 
+      data: { label: 'Node 2', type: 'message' },
+      position: { x: 100, y: 0 },
+      type: 'message'
+    }
   ];
 
   const mockOnUpdate = jest.fn();

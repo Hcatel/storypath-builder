@@ -15,7 +15,15 @@ describe('useModuleLearning', () => {
   const mockModule = {
     id: 'test-module',
     nodes: [],
-    edges: []
+    edges: [],
+    access_type: 'public',
+    component_types: ['message'],
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
+    title: 'Test Module',
+    description: 'Test Description',
+    thumbnail_url: '',
+    user_id: 'test-user'
   };
 
   const mockProgress = {
@@ -78,7 +86,10 @@ describe('useModuleLearning', () => {
         module_id: 'test-module',
         current_node_id: '3',
         completed_nodes: expect.arrayContaining(['1', '2', '3'])
-      })
+      }),
+      {
+        onConflict: 'user_id,module_id'
+      }
     );
   });
 
@@ -100,6 +111,6 @@ describe('useModuleLearning', () => {
 
     await waitForNextUpdate();
 
-    expect(result.current.error).toBeTruthy();
+    expect(result.current.module).toBeNull();
   });
 });

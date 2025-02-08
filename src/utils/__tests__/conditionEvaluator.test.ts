@@ -3,20 +3,26 @@ import { evaluateCondition, evaluateChoiceConditions } from '../conditionEvaluat
 import { Condition } from '@/types/conditions';
 
 describe('conditionEvaluator', () => {
+  const defaultCondition: Condition = {
+    id: '1',
+    module_id: 'test-module',
+    source_node_id: 'test-node',
+    target_variable_id: 'test-var',
+    condition_type: 'equals',
+    condition_value: 'test',
+    action_type: 'set_variable',
+    action_value: 'test',
+    priority: 0,
+    expression_type: 'simple',
+    condition_operator: 'AND'
+  };
+
   describe('evaluateCondition', () => {
     it('evaluates equals condition correctly', () => {
       const condition: Condition = {
-        id: '1',
-        module_id: 'test-module',
-        source_node_id: 'test-node',
-        target_variable_id: 'test-var',
+        ...defaultCondition,
         condition_type: 'equals',
-        condition_value: 'test',
-        action_type: 'set_variable',
-        action_value: 'test',
-        priority: 0,
-        expression_type: 'simple',
-        condition_operator: 'AND'
+        condition_value: 'test'
       };
 
       expect(evaluateCondition(condition, 'test')).toBe(true);
@@ -47,30 +53,16 @@ describe('conditionEvaluator', () => {
     it('evaluates multiple conditions with AND operator', () => {
       const conditions: Condition[] = [
         {
-          id: '1',
-          module_id: 'test-module',
-          source_node_id: 'test-node',
-          target_variable_id: 'test-var',
+          ...defaultCondition,
           condition_type: 'equals',
           condition_value: 'test',
-          action_type: 'set_variable',
-          action_value: '0',
-          priority: 0,
-          expression_type: 'simple',
-          condition_operator: 'AND'
+          priority: 0
         },
         {
-          id: '2',
-          module_id: 'test-module',
-          source_node_id: 'test-node',
-          target_variable_id: 'test-var',
+          ...defaultCondition,
           condition_type: 'equals',
           condition_value: 'test',
-          action_type: 'set_variable',
-          action_value: '0',
-          priority: 1,
-          expression_type: 'simple',
-          condition_operator: 'AND'
+          priority: 1
         }
       ];
 
