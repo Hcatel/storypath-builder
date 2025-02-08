@@ -18,6 +18,8 @@ import { RouterNodeDetails } from "./details/RouterNodeDetails";
 import { TextInputNodeDetails } from "./details/TextInputNodeDetails";
 import { MultipleChoiceNodeDetails } from "./details/MultipleChoiceNodeDetails";
 import { RankingNodeDetails } from "./details/RankingNodeDetails";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Label } from "../ui/label";
 
 type NodeDetailsPanelProps = {
   selectedNode: Node<NodeData> | null;
@@ -31,7 +33,6 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
   useEffect(() => {
     if (selectedNode && selectedNode.data) {
-      // Explicitly check if data.type exists and is a valid ComponentType
       if (!selectedNode.data.type) {
         console.error("Node data is missing type:", selectedNode.data);
         return;
@@ -72,6 +73,18 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     }
   }, [selectedNode]);
 
+  const handleNextNodeChange = (nextNodeId: string | null) => {
+    if (!selectedNode || !nodeData) return;
+
+    const updatedData = {
+      ...nodeData,
+      nextComponentId: nextNodeId || undefined
+    };
+
+    setNodeData(updatedData);
+    onNodeUpdate(selectedNode.id, updatedData);
+  };
+
   if (!selectedNode || !nodeData || !nodeType) {
     return (
       <Card>
@@ -85,18 +98,8 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     );
   }
 
-  const updateNodeData = (updates: Partial<NodeData>) => {
-    if (!selectedNode || !nodeData || !nodeType) return;
-
-    const updatedData = {
-      ...nodeData,
-      ...updates,
-      type: nodeType
-    } as NodeData;
-
-    setNodeData(updatedData);
-    onNodeUpdate(selectedNode.id, updatedData);
-  };
+  // Don't show next node selection for router nodes since they use choices
+  const showNextNodeSelection = nodeType !== 'router';
 
   const renderNodeDetails = () => {
     if (!nodeType || !selectedNode) return null;
@@ -131,13 +134,48 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
     }
   };
 
+  const updateNodeData = (updates: Partial<NodeData>) => {
+    if (!selectedNode || !nodeData || !nodeType) return;
+
+    const updatedData = {
+      ...nodeData,
+      ...updates,
+      type: nodeType
+    } as NodeData;
+
+    setNodeData(updatedData);
+    onNodeUpdate(selectedNode.id, updatedData);
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Edit {nodeType.replace('_', ' ').toUpperCase()}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
         {renderNodeDetails()}
+        
+        {showNextNodeSelection && (
+          <div className="space-y-2">
+            <Label>Next Node</Label>
+            <Select
+              value={nodeData.nextComponentId || ''}
+              onValueChange={handleNextNodeChange}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select next node" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">None</SelectItem>
+                {availableNodes.map((node) => (
+                  <SelectItem key={node.id} value={node.id}>
+                    {node.data.label || `${node.type} ${node.id}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

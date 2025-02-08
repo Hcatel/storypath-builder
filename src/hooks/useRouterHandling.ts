@@ -1,3 +1,4 @@
+
 import { useMediaControl } from "./useMediaControl";
 import { FlowNode, RouterNodeData } from "@/types/module";
 import { useCallback } from "react";
@@ -76,5 +77,34 @@ export function useRouterHandling(
     }
   }, [nodes, currentNodeIndex, pauseAllMedia, setOverlayRouter, setCurrentNodeIndex, setHasInteracted, updateProgress]);
 
-  return { handleRouterChoice };
+  const handleNodeComplete = useCallback(() => {
+    if (!nodes || nodes.length === 0 || currentNodeIndex >= nodes.length) {
+      console.error("Invalid node state");
+      return;
+    }
+
+    const currentNode = nodes[currentNodeIndex];
+    
+    // For non-router nodes, check if there's a next node specified
+    if (currentNode.type !== 'router' && currentNode.data.nextComponentId) {
+      const nextNodeIndex = nodes.findIndex(node => node.id === currentNode.data.nextComponentId);
+      
+      if (nextNodeIndex !== -1) {
+        const nextNode = nodes[nextNodeIndex];
+        
+        // Handle overlay routers
+        if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+          pauseAllMedia();
+          setOverlayRouter(nextNode.data as RouterNodeData);
+          updateProgress(nextNode.id);
+        } else {
+          setCurrentNodeIndex(nextNodeIndex);
+          setHasInteracted(false);
+          updateProgress(nextNode.id);
+        }
+      }
+    }
+  }, [nodes, currentNodeIndex, pauseAllMedia, setOverlayRouter, setCurrentNodeIndex, setHasInteracted, updateProgress]);
+
+  return { handleRouterChoice, handleNodeComplete };
 }
