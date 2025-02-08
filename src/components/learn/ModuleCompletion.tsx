@@ -8,22 +8,12 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Json } from "@/integrations/supabase/types";
 
 interface ModuleCompletionProps {
   moduleId: string;
   playlistModuleId?: string;
   hasNextModule?: boolean;
   onPlayNext?: () => void;
-}
-
-// Type for history entry
-interface HistoryEntry {
-  type: 'text_input' | 'router' | 'multiple_choice' | 'ranking';
-  question?: string;
-  answer?: string | string[];
-  title?: string;
-  ranking?: string[];
 }
 
 export function ModuleCompletion({ 
@@ -41,44 +31,28 @@ export function ModuleCompletion({
       if (!user) return;
 
       try {
-        // Get learner state to access history
-        const { data: learnerState, error: stateError } = await supabase
-          .from('learner_module_states')
+        // Try to get existing completion
+        const { data: existingCompletion, error: fetchError } = await supabase
+          .from('module_completions')
           .select('*')
           .eq('module_id', moduleId)
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (stateError) throw stateError;
+        if (fetchError) throw fetchError;
 
-        // Extract history from learner state and ensure it's an array
-        const history = Array.isArray(learnerState?.history) ? learnerState.history as unknown as HistoryEntry[] : [];
-        
-        // Filter out only the interaction entries we want to store
-        const choices = history.filter(entry => 
-          entry.type === 'text_input' || 
-          entry.type === 'router' || 
-          entry.type === 'multiple_choice' ||
-          entry.type === 'ranking'
-        );
+        // If completion exists, don't create a new one
+        if (existingCompletion) {
+          console.log('Module already completed by user');
+          return;
+        }
 
-        // Calculate time spent (if we have start time in learner state)
-        const timeSpentSeconds = learnerState?.created_at 
-          ? Math.round((Date.now() - new Date(learnerState.created_at).getTime()) / 1000)
-          : null;
-
-        console.log('Storing completion with choices:', choices);
-
-        // Insert new completion with all the data
+        // Insert new completion
         const { error: insertError } = await supabase
           .from('module_completions')
           .insert({
             module_id: moduleId,
             user_id: user.id,
-            choices: choices as unknown as Json,
-            time_spent_seconds: timeSpentSeconds,
-            started_at: learnerState?.created_at,
-            completed_at: new Date().toISOString()
           });
 
         if (insertError) throw insertError;
