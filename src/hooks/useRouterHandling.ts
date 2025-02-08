@@ -1,5 +1,6 @@
 import { useMediaControl } from "./useMediaControl";
 import { FlowNode, RouterNodeData } from "@/types/module";
+import { useCallback } from "react";
 
 export function useRouterHandling(
   nodes: FlowNode[] | undefined,
@@ -11,42 +12,60 @@ export function useRouterHandling(
 ) {
   const { pauseAllMedia } = useMediaControl();
 
-  const handleRouterChoice = (choiceIndex: number) => {
-    if (!nodes) return;
+  const handleRouterChoice = useCallback((choiceIndex: number) => {
+    if (!nodes || nodes.length === 0) {
+      console.error("No nodes available");
+      return;
+    }
     
     const currentRouterNode = nodes[currentNodeIndex];
-    if (!currentRouterNode) return;
+    if (!currentRouterNode) {
+      console.error("Current node not found");
+      return;
+    }
 
     const routerData = currentRouterNode.data as RouterNodeData;
-    if (!routerData?.choices || !Array.isArray(routerData.choices)) return;
+    if (!routerData?.choices || !Array.isArray(routerData.choices)) {
+      console.error("No choices available");
+      return;
+    }
     
     const selectedChoice = routerData.choices[choiceIndex];
-    if (!selectedChoice || !selectedChoice.nextComponentId) return;
+    if (!selectedChoice || !selectedChoice.nextComponentId) {
+      console.error("Invalid choice or missing nextComponentId");
+      return;
+    }
+    
+    console.log("Selected choice:", selectedChoice);
+    console.log("Looking for node with ID:", selectedChoice.nextComponentId);
     
     // Clear any existing overlay router
     setOverlayRouter(null);
     
     // Find the index of the node that matches the nextComponentId
     const nextNodeIndex = nodes.findIndex(node => node.id === selectedChoice.nextComponentId);
+    console.log("Next node index:", nextNodeIndex);
     
-    if (nextNodeIndex !== -1) {
-      const nextNode = nodes[nextNodeIndex];
-      
-      // If the next node is an overlay router, set it as overlay
-      if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
-        pauseAllMedia();
-        if ('question' in nextNode.data && 'choices' in nextNode.data) {
-          setOverlayRouter(nextNode.data as RouterNodeData);
-          updateProgress(nextNode.id);
-        }
-      } else {
-        // Otherwise, navigate to the next node
-        setCurrentNodeIndex(nextNodeIndex);
-        setHasInteracted(false);
-        updateProgress(nextNode.id);
-      }
+    if (nextNodeIndex === -1) {
+      console.error("Next node not found");
+      return;
     }
-  };
+
+    const nextNode = nodes[nextNodeIndex];
+    console.log("Next node:", nextNode);
+    
+    // If the next node is an overlay router, set it as overlay
+    if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+      pauseAllMedia();
+      setOverlayRouter(nextNode.data as RouterNodeData);
+      updateProgress(nextNode.id);
+    } else {
+      // Otherwise, navigate to the next node
+      setCurrentNodeIndex(nextNodeIndex);
+      setHasInteracted(false);
+      updateProgress(nextNode.id);
+    }
+  }, [nodes, currentNodeIndex, pauseAllMedia, setOverlayRouter, setCurrentNodeIndex, setHasInteracted, updateProgress]);
 
   return { handleRouterChoice };
 }
