@@ -118,13 +118,35 @@ export default function BuildPage() {
       })
     );
 
-    // Update edges based on nextComponentId
-    if (data.type !== 'router') {
+    // Handle edge updates differently for router nodes
+    if (data.type === 'router' && data.choices) {
       setEdges((eds) => {
-        // Remove any existing edges from this node
+        // Remove existing edges from this node
+        const otherEdges = eds.filter(edge => edge.source !== nodeId);
+        
+        // Create edges for each choice that has a nextComponentId
+        const routerEdges = data.choices
+          .map((choice, index) => {
+            if (choice.nextComponentId) {
+              return {
+                id: `e${nodeId}-${choice.nextComponentId}-${index}`,
+                source: nodeId,
+                target: choice.nextComponentId,
+                sourceHandle: `choice-${index}`,
+                type: 'default'
+              };
+            }
+            return null;
+          })
+          .filter((edge): edge is FlowEdge => edge !== null);
+
+        return [...otherEdges, ...routerEdges];
+      });
+    } else if (data.type !== 'router') {
+      // Handle regular nodes as before
+      setEdges((eds) => {
         const filteredEdges = eds.filter(edge => edge.source !== nodeId);
         
-        // Add new edge if nextComponentId is set
         if (data.nextComponentId) {
           return [...filteredEdges, {
             id: `e${nodeId}-${data.nextComponentId}`,
