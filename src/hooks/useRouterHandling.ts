@@ -19,13 +19,19 @@ export function useRouterHandling(
       return;
     }
     
-    const currentRouterNode = nodes[currentNodeIndex];
-    if (!currentRouterNode || currentRouterNode.type !== 'router') {
-      console.error("Current node not found or not a router node");
+    console.log("Current node index:", currentNodeIndex);
+    console.log("All nodes:", nodes);
+    
+    const currentNode = nodes[currentNodeIndex];
+    console.log("Current node:", currentNode);
+    
+    if (!currentNode) {
+      console.error("Current node not found");
       return;
     }
 
-    const routerData = currentRouterNode.data as RouterNodeData;
+    // Extract router data regardless of node type
+    const routerData = currentNode.data as RouterNodeData;
     if (!routerData?.choices || !Array.isArray(routerData.choices)) {
       console.error("No choices available", routerData);
       return;
