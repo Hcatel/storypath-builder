@@ -25,8 +25,11 @@ export function useRouterHandling(
       
       if (nextNode.type === 'router' && nextNode.data.isOverlay) {
         pauseAllMedia();
-        setOverlayRouter(nextNode.data);
-        updateProgress(nextNode.id);
+        // Ensure the data is of type RouterNodeData before setting it
+        if ('question' in nextNode.data && 'choices' in nextNode.data) {
+          setOverlayRouter(nextNode.data as RouterNodeData);
+          updateProgress(nextNode.id);
+        }
       } else {
         setCurrentNodeIndex(nextIndex);
         setHasInteracted(false);
