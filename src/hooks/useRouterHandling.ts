@@ -1,4 +1,3 @@
-
 import { useMediaControl } from "./useMediaControl";
 import { FlowNode, RouterNodeData } from "@/types/module";
 import { useCallback } from "react";
@@ -18,20 +17,23 @@ export function useRouterHandling(
       console.error("No nodes available");
       return;
     }
-    
-    console.log("Current node index:", currentNodeIndex);
-    console.log("All nodes:", nodes);
-    
+
+    // Find the active router node (either current node or overlay)
     const currentNode = nodes[currentNodeIndex];
-    console.log("Current node:", currentNode);
+    const overlayRouterNode = nodes.find(node => 
+      node.type === 'router' && 
+      (node.data as RouterNodeData).isOverlay
+    );
     
-    if (!currentNode) {
-      console.error("Current node not found");
+    // Use the overlay router if it exists, otherwise use current node if it's a router
+    const routerNode = overlayRouterNode || (currentNode.type === 'router' ? currentNode : null);
+    
+    if (!routerNode) {
+      console.error("No active router node found");
       return;
     }
 
-    // Extract router data regardless of node type
-    const routerData = currentNode.data as RouterNodeData;
+    const routerData = routerNode.data as RouterNodeData;
     if (!routerData?.choices || !Array.isArray(routerData.choices)) {
       console.error("No choices available", routerData);
       return;
@@ -48,15 +50,11 @@ export function useRouterHandling(
       return;
     }
     
-    console.log("Selected choice:", selectedChoice);
-    console.log("Looking for node with ID:", selectedChoice.nextComponentId);
-    
     // Clear any existing overlay router
     setOverlayRouter(null);
     
     // Find the index of the node that matches the nextComponentId
     const nextNodeIndex = nodes.findIndex(node => node.id === selectedChoice.nextComponentId);
-    console.log("Next node index:", nextNodeIndex);
     
     if (nextNodeIndex === -1) {
       console.error("Next node not found");
@@ -64,7 +62,6 @@ export function useRouterHandling(
     }
 
     const nextNode = nodes[nextNodeIndex];
-    console.log("Next node:", nextNode);
     
     // If the next node is an overlay router, set it as overlay
     if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
