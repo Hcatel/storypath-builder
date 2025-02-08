@@ -39,89 +39,92 @@ export function NodeDetailsPopover({
     }
   }, [popoverPosition, isDragging]);
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      setIsDragging(true);
-      setStartPosition({
-        x: e.clientX - (position?.x || 0),
-        y: e.clientY - (position?.y || 0)
-      });
-      
-      (window as any).isPopoverDragging = true;
-    }
-  };
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isDragging && position) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      const newPosition = {
-        x: e.clientX - startPosition.x,
-        y: e.clientY - startPosition.y
-      };
-      
-      setPosition(newPosition);
-      onPositionChange?.(newPosition);
-    }
-  }, [isDragging, position, startPosition, onPositionChange]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-    (window as any).isPopoverDragging = false;
-  }, []);
-
   useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
+    const initializeDragging = () => {
+      const wrapper = document.querySelector('[data-radix-popper-content-wrapper]');
+      if (!wrapper) return;
+
+      const header = wrapper.querySelector('.popover-header');
+      if (!header) return;
+
+      const handleMouseDown = (e: MouseEvent) => {
+        if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          setIsDragging(true);
+          setStartPosition({
+            x: e.clientX - (position?.x || 0),
+            y: e.clientY - (position?.y || 0)
+          });
+          
+          (window as any).isPopoverDragging = true;
+        }
       };
-    }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+
+      const handleMouseMove = (e: MouseEvent) => {
+        if (isDragging && position) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const newPosition = {
+            x: e.clientX - startPosition.x,
+            y: e.clientY - startPosition.y
+          };
+          
+          setPosition(newPosition);
+          onPositionChange?.(newPosition);
+
+          // Apply position directly to the wrapper
+          wrapper.style.transform = `translate3d(${newPosition.x}px, ${newPosition.y}px, 0)`;
+        }
+      };
+
+      const handleMouseUp = () => {
+        setIsDragging(false);
+        (window as any).isPopoverDragging = false;
+      };
+
+      header.addEventListener('mousedown', handleMouseDown);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+
+      return () => {
+        header.removeEventListener('mousedown', handleMouseDown);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    };
+
+    // Small delay to ensure the wrapper is mounted
+    const timeoutId = setTimeout(initializeDragging, 0);
+    return () => clearTimeout(timeoutId);
+  }, [isDragging, position, startPosition, onPositionChange]);
 
   if (!selectedNode || !position) return null;
 
   return (
-    <div 
-      className="fixed"
-      style={{ 
-        left: `${position.x}px`, 
-        top: `${position.y}px`,
-        zIndex: 1000,
-        cursor: isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none',
-      }}
-      onMouseDown={handleMouseDown}
-    >
-      <Popover open={selectedNode !== null} onOpenChange={onClose}>
-        <PopoverTrigger asChild>
-          <div className="w-0 h-0" />
-        </PopoverTrigger>
-        <PopoverContent side="right" className="p-0 w-[400px] resize overflow-auto" style={{ maxWidth: 'none' }}>
-          <div className="popover-header bg-secondary p-2 cursor-grab active:cursor-grabbing select-none">
-            Drag to move
-          </div>
-          <ResizablePanelGroup direction="horizontal">
-            <ResizablePanel defaultSize={100}>
-              <NodeDetailsPanel 
-                selectedNode={selectedNode}
-                onNodeUpdate={onNodeUpdate}
-                availableNodes={availableNodes}
-                edges={edges}
-              />
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={0} minSize={0} />
-          </ResizablePanelGroup>
-        </PopoverContent>
-      </Popover>
-    </div>
+    <Popover open={selectedNode !== null} onOpenChange={onClose}>
+      <PopoverTrigger asChild>
+        <div className="w-0 h-0" />
+      </PopoverTrigger>
+      <PopoverContent side="right" className="p-0 w-[400px] resize overflow-auto" style={{ maxWidth: 'none' }}>
+        <div className="popover-header bg-secondary p-2 cursor-grab active:cursor-grabbing select-none">
+          Drag to move
+        </div>
+        <ResizablePanelGroup direction="horizontal">
+          <ResizablePanel defaultSize={100}>
+            <NodeDetailsPanel 
+              selectedNode={selectedNode}
+              onNodeUpdate={onNodeUpdate}
+              availableNodes={availableNodes}
+              edges={edges}
+            />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={0} minSize={0} />
+        </ResizablePanelGroup>
+      </PopoverContent>
+    </Popover>
   );
 }
