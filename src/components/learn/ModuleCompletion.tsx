@@ -16,6 +16,15 @@ interface ModuleCompletionProps {
   onPlayNext?: () => void;
 }
 
+// Type for history entry
+interface HistoryEntry {
+  type: 'text_input' | 'router' | 'multiple_choice' | 'ranking';
+  question?: string;
+  answer?: string | string[];
+  title?: string;
+  ranking?: string[];
+}
+
 export function ModuleCompletion({ 
   moduleId, 
   playlistModuleId,
@@ -57,13 +66,14 @@ export function ModuleCompletion({
           return;
         }
 
-        // Extract choices from learner state history
-        const choices = learnerState?.history?.filter(entry => 
+        // Extract choices from learner state history and ensure it's an array
+        const history = Array.isArray(learnerState?.history) ? learnerState.history as HistoryEntry[] : [];
+        const choices = history.filter(entry => 
           entry.type === 'text_input' || 
           entry.type === 'router' || 
           entry.type === 'multiple_choice' ||
           entry.type === 'ranking'
-        ) || [];
+        );
 
         console.log('Storing completion with choices:', choices);
 
