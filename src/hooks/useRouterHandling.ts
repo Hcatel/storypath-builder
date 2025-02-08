@@ -1,3 +1,4 @@
+
 import { useMediaControl } from "./useMediaControl";
 import { FlowNode, RouterNodeData } from "@/types/module";
 import { useCallback } from "react";
@@ -19,20 +20,25 @@ export function useRouterHandling(
     }
     
     const currentRouterNode = nodes[currentNodeIndex];
-    if (!currentRouterNode) {
-      console.error("Current node not found");
+    if (!currentRouterNode || currentRouterNode.type !== 'router') {
+      console.error("Current node not found or not a router node");
       return;
     }
 
     const routerData = currentRouterNode.data as RouterNodeData;
     if (!routerData?.choices || !Array.isArray(routerData.choices)) {
-      console.error("No choices available");
+      console.error("No choices available", routerData);
       return;
     }
     
     const selectedChoice = routerData.choices[choiceIndex];
-    if (!selectedChoice || !selectedChoice.nextComponentId) {
-      console.error("Invalid choice or missing nextComponentId");
+    if (!selectedChoice) {
+      console.error("Invalid choice index", choiceIndex);
+      return;
+    }
+
+    if (!selectedChoice.nextComponentId) {
+      console.error("Missing nextComponentId for choice", selectedChoice);
       return;
     }
     
