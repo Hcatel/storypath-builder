@@ -33,10 +33,6 @@ export default function BuildPage() {
     onEdgesChange,
   } = useModuleBuilderState(id);
 
-  // Debug log to inspect nodes 5 and 7
-  console.log("Node 5 (Multiple Choice) configuration:", nodes?.find(node => node.id === "5"));
-  console.log("Node 7 (Message) configuration:", nodes?.find(node => node.id === "7"));
-
   const { saveChanges, onConnect, addNode } = useModuleFlow(
     id || '',
     nodes,
@@ -45,8 +41,7 @@ export default function BuildPage() {
     edges => setEdges(edges)
   );
 
-  // Remove saveChanges from useNodeUpdater parameters
-  const { onNodeUpdate } = useNodeUpdater(nodes, edges, setNodes, setEdges);
+  const { onNodeUpdate } = useNodeUpdater(nodes, edges, setNodes, setEdges, saveChanges);
 
   if (isLoading && id && id !== 'create') {
     return <div>Loading...</div>;

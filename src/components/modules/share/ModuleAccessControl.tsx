@@ -31,7 +31,7 @@ export function ModuleAccessControl({
   const { toast } = useToast();
 
   const { mutate: updateAccessType } = useMutation({
-    mutationFn: async (newAccessType: ModuleAccessType) => {
+    mutationFn: async (accessType: ModuleAccessType) => {
       if (isCreateMode) {
         toast({
           title: "Info",
@@ -40,24 +40,14 @@ export function ModuleAccessControl({
         return;
       }
 
-      console.log('Updating access type:', { moduleId, newAccessType });
-      
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("modules")
-        .update({ access_type: newAccessType })
-        .eq("id", moduleId)
-        .select();
+        .update({ access_type: accessType })
+        .eq("id", moduleId);
 
-      if (error) {
-        console.error('Error updating access type:', error);
-        throw error;
-      }
-
-      console.log('Update response:', data);
-      return data;
+      if (error) throw error;
     },
-    onSuccess: (data) => {
-      console.log('Update successful:', data);
+    onSuccess: () => {
       toast({
         title: "Success",
         description: "Access settings updated successfully",
@@ -65,7 +55,6 @@ export function ModuleAccessControl({
       onAccessChange();
     },
     onError: (error: any) => {
-      console.error('Mutation error:', error);
       toast({
         variant: "destructive",
         title: "Error",

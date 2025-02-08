@@ -6,13 +6,9 @@ export function useNodeUpdater(
   edges: FlowEdge[],
   setNodes: (nodes: FlowNode[]) => void,
   setEdges: (edges: FlowEdge[]) => void,
+  saveChanges: () => void
 ) {
   const onNodeUpdate = (nodeId: string, data: any) => {
-    // Find the current node
-    const currentNode = nodes.find(node => node.id === nodeId);
-    if (!currentNode) return;
-
-    // Special handling for router nodes
     if (data.type === 'router' && data.choices) {
       const existingRouterEdges = edges.filter(edge => 
         edge.source === nodeId && edge.sourceHandle?.startsWith('choice-')
@@ -23,9 +19,11 @@ export function useNodeUpdater(
           edge.sourceHandle === `choice-${index}`
         );
         
+        const nextNodeId = choice.nextNodeId || existingEdge?.target || '';
+        
         return {
           ...choice,
-          nextNodeId: choice.nextNodeId || existingEdge?.target || '',
+          nextNodeId,
         };
       });
 
@@ -63,7 +61,6 @@ export function useNodeUpdater(
 
       setEdges([...nonRouterEdges, ...newRouterEdges]);
     } else {
-      // Handle non-router nodes
       const updatedNodes = nodes.map(node => {
         if (node.id === nodeId) {
           return {
@@ -78,23 +75,22 @@ export function useNodeUpdater(
       });
       setNodes(updatedNodes);
 
-      // Update edges only if nextNodeId has changed
-      if (data.nextNodeId !== currentNode.data.nextNodeId) {
-        const filteredEdges = edges.filter(edge => edge.source !== nodeId);
-        if (data.nextNodeId) {
-          const newEdge: FlowEdge = {
-            id: `e${nodeId}-${data.nextNodeId}`,
-            source: nodeId,
-            target: data.nextNodeId,
-            type: 'default',
-            data: {}
-          };
-          setEdges([...filteredEdges, newEdge]);
-        } else {
-          setEdges(filteredEdges);
-        }
+      const filteredEdges = edges.filter(edge => edge.source !== nodeId);
+      if (data.nextNodeId) {
+        const newEdge: FlowEdge = {
+          id: `e${nodeId}-${data.nextNodeId}`,
+          source: nodeId,
+          target: data.nextNodeId,
+          type: 'default',
+          data: {}
+        };
+        setEdges([...filteredEdges, newEdge]);
+      } else {
+        setEdges(filteredEdges);
       }
     }
+
+    saveChanges();
   };
 
   return { onNodeUpdate };

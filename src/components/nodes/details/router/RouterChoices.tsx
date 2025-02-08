@@ -1,8 +1,17 @@
 
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { RouterChoice } from "./RouterChoice";
-import { AddChoiceButton } from "./AddChoiceButton";
-import { RouterChoicesProps } from "./types";
+import { RouterNodeData, NodeData } from "@/types/module";
+import { Node } from "@xyflow/react";
+import { useEffect, useState } from "react";
+
+interface RouterChoicesProps {
+  data: RouterNodeData;
+  availableNodes: Node<NodeData>[];
+  onUpdate: (updates: Partial<RouterNodeData>) => void;
+  onConfigureConditions: (index: number) => void;
+}
 
 export function RouterChoices({
   data,
@@ -31,12 +40,6 @@ export function RouterChoices({
     onUpdate({ ...data, choices: newChoices });
   };
 
-  const handleAddChoice = () => {
-    const newChoices = [...choices, { text: '', nextNodeId: '' }];
-    setChoices(newChoices);
-    onUpdate({ ...data, choices: newChoices });
-  };
-
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">Choices</label>
@@ -51,7 +54,18 @@ export function RouterChoices({
           onConfigureConditions={onConfigureConditions}
         />
       ))}
-      <AddChoiceButton onClick={handleAddChoice} />
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => {
+          const newChoices = [...choices, { text: '', nextNodeId: '' }];
+          setChoices(newChoices);
+          onUpdate({ ...data, choices: newChoices });
+        }}
+      >
+        <Plus className="h-4 w-4 mr-2" />
+        Add Choice
+      </Button>
     </div>
   );
 }
