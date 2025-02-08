@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Card,
@@ -18,10 +18,11 @@ type ModuleAccessType = 'private' | 'public' | 'restricted';
 
 export default function SharePage() {
   const { id } = useParams();
+  const queryClient = useQueryClient();
   const isCreateMode = !id || id === 'create';
 
   // Fetch module data
-  const { data: module, isLoading, refetch } = useQuery({
+  const { data: module, isLoading } = useQuery({
     queryKey: ["module", id],
     queryFn: async () => {
       if (isCreateMode) {
@@ -32,17 +33,28 @@ export default function SharePage() {
         };
       }
 
+      console.log('Fetching module data for ID:', id);
       const { data, error } = await supabase
         .from("modules")
         .select("*")
         .eq("id", id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching module:', error);
+        throw error;
+      }
+
+      console.log('Fetched module data:', data);
       return data;
     },
     enabled: !!id,
   });
+
+  const handleRefetch = async () => {
+    console.log('Invalidating module query...');
+    await queryClient.invalidateQueries({ queryKey: ["module", id] });
+  };
 
   if (isLoading && !isCreateMode) {
     return <div>Loading...</div>;
@@ -66,14 +78,14 @@ export default function SharePage() {
             moduleId={id || 'create'}
             published={module?.published || false}
             isCreateMode={isCreateMode}
-            onStatusChange={refetch}
+            onStatusChange={handleRefetch}
           />
 
           <ModuleAccessControl
             moduleId={id || 'create'}
             accessType={module?.access_type || 'private'}
             isCreateMode={isCreateMode}
-            onAccessChange={refetch}
+            onAccessChange={handleRefetch}
           />
         </CardContent>
       </Card>
