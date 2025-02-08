@@ -89,8 +89,6 @@ export function useNodeUpdater(
         setEdges(filteredEdges);
       }
     }
-
-    saveChanges();
   };
 
   return { onNodeUpdate };
