@@ -13,6 +13,7 @@ export interface BaseNodeData {
   label: string;
   type: ComponentType;
   nextComponentId?: string;
+  isRequired?: boolean;
 }
 
 export interface MessageNodeData extends BaseNodeData {
@@ -49,6 +50,7 @@ export interface RouterNodeData extends BaseNodeData {
 export interface TextInputNodeData extends BaseNodeData {
   type: 'text_input';
   question: string;
+  isRequired?: boolean;
 }
 
 export interface MultipleChoiceNodeData extends BaseNodeData {
@@ -56,6 +58,7 @@ export interface MultipleChoiceNodeData extends BaseNodeData {
   question: string;
   options: string[];
   allowMultiple: boolean;
+  isRequired?: boolean;
 }
 
 export interface RankingNodeData extends BaseNodeData {
@@ -63,6 +66,7 @@ export interface RankingNodeData extends BaseNodeData {
   title: string;
   instructions: string;
   options: string[];
+  isRequired?: boolean;
 }
 
 export type NodeData = 

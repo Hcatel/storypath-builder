@@ -9,10 +9,11 @@ import { ModuleContent } from "@/components/learn/ModuleContent";
 import { ModuleNotFound } from "@/components/learn/ModuleNotFound";
 import { ModuleCompletion } from "@/components/learn/ModuleCompletion";
 import { useModuleLearning } from "@/hooks/useModuleLearning";
-import { RouterNodeData } from "@/types/module";
+import { RouterNodeData, ComponentType } from "@/types/module";
 import { RouterNodeRenderer } from "@/components/nodes/learn/RouterNodeRenderer";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const LearnModule = () => {
   const { id } = useParams();
@@ -20,10 +21,12 @@ const LearnModule = () => {
   const [currentNodeIndex, setCurrentNodeIndex] = useState(0);
   const [overlayRouter, setOverlayRouter] = useState<RouterNodeData | null>(null);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const location = useLocation();
   const playlistModuleId = new URLSearchParams(location.search).get("playlist_module_id");
+  const { toast } = useToast();
 
   const {
     module,
@@ -90,8 +93,28 @@ const LearnModule = () => {
     });
   };
 
+  const canProceed = () => {
+    if (!module?.nodes) return false;
+    const currentNode = module.nodes[currentNodeIndex];
+    
+    // If the node is required and there's been no interaction, prevent proceeding
+    if (currentNode.data.isRequired && !hasInteracted) {
+      toast({
+        title: "Required Input",
+        description: "Please complete this step before continuing.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleNext = () => {
     if (!module?.nodes) return;
+
+    // Check if we can proceed
+    if (!canProceed()) return;
 
     const nextIndex = currentNodeIndex + 1;
     
@@ -113,6 +136,7 @@ const LearnModule = () => {
       }
 
       setCurrentNodeIndex(nextIndex);
+      setHasInteracted(false); // Reset interaction state for new node
       updateProgress(nextNode.id);
     }
   };
@@ -120,7 +144,12 @@ const LearnModule = () => {
   const handlePrevious = () => {
     if (currentNodeIndex > 0) {
       setCurrentNodeIndex(currentNodeIndex - 1);
+      setHasInteracted(false); // Reset interaction state for new node
     }
+  };
+
+  const handleInteraction = () => {
+    setHasInteracted(true);
   };
 
   const handleRouterChoice = (choiceIndex: number) => {
@@ -143,6 +172,7 @@ const LearnModule = () => {
       } else {
         // If it's not an overlay router, advance to the next page
         setCurrentNodeIndex(nextIndex);
+        setHasInteracted(false); // Reset interaction state for new node
         updateProgress(nextNode.id);
       }
     }
@@ -187,7 +217,11 @@ const LearnModule = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 flex flex-col">
-        <ModuleContent currentNode={currentNode} onRouterChoice={handleRouterChoice} />
+        <ModuleContent 
+          currentNode={currentNode} 
+          onRouterChoice={handleRouterChoice}
+          onInteraction={handleInteraction}
+        />
         {overlayRouter && (
           <RouterNodeRenderer 
             data={overlayRouter}

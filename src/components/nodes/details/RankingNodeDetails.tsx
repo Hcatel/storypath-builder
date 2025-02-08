@@ -3,6 +3,8 @@ import { RankingNodeData } from "@/types/module";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Plus, GripVertical, Trash2 } from "lucide-react";
 
 interface RankingNodeDetailsProps {
@@ -75,6 +77,15 @@ export function RankingNodeDetails({ data, onUpdate }: RankingNodeDetailsProps) 
           <Plus className="h-4 w-4 mr-2" />
           Add Option
         </Button>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="required"
+          checked={data.isRequired}
+          onCheckedChange={(checked) => onUpdate({ isRequired: checked })}
+        />
+        <Label htmlFor="required">Required</Label>
       </div>
     </div>
   );

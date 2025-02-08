@@ -78,6 +78,15 @@ export function MultipleChoiceNodeDetails({ data, onUpdate }: MultipleChoiceNode
         />
         <Label htmlFor="allow-multiple">Allow multiple selections</Label>
       </div>
+
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="required"
+          checked={data.isRequired}
+          onCheckedChange={(checked) => onUpdate({ isRequired: checked })}
+        />
+        <Label htmlFor="required">Required</Label>
+      </div>
     </div>
   );
 }

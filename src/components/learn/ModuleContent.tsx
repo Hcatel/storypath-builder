@@ -10,9 +10,10 @@ import { RankingNodeRenderer } from "@/components/nodes/learn/RankingNodeRendere
 interface ModuleContentProps {
   currentNode: FlowNode;
   onRouterChoice?: (choiceIndex: number) => void;
+  onInteraction?: () => void;
 }
 
-export function ModuleContent({ currentNode, onRouterChoice }: ModuleContentProps) {
+export function ModuleContent({ currentNode, onRouterChoice, onInteraction }: ModuleContentProps) {
   const renderNodeContent = (node: FlowNode) => {
     switch (node.type) {
       case "message":
@@ -23,7 +24,12 @@ export function ModuleContent({ currentNode, onRouterChoice }: ModuleContentProp
       
       case "text_input":
         if ("question" in node.data) {
-          return <TextInputNodeRenderer data={node.data as TextInputNodeData} />;
+          return (
+            <TextInputNodeRenderer 
+              data={node.data as TextInputNodeData} 
+              onSubmit={onInteraction}
+            />
+          );
         }
         return <div>Invalid text input node data</div>;
       
@@ -49,7 +55,10 @@ export function ModuleContent({ currentNode, onRouterChoice }: ModuleContentProp
           return (
             <MultipleChoiceNodeRenderer
               data={node.data as MultipleChoiceNodeData}
-              onOptionSelect={onRouterChoice}
+              onOptionSelect={(index) => {
+                onInteraction?.();
+                onRouterChoice?.(index);
+              }}
             />
           );
         }
@@ -61,6 +70,7 @@ export function ModuleContent({ currentNode, onRouterChoice }: ModuleContentProp
             <RankingNodeRenderer
               data={node.data as RankingNodeData}
               onRankingChange={(ranking) => {
+                onInteraction?.();
                 // For now, we'll just use the first item's index as the choice
                 const index = (node.data as RankingNodeData).options.indexOf(ranking[0]);
                 onRouterChoice?.(index);
