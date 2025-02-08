@@ -11,14 +11,20 @@ interface ModuleContentProps {
   currentNode: FlowNode;
   onRouterChoice?: (choiceIndex: number) => void;
   onInteraction?: () => void;
+  onNodeComplete?: () => void;
 }
 
-export function ModuleContent({ currentNode, onRouterChoice, onInteraction }: ModuleContentProps) {
+export function ModuleContent({ currentNode, onRouterChoice, onInteraction, onNodeComplete }: ModuleContentProps) {
   const renderNodeContent = (node: FlowNode) => {
     switch (node.type) {
       case "message":
         if ("title" in node.data && "content" in node.data) {
-          return <MessageNodeRenderer data={node.data as MessageNodeData} />;
+          return (
+            <MessageNodeRenderer 
+              data={node.data as MessageNodeData} 
+              onComplete={onNodeComplete}
+            />
+          );
         }
         return <div>Invalid message node data</div>;
       
@@ -27,7 +33,10 @@ export function ModuleContent({ currentNode, onRouterChoice, onInteraction }: Mo
           return (
             <TextInputNodeRenderer 
               data={node.data as TextInputNodeData} 
-              onSubmit={onInteraction}
+              onSubmit={() => {
+                onInteraction?.();
+                onNodeComplete?.();
+              }}
             />
           );
         }
@@ -35,7 +44,12 @@ export function ModuleContent({ currentNode, onRouterChoice, onInteraction }: Mo
       
       case "video":
         if ("title" in node.data && "videoUrl" in node.data) {
-          return <VideoNodeRenderer data={node.data as VideoNodeData} />;
+          return (
+            <VideoNodeRenderer 
+              data={node.data as VideoNodeData}
+              onComplete={onNodeComplete}
+            />
+          );
         }
         return <div>Invalid video node data</div>;
 
@@ -57,7 +71,7 @@ export function ModuleContent({ currentNode, onRouterChoice, onInteraction }: Mo
               data={node.data as MultipleChoiceNodeData}
               onOptionSelect={(index) => {
                 onInteraction?.();
-                onRouterChoice?.(index);
+                onNodeComplete?.();
               }}
             />
           );
@@ -71,9 +85,7 @@ export function ModuleContent({ currentNode, onRouterChoice, onInteraction }: Mo
               data={node.data as RankingNodeData}
               onRankingChange={(ranking) => {
                 onInteraction?.();
-                // For now, we'll just use the first item's index as the choice
-                const index = (node.data as RankingNodeData).options.indexOf(ranking[0]);
-                onRouterChoice?.(index);
+                onNodeComplete?.();
               }}
             />
           );
