@@ -32,17 +32,15 @@ export function NodeDetailsPanel({
         return;
       }
       
-      const currentType = selectedNode.data.type as ComponentType;
-      let typedData: NodeData;
+      const currentType = selectedNode.data.type;
       
       // Find if there's an edge from this node to another node
       const outgoingEdge = edges.find(edge => edge.source === selectedNode.id);
       const nextNodeId = outgoingEdge?.target || undefined;
       
-      // Construct typed data based on node type
-      typedData = {
+      // Ensure we preserve all existing data while updating the nextNodeId
+      const typedData: NodeData = {
         ...selectedNode.data,
-        type: currentType,
         nextNodeId: currentType !== 'router' ? nextNodeId : undefined
       };
       
@@ -57,7 +55,7 @@ export function NodeDetailsPanel({
   const handleNextNodeChange = (nextNodeId: string | null) => {
     if (!selectedNode || !nodeData) return;
 
-    const updatedData = {
+    const updatedData: NodeData = {
       ...nodeData,
       nextNodeId: nextNodeId === "none" ? undefined : nextNodeId
     };
@@ -79,17 +77,16 @@ export function NodeDetailsPanel({
     );
   }
 
-  // Don't show next node selection for router nodes since they use choices
   const showNextNodeSelection = nodeType !== 'router';
 
   const updateNodeData = (updates: Partial<NodeData>) => {
     if (!selectedNode || !nodeData || !nodeType) return;
 
-    const updatedData = {
+    const updatedData: NodeData = {
       ...nodeData,
       ...updates,
       type: nodeType
-    } as NodeData;
+    };
 
     setNodeData(updatedData);
     onNodeUpdate(selectedNode.id, updatedData);
