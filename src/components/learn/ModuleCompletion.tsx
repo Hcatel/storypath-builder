@@ -31,14 +31,32 @@ export function ModuleCompletion({
       if (!user) return;
 
       try {
-        const { error } = await supabase
+        // Try to get existing completion
+        const { data: existingCompletion, error: fetchError } = await supabase
+          .from('module_completions')
+          .select('*')
+          .eq('module_id', moduleId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (fetchError) throw fetchError;
+
+        // If completion exists, don't create a new one
+        if (existingCompletion) {
+          console.log('Module already completed by user');
+          return;
+        }
+
+        // Insert new completion
+        const { error: insertError } = await supabase
           .from('module_completions')
           .insert({
             module_id: moduleId,
             user_id: user.id,
           });
 
-        if (error) throw error;
+        if (insertError) throw insertError;
+
       } catch (error: any) {
         console.error('Error storing module completion:', error);
         toast({
