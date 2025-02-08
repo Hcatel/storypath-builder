@@ -18,7 +18,7 @@ export function RouterChoices({
   onUpdate,
   onConfigureConditions,
 }: RouterChoicesProps) {
-  const handleChoiceUpdate = (index: number, updates: { text?: string; nextComponentId?: string }) => {
+  const handleChoiceUpdate = (index: number, updates: { text?: string; nextNodeId?: string }) => {
     const newChoices = [...data.choices];
     newChoices[index] = { ...newChoices[index], ...updates };
     onUpdate({ ...data, choices: newChoices });
@@ -45,7 +45,7 @@ export function RouterChoices({
         variant="outline"
         size="sm"
         onClick={() => {
-          const newChoices = [...data.choices, { text: '', nextComponentId: '' }];
+          const newChoices = [...data.choices, { text: '', nextNodeId: '' }];
           onUpdate({ ...data, choices: newChoices });
         }}
       >
@@ -55,4 +55,3 @@ export function RouterChoices({
     </div>
   );
 }
-

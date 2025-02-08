@@ -9,6 +9,16 @@ type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string
 
 const getInitialDataForType = (type: ComponentType, nodeCount: number): NodeData => {
   switch (type) {
+    case "router":
+      return {
+        type: "router",
+        label: `Decision ${nodeCount + 1}`,
+        question: "",
+        choices: [
+          { text: "Choice 1", nextNodeId: "" },
+          { text: "Choice 2", nextNodeId: "" },
+        ],
+      };
     case "message":
       return {
         type: "message",
@@ -22,16 +32,6 @@ const getInitialDataForType = (type: ComponentType, nodeCount: number): NodeData
         label: `Video ${nodeCount + 1}`,
         title: "",
         videoUrl: "",
-      };
-    case "router":
-      return {
-        type: "router",
-        label: `Decision ${nodeCount + 1}`,
-        question: "",
-        choices: [
-          { text: "Choice 1", nextNodeId: "" },
-          { text: "Choice 2", nextNodeId: "" },
-        ],
       };
     case "text_input":
       return {

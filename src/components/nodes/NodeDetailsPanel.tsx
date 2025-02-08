@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Node } from "@xyflow/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,8 +17,8 @@ import { RouterNodeDetails } from "./details/RouterNodeDetails";
 import { TextInputNodeDetails } from "./details/TextInputNodeDetails";
 import { MultipleChoiceNodeDetails } from "./details/MultipleChoiceNodeDetails";
 import { RankingNodeDetails } from "./details/RankingNodeDetails";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Label } from "../ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 type NodeDetailsPanelProps = {
   selectedNode: Node<NodeData> | null;
@@ -44,21 +43,21 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
       
       // Find if there's an edge from this node to another node
       const outgoingEdge = edges.find(edge => edge.source === selectedNode.id);
-      const nextComponentId = outgoingEdge?.target || undefined;
+      const nextNodeId = outgoingEdge?.target || undefined;
       
       switch (currentType) {
         case 'message':
           typedData = { 
             ...selectedNode.data, 
             type: 'message',
-            nextComponentId 
+            nextNodeId 
           } as MessageNodeData;
           break;
         case 'video':
           typedData = { 
             ...selectedNode.data, 
             type: 'video',
-            nextComponentId 
+            nextNodeId 
           } as VideoNodeData;
           break;
         case 'router':
@@ -68,21 +67,21 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
           typedData = { 
             ...selectedNode.data, 
             type: 'text_input',
-            nextComponentId 
+            nextNodeId 
           } as TextInputNodeData;
           break;
         case 'multiple_choice':
           typedData = { 
             ...selectedNode.data, 
             type: 'multiple_choice',
-            nextComponentId 
+            nextNodeId 
           } as MultipleChoiceNodeData;
           break;
         case 'ranking':
           typedData = { 
             ...selectedNode.data, 
             type: 'ranking',
-            nextComponentId 
+            nextNodeId 
           } as RankingNodeData;
           break;
         default:
@@ -103,7 +102,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
 
     const updatedData = {
       ...nodeData,
-      nextComponentId: nextNodeId === "none" ? undefined : nextNodeId
+      nextNodeId: nextNodeId === "none" ? undefined : nextNodeId
     };
 
     setNodeData(updatedData);
@@ -175,7 +174,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit {nodeType.replace('_', ' ').toUpperCase()}</CardTitle>
+        <CardTitle>Edit {nodeType?.replace('_', ' ').toUpperCase()}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {renderNodeDetails()}
@@ -184,7 +183,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
           <div className="space-y-2">
             <Label>Next Node</Label>
             <Select
-              value={nodeData.nextComponentId || "none"}
+              value={nodeData?.nextNodeId || "none"}
               onValueChange={handleNextNodeChange}
             >
               <SelectTrigger>
