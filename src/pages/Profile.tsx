@@ -7,12 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { ViewToggle } from "@/components/ViewToggle";
 import { format } from "date-fns";
+import { useState } from "react";
+import { ModuleSummaryDrawer } from "@/components/learn/ModuleSummaryDrawer";
+import { Timer, CalendarClock } from "lucide-react";
 
 const Profile = () => {
   const { user } = useAuth();
+  const [selectedCompletion, setSelectedCompletion] = useState<any>(null);
 
   const { data: completions, isLoading: completionsLoading } = useQuery({
     queryKey: ['module_completions', user?.id],
@@ -96,17 +100,30 @@ const Profile = () => {
                 <div className="space-y-4">
                   {completions.map((completion: any) => (
                     <Card key={completion.id} className="p-4">
-                      <div className="space-y-2">
+                      <div className="space-y-4">
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="font-semibold">{completion.module?.title || 'Untitled Module'}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Completed on {format(new Date(completion.completed_at), 'PPP')}
-                            </p>
+                            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-2">
+                                <CalendarClock className="h-4 w-4" />
+                                Started on {format(new Date(completion.started_at), 'PPp')}
+                              </div>
+                              {completion.time_spent_seconds && (
+                                <div className="flex items-center gap-2">
+                                  <Timer className="h-4 w-4" />
+                                  {Math.round(completion.time_spent_seconds / 60)} minutes
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <Link to={`/modules/${completion.module_id}`}>
-                            <Button variant="outline" size="sm">View Module</Button>
-                          </Link>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setSelectedCompletion(completion)}
+                          >
+                            View Summary
+                          </Button>
                         </div>
                         {completion.score !== null && (
                           <div className="space-y-1">
@@ -196,6 +213,12 @@ const Profile = () => {
           </Card>
         </div>
       </main>
+
+      <ModuleSummaryDrawer
+        completion={selectedCompletion}
+        open={!!selectedCompletion}
+        onOpenChange={(open) => !open && setSelectedCompletion(null)}
+      />
     </div>
   );
 };
