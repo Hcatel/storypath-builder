@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
@@ -25,7 +26,10 @@ const Profile = () => {
         .eq('user_id', user?.id)
         .order('completed_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching completions:', error);
+        throw error;
+      }
       return data;
     },
     enabled: !!user,
@@ -95,12 +99,12 @@ const Profile = () => {
                       <div className="space-y-2">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="font-semibold">{completion.module.title}</h3>
+                            <h3 className="font-semibold">{completion.module?.title || 'Untitled Module'}</h3>
                             <p className="text-sm text-muted-foreground">
                               Completed on {format(new Date(completion.completed_at), 'PPP')}
                             </p>
                           </div>
-                          <Link to={`/modules/${completion.module.id}`}>
+                          <Link to={`/modules/${completion.module_id}`}>
                             <Button variant="outline" size="sm">View Module</Button>
                           </Link>
                         </div>
