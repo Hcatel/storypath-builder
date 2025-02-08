@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { VideoNodeData } from "@/types/module";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,10 +8,9 @@ import { Button } from "@/components/ui/button";
 
 interface VideoNodeRendererProps {
   data: VideoNodeData;
-  onComplete?: () => void;
 }
 
-export function VideoNodeRenderer({ data, onComplete }: VideoNodeRendererProps) {
+export function VideoNodeRenderer({ data }: VideoNodeRendererProps) {
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSubtitles, setShowSubtitles] = useState(false);
@@ -20,10 +20,7 @@ export function VideoNodeRenderer({ data, onComplete }: VideoNodeRendererProps) 
     if (videoRef.current) {
       videoRef.current.addEventListener('play', () => setIsPlaying(true));
       videoRef.current.addEventListener('pause', () => setIsPlaying(false));
-      videoRef.current.addEventListener('ended', () => {
-        setIsPlaying(false);
-        onComplete?.();
-      });
+      videoRef.current.addEventListener('ended', () => setIsPlaying(false));
 
       // Handle autoplay
       if (data.autoplay) {
@@ -32,7 +29,7 @@ export function VideoNodeRenderer({ data, onComplete }: VideoNodeRendererProps) 
         });
       }
     }
-  }, [data.autoplay, onComplete]);
+  }, [data.autoplay]);
 
   if (!data.title || !data.videoUrl) {
     return (

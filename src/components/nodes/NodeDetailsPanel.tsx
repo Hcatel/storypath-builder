@@ -18,22 +18,20 @@ import { RouterNodeDetails } from "./details/RouterNodeDetails";
 import { TextInputNodeDetails } from "./details/TextInputNodeDetails";
 import { MultipleChoiceNodeDetails } from "./details/MultipleChoiceNodeDetails";
 import { RankingNodeDetails } from "./details/RankingNodeDetails";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Label } from "../ui/label";
 
 type NodeDetailsPanelProps = {
   selectedNode: Node<NodeData> | null;
   onNodeUpdate: (nodeId: string, data: NodeData) => void;
   availableNodes: Node<NodeData>[];
-  edges: { source: string; target: string; }[];
 };
 
-export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, edges }: NodeDetailsPanelProps) {
+export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }: NodeDetailsPanelProps) {
   const [nodeData, setNodeData] = useState<NodeData | null>(null);
   const [nodeType, setNodeType] = useState<ComponentType | null>(null);
 
   useEffect(() => {
     if (selectedNode && selectedNode.data) {
+      // Explicitly check if data.type exists and is a valid ComponentType
       if (!selectedNode.data.type) {
         console.error("Node data is missing type:", selectedNode.data);
         return;
@@ -42,48 +40,24 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
       const currentType = selectedNode.data.type as ComponentType;
       let typedData: NodeData;
       
-      // Find if there's an edge from this node to another node
-      const outgoingEdge = edges.find(edge => edge.source === selectedNode.id);
-      const nextComponentId = outgoingEdge?.target || undefined;
-      
       switch (currentType) {
         case 'message':
-          typedData = { 
-            ...selectedNode.data, 
-            type: 'message',
-            nextComponentId 
-          } as MessageNodeData;
+          typedData = { ...selectedNode.data, type: 'message' } as MessageNodeData;
           break;
         case 'video':
-          typedData = { 
-            ...selectedNode.data, 
-            type: 'video',
-            nextComponentId 
-          } as VideoNodeData;
+          typedData = { ...selectedNode.data, type: 'video' } as VideoNodeData;
           break;
         case 'router':
           typedData = { ...selectedNode.data, type: 'router' } as RouterNodeData;
           break;
         case 'text_input':
-          typedData = { 
-            ...selectedNode.data, 
-            type: 'text_input',
-            nextComponentId 
-          } as TextInputNodeData;
+          typedData = { ...selectedNode.data, type: 'text_input' } as TextInputNodeData;
           break;
         case 'multiple_choice':
-          typedData = { 
-            ...selectedNode.data, 
-            type: 'multiple_choice',
-            nextComponentId 
-          } as MultipleChoiceNodeData;
+          typedData = { ...selectedNode.data, type: 'multiple_choice' } as MultipleChoiceNodeData;
           break;
         case 'ranking':
-          typedData = { 
-            ...selectedNode.data, 
-            type: 'ranking',
-            nextComponentId 
-          } as RankingNodeData;
+          typedData = { ...selectedNode.data, type: 'ranking' } as RankingNodeData;
           break;
         default:
           console.error("Unknown node type:", selectedNode.data.type);
@@ -96,19 +70,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
       setNodeData(null);
       setNodeType(null);
     }
-  }, [selectedNode, edges]);
-
-  const handleNextNodeChange = (nextNodeId: string | null) => {
-    if (!selectedNode || !nodeData) return;
-
-    const updatedData = {
-      ...nodeData,
-      nextComponentId: nextNodeId === "none" ? undefined : nextNodeId
-    };
-
-    setNodeData(updatedData);
-    onNodeUpdate(selectedNode.id, updatedData);
-  };
+  }, [selectedNode]);
 
   if (!selectedNode || !nodeData || !nodeType) {
     return (
@@ -123,8 +85,18 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
     );
   }
 
-  // Don't show next node selection for router nodes since they use choices
-  const showNextNodeSelection = nodeType !== 'router';
+  const updateNodeData = (updates: Partial<NodeData>) => {
+    if (!selectedNode || !nodeData || !nodeType) return;
+
+    const updatedData = {
+      ...nodeData,
+      ...updates,
+      type: nodeType
+    } as NodeData;
+
+    setNodeData(updatedData);
+    onNodeUpdate(selectedNode.id, updatedData);
+  };
 
   const renderNodeDetails = () => {
     if (!nodeType || !selectedNode) return null;
@@ -159,48 +131,13 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
     }
   };
 
-  const updateNodeData = (updates: Partial<NodeData>) => {
-    if (!selectedNode || !nodeData || !nodeType) return;
-
-    const updatedData = {
-      ...nodeData,
-      ...updates,
-      type: nodeType
-    } as NodeData;
-
-    setNodeData(updatedData);
-    onNodeUpdate(selectedNode.id, updatedData);
-  };
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>Edit {nodeType.replace('_', ' ').toUpperCase()}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent>
         {renderNodeDetails()}
-        
-        {showNextNodeSelection && (
-          <div className="space-y-2">
-            <Label>Next Node</Label>
-            <Select
-              value={nodeData.nextComponentId || "none"}
-              onValueChange={handleNextNodeChange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select next node" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {availableNodes.map((node) => (
-                  <SelectItem key={node.id} value={node.id}>
-                    {node.data.label || `${node.type} ${node.id}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

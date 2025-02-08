@@ -1,22 +1,27 @@
-
 import { useParams, useLocation } from "react-router-dom";
-import { useEffect } from "react";
 import { Header } from "@/components/Header";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import { useState, useEffect, useRef } from "react";
 import { ModuleNavigation } from "@/components/learn/ModuleNavigation";
 import { ModuleContent } from "@/components/learn/ModuleContent";
 import { ModuleNotFound } from "@/components/learn/ModuleNotFound";
 import { ModuleCompletion } from "@/components/learn/ModuleCompletion";
-import { ModuleLoading } from "@/components/learn/ModuleLoading";
 import { useModuleLearning } from "@/hooks/useModuleLearning";
+import { RouterNodeData, ComponentType } from "@/types/module";
 import { RouterNodeRenderer } from "@/components/nodes/learn/RouterNodeRenderer";
-import { useNextModuleInPlaylist } from "@/hooks/useNextModuleInPlaylist";
-import { useModuleNavigation } from "@/hooks/useModuleNavigation";
-import { useRouterHandling } from "@/hooks/useRouterHandling";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const LearnModule = () => {
   const { id } = useParams();
   const { user } = useAuth();
+  const [currentNodeIndex, setCurrentNodeIndex] = useState(0);
+  const [overlayRouter, setOverlayRouter] = useState<RouterNodeData | null>(null);
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const location = useLocation();
   const playlistModuleId = new URLSearchParams(location.search).get("playlist_module_id");
 
@@ -28,29 +33,31 @@ const LearnModule = () => {
     updateProgress,
   } = useModuleLearning(id, user?.id);
 
-  const { data: nextModule } = useNextModuleInPlaylist(playlistModuleId);
+  // Query to get next module in playlist if this module is part of a playlist
+  const { data: nextModule } = useQuery({
+    queryKey: ["next-module", playlistModuleId],
+    queryFn: async () => {
+      if (!playlistModuleId) return null;
 
-  const {
-    currentNodeIndex,
-    setCurrentNodeIndex,
-    overlayRouter,
-    hasInteracted,
-    setHasInteracted,
-    showCompletion,
-    setOverlayRouter,
-    handleNext,
-    handlePrevious,
-    handleInteraction,
-  } = useModuleNavigation(module?.nodes, updateProgress);
+      const { data: currentModule } = await supabase
+        .from("playlist_modules")
+        .select("position, playlist_id")
+        .eq("id", playlistModuleId)
+        .single();
 
-  const { handleRouterChoice } = useRouterHandling(
-    module?.nodes,
-    currentNodeIndex,
-    updateProgress,
-    setOverlayRouter,
-    setCurrentNodeIndex,
-    setHasInteracted
-  );
+      if (!currentModule) return null;
+
+      const { data: nextModule } = await supabase
+        .from("playlist_modules")
+        .select("id, module:modules(id)")
+        .eq("playlist_id", currentModule.playlist_id)
+        .eq("position", currentModule.position + 1)
+        .single();
+
+      return nextModule;
+    },
+    enabled: !!playlistModuleId,
+  });
 
   // Initialize progress if none exists
   useEffect(() => {
@@ -64,14 +71,113 @@ const LearnModule = () => {
     }
   }, [isProgressLoading, progress, user, module]);
 
+  // Function to pause all media content
+  const pauseAllMedia = () => {
+    // Pause video if it exists and is playing
+    const videoElements = document.querySelectorAll('video');
+    videoElements.forEach(video => {
+      if (!video.paused) {
+        video.pause();
+      }
+    });
+
+    // Pause audio if it exists and is playing
+    const audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+      if (!audio.paused) {
+        audio.pause();
+      }
+    });
+  };
+
   const canProceed = () => {
     if (!module?.nodes) return false;
     const currentNode = module.nodes[currentNodeIndex];
-    return !currentNode.data.isRequired || hasInteracted;
+    
+    // If the node is required and there's been no interaction, prevent proceeding
+    if (currentNode.data.isRequired && !hasInteracted) {
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleNext = () => {
+    if (!module?.nodes) return;
+    
+    const nextIndex = currentNodeIndex + 1;
+    
+    // If we're at the last node, show completion page
+    if (nextIndex === module.nodes.length) {
+      setShowCompletion(true);
+      return;
+    }
+
+    if (nextIndex < module.nodes.length) {
+      const nextNode = module.nodes[nextIndex];
+      
+      // If next node is a router with overlay, show it without changing the page
+      if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+        pauseAllMedia();
+        setOverlayRouter(nextNode.data as RouterNodeData);
+        updateProgress(nextNode.id);
+        return;
+      }
+
+      setCurrentNodeIndex(nextIndex);
+      setHasInteracted(false); // Reset interaction state for new node
+      updateProgress(nextNode.id);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentNodeIndex > 0) {
+      setCurrentNodeIndex(currentNodeIndex - 1);
+      setHasInteracted(false); // Reset interaction state for new node
+    }
+  };
+
+  const handleInteraction = () => {
+    setHasInteracted(true);
+  };
+
+  const handleRouterChoice = (choiceIndex: number) => {
+    if (!module?.nodes || overlayRouter === null) return;
+    
+    const currentRouterIndex = currentNodeIndex + 1;
+    const nextIndex = currentRouterIndex + 1;
+    
+    // Clear the current overlay
+    setOverlayRouter(null);
+    
+    if (nextIndex < module.nodes.length) {
+      const nextNode = module.nodes[nextIndex];
+      
+      // If the next node is also an overlay router, show it without advancing
+      if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+        pauseAllMedia();
+        setOverlayRouter(nextNode.data as RouterNodeData);
+        updateProgress(nextNode.id);
+      } else {
+        // If it's not an overlay router, advance to the next page
+        setCurrentNodeIndex(nextIndex);
+        setHasInteracted(false); // Reset interaction state for new node
+        updateProgress(nextNode.id);
+      }
+    }
   };
 
   if (isModuleLoading) {
-    return <ModuleLoading />;
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <Skeleton className="h-8 w-64 mb-4" />
+          <Skeleton className="h-4 w-full max-w-2xl mb-8" />
+          <Skeleton className="h-[600px] w-full" />
+        </main>
+      </div>
+    );
   }
 
   if (!module || !module.nodes || module.nodes.length === 0) {

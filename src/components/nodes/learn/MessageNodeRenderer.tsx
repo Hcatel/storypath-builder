@@ -6,10 +6,9 @@ import { AlertCircle } from "lucide-react";
 
 interface MessageNodeRendererProps {
   data: MessageNodeData;
-  onComplete?: () => void;
 }
 
-export function MessageNodeRenderer({ data, onComplete }: MessageNodeRendererProps) {
+export function MessageNodeRenderer({ data }: MessageNodeRendererProps) {
   if (!data.title || !data.content) {
     return (
       <Alert variant="destructive">

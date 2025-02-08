@@ -57,11 +57,6 @@ export function RouterNode({ data, selected, id }: RouterNodeProps) {
     return <div>Loading state...</div>;
   }
 
-  if (!data.choices || !Array.isArray(data.choices)) {
-    console.error("RouterNode: Invalid choices data", data);
-    return null;
-  }
-
   return (
     <Card className={`w-[200px] ${selected ? 'border-primary' : ''}`}>
       <CardHeader className="p-3">

@@ -2,29 +2,28 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNodesState, useEdgesState, ReactFlowProvider } from '@xyflow/react';
+import { useNodesState, useEdgesState, Node, ReactFlowProvider } from "@xyflow/react";
 import { useState } from "react";
-import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
+import { ComponentType, NodeData, FlowNode, FlowEdge } from "@/types/module";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { getInitialNode } from "@/constants/moduleComponents";
 import { ModuleFlow } from "@/components/module-builder/ModuleFlow";
 import { NodeDetailsPopover } from "@/components/module-builder/NodeDetailsPopover";
-import { useNodeSelection } from "@/hooks/useNodeSelection";
-import { convertToReactFlowNode } from "@/utils/nodeConverters";
 import "@xyflow/react/dist/style.css";
+
+const convertToReactFlowNode = (node: any): FlowNode => ({
+  id: node.id.toString(),
+  type: node.data.type || "message",
+  position: node.position || { x: 0, y: 0 },
+  data: node.data as NodeData,
+});
 
 export default function BuildPage() {
   const { id } = useParams();
   const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
+  const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
+  const [popoverPosition, setPopoverPosition] = useState<{ x: number; y: number } | null>(null);
   const isCreateMode = !id || id === 'create';
-  const {
-    selectedNode,
-    setSelectedNode,
-    popoverPosition,
-    setPopoverPosition,
-    onNodeClick,
-    onPaneClick,
-  } = useNodeSelection();
 
   const { data: module, isLoading } = useQuery({
     queryKey: ["module", id],
@@ -86,99 +85,45 @@ export default function BuildPage() {
     edges => setEdges(edges as FlowEdge[])
   );
 
-  const onNodeUpdate = (nodeId: string, data: any) => {
-    if (data.type === 'router' && data.choices) {
-      // Get existing edges for this router node
-      const existingRouterEdges = edges.filter(edge => 
-        edge.source === nodeId && edge.sourceHandle?.startsWith('choice-')
-      );
+  const onNodeClick = (event: React.MouseEvent, node: Node) => {
+    if ((window as any).isPopoverDragging) return;
+    
+    event.stopPropagation();
+    const bounds = (event.target as HTMLElement).getBoundingClientRect();
+    setPopoverPosition({ x: bounds.right + 10, y: bounds.top });
+    setSelectedNode(node as unknown as FlowNode);
+  };
 
-      // Update node data with synchronized choices
-      const updatedChoices = data.choices.map((choice: any, index: number) => {
-        // Find existing edge for this choice index
-        const existingEdge = existingRouterEdges.find(edge => 
-          edge.sourceHandle === `choice-${index}`
-        );
-        
-        // Use the existing edge target if available and no new target is specified
-        const nextComponentId = choice.nextComponentId || existingEdge?.target || '';
-        
-        return {
-          ...choice,
-          nextComponentId,
-        };
-      });
+  const onPaneClick = () => {
+    if ((window as any).isPopoverDragging) return;
+    
+    setSelectedNode(null);
+    setPopoverPosition(null);
+  };
 
-      // Update the node first
-      setNodes(nds =>
-        nds.map(node => {
-          if (node.id === nodeId) {
-            return {
-              ...node,
-              data: {
-                ...node.data,
-                ...data,
-                choices: updatedChoices,
-              },
-            };
-          }
-          return node;
-        })
-      );
-
-      // Then update edges
-      const nonRouterEdges = edges.filter(edge => edge.source !== nodeId);
-      const newRouterEdges = updatedChoices
-        .map((choice: any, index: number) => {
-          if (choice.nextComponentId) {
-            return {
-              id: `e${nodeId}-${choice.nextComponentId}-${index}`,
-              source: nodeId,
-              target: choice.nextComponentId,
-              sourceHandle: `choice-${index}`,
-              type: 'default',
-              data: {}
-            } as FlowEdge;
-          }
-          return null;
-        })
-        .filter((edge: FlowEdge | null): edge is FlowEdge => edge !== null);
-
-      setEdges([...nonRouterEdges, ...newRouterEdges]);
-    } else {
-      // Handle non-router nodes
-      setNodes(nds =>
-        nds.map(node => {
-          if (node.id === nodeId) {
-            return {
-              ...node,
-              data: {
-                ...node.data,
-                ...data,
-              },
-            };
-          }
-          return node;
-        })
-      );
-
-      // Update edges for non-router nodes
-      const filteredEdges = edges.filter(edge => edge.source !== nodeId);
-      if (data.nextComponentId) {
-        const newEdge: FlowEdge = {
-          id: `e${nodeId}-${data.nextComponentId}`,
-          source: nodeId,
-          target: data.nextComponentId,
-          type: 'default',
-          data: {}
-        };
-        setEdges([...filteredEdges, newEdge]);
-      } else {
-        setEdges(filteredEdges);
-      }
-    }
-
+  const onNodeUpdate = (nodeId: string, data: NodeData) => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === nodeId) {
+          // Create a new node object with the updated data
+          const updatedNode = {
+            ...node,
+            data: {
+              ...node.data,
+              ...data,
+            },
+          };
+          return updatedNode;
+        }
+        return node;
+      })
+    );
+    // Automatically save changes when a node is updated
     saveChanges();
+  };
+
+  const handlePositionChange = (position: { x: number; y: number }) => {
+    setPopoverPosition(position);
   };
 
   if (isLoading && !isCreateMode) {
@@ -209,8 +154,7 @@ export default function BuildPage() {
           onNodeUpdate={onNodeUpdate}
           onClose={() => setSelectedNode(null)}
           availableNodes={availableNodes}
-          edges={edges}
-          onPositionChange={setPopoverPosition}
+          onPositionChange={handlePositionChange}
         />
       </ReactFlowProvider>
     </div>
