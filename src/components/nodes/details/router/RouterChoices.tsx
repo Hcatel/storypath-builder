@@ -4,7 +4,6 @@ import { Plus } from "lucide-react";
 import { RouterChoice } from "./RouterChoice";
 import { RouterNodeData, NodeData } from "@/types/module";
 import { Node } from "@xyflow/react";
-import { useEffect, useState } from "react";
 
 interface RouterChoicesProps {
   data: RouterNodeData;
@@ -19,38 +18,26 @@ export function RouterChoices({
   onUpdate,
   onConfigureConditions,
 }: RouterChoicesProps) {
-  // Local state to track choices
-  const [choices, setChoices] = useState(data.choices);
-
-  // Update local state when data prop changes
-  useEffect(() => {
-    setChoices(data.choices);
-  }, [data.choices]);
-
-  const handleChoiceUpdate = (index: number, updates: { text?: string; nextNodeId?: string }) => {
-    const newChoices = [...choices];
+  const handleChoiceUpdate = (index: number, updates: { text?: string; nextComponentId?: string }) => {
+    const newChoices = [...data.choices];
     newChoices[index] = { ...newChoices[index], ...updates };
-    setChoices(newChoices);
-    onUpdate({ ...data, choices: newChoices });
-  };
-
-  const handleDeleteChoice = (index: number) => {
-    const newChoices = choices.filter((_, i) => i !== index);
-    setChoices(newChoices);
     onUpdate({ ...data, choices: newChoices });
   };
 
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">Choices</label>
-      {choices.map((choice, index) => (
+      {data.choices.map((choice, index) => (
         <RouterChoice
-          key={`choice-${index}-${choice.nextNodeId}`}
+          key={index}
           choice={choice}
           index={index}
           availableNodes={availableNodes}
           onUpdate={handleChoiceUpdate}
-          onDelete={handleDeleteChoice}
+          onDelete={() => {
+            const newChoices = data.choices.filter((_, i) => i !== index);
+            onUpdate({ ...data, choices: newChoices });
+          }}
           onConfigureConditions={onConfigureConditions}
         />
       ))}
@@ -58,8 +45,7 @@ export function RouterChoices({
         variant="outline"
         size="sm"
         onClick={() => {
-          const newChoices = [...choices, { text: '', nextNodeId: '' }];
-          setChoices(newChoices);
+          const newChoices = [...data.choices, { text: '', nextComponentId: '' }];
           onUpdate({ ...data, choices: newChoices });
         }}
       >
@@ -69,3 +55,4 @@ export function RouterChoices({
     </div>
   );
 }
+

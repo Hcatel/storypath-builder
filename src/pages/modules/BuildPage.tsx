@@ -1,19 +1,22 @@
 
 import { useParams } from "react-router-dom";
-import { ReactFlowProvider } from '@xyflow/react';
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useNodesState, useEdgesState, ReactFlowProvider } from '@xyflow/react';
 import { useState } from "react";
-import { ComponentType, FlowNode } from "@/types/module";
+import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
+import { getInitialNode } from "@/constants/moduleComponents";
 import { ModuleFlow } from "@/components/module-builder/ModuleFlow";
 import { NodeDetailsPopover } from "@/components/module-builder/NodeDetailsPopover";
 import { useNodeSelection } from "@/hooks/useNodeSelection";
-import { useModuleBuilderState } from "@/hooks/useModuleBuilderState";
-import { useNodeUpdater } from "@/hooks/useNodeUpdater";
+import { convertToReactFlowNode } from "@/utils/nodeConverters";
 import "@xyflow/react/dist/style.css";
 
 export default function BuildPage() {
   const { id } = useParams();
   const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
+  const isCreateMode = !id || id === 'create';
   const {
     selectedNode,
     setSelectedNode,
@@ -23,32 +26,162 @@ export default function BuildPage() {
     onPaneClick,
   } = useNodeSelection();
 
-  const {
-    isLoading,
-    nodes,
-    edges,
-    setNodes,
-    setEdges,
-    onNodesChange,
-    onEdgesChange,
-  } = useModuleBuilderState(id);
+  const { data: module, isLoading } = useQuery({
+    queryKey: ["module", id],
+    queryFn: async () => {
+      if (isCreateMode) {
+        return {
+          nodes: [],
+          edges: [],
+        };
+      }
+      
+      const { data, error } = await supabase
+        .from("modules")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
 
-  // Debug log to inspect nodes 5 and 7
-  console.log("Node 5 (Multiple Choice) configuration:", nodes?.find(node => node.id === "5"));
-  console.log("Node 7 (Message) configuration:", nodes?.find(node => node.id === "7"));
+      if (error) {
+        console.error("Error fetching module:", error);
+        throw error;
+      }
+      
+      const convertedNodes = Array.isArray(data?.nodes) 
+        ? data.nodes.map(convertToReactFlowNode)
+        : [];
+
+      const convertedEdges = Array.isArray(data?.edges)
+        ? data.edges.map((edge: any) => ({
+            id: edge.id.toString(),
+            source: edge.source.toString(),
+            target: edge.target.toString(),
+            type: edge.type || 'default',
+            data: edge.data || {},
+          }))
+        : [];
+
+      return {
+        ...data,
+        nodes: convertedNodes,
+        edges: convertedEdges,
+      };
+    },
+    enabled: !isCreateMode,
+  });
+
+  const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>(
+    module?.nodes || [getInitialNode()]
+  );
+  
+  const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>(
+    module?.edges || []
+  );
 
   const { saveChanges, onConnect, addNode } = useModuleFlow(
     id || '',
     nodes,
     edges,
     setNodes,
-    edges => setEdges(edges)
+    edges => setEdges(edges as FlowEdge[])
   );
 
-  // Remove saveChanges from useNodeUpdater parameters
-  const { onNodeUpdate } = useNodeUpdater(nodes, edges, setNodes, setEdges);
+  const onNodeUpdate = (nodeId: string, data: any) => {
+    if (data.type === 'router' && data.choices) {
+      // Get existing edges for this router node
+      const existingRouterEdges = edges.filter(edge => 
+        edge.source === nodeId && edge.sourceHandle?.startsWith('choice-')
+      );
 
-  if (isLoading && id && id !== 'create') {
+      // Update node data with synchronized choices
+      const updatedChoices = data.choices.map((choice: any, index: number) => {
+        // Find existing edge for this choice index
+        const existingEdge = existingRouterEdges.find(edge => 
+          edge.sourceHandle === `choice-${index}`
+        );
+        
+        // Use the existing edge target if available and no new target is specified
+        const nextComponentId = choice.nextComponentId || existingEdge?.target || '';
+        
+        return {
+          ...choice,
+          nextComponentId,
+        };
+      });
+
+      // Update the node first
+      setNodes(nds =>
+        nds.map(node => {
+          if (node.id === nodeId) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                ...data,
+                choices: updatedChoices,
+              },
+            };
+          }
+          return node;
+        })
+      );
+
+      // Then update edges
+      const nonRouterEdges = edges.filter(edge => edge.source !== nodeId);
+      const newRouterEdges = updatedChoices
+        .map((choice: any, index: number) => {
+          if (choice.nextComponentId) {
+            return {
+              id: `e${nodeId}-${choice.nextComponentId}-${index}`,
+              source: nodeId,
+              target: choice.nextComponentId,
+              sourceHandle: `choice-${index}`,
+              type: 'default',
+              data: {}
+            } as FlowEdge;
+          }
+          return null;
+        })
+        .filter((edge: FlowEdge | null): edge is FlowEdge => edge !== null);
+
+      setEdges([...nonRouterEdges, ...newRouterEdges]);
+    } else {
+      // Handle non-router nodes
+      setNodes(nds =>
+        nds.map(node => {
+          if (node.id === nodeId) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                ...data,
+              },
+            };
+          }
+          return node;
+        })
+      );
+
+      // Update edges for non-router nodes
+      const filteredEdges = edges.filter(edge => edge.source !== nodeId);
+      if (data.nextComponentId) {
+        const newEdge: FlowEdge = {
+          id: `e${nodeId}-${data.nextComponentId}`,
+          source: nodeId,
+          target: data.nextComponentId,
+          type: 'default',
+          data: {}
+        };
+        setEdges([...filteredEdges, newEdge]);
+      } else {
+        setEdges(filteredEdges);
+      }
+    }
+
+    saveChanges();
+  };
+
+  if (isLoading && !isCreateMode) {
     return <div>Loading...</div>;
   }
 

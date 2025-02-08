@@ -11,13 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
 
 interface RouterChoiceProps {
-  choice: { text: string; nextNodeId: string };
+  choice: { text: string; nextComponentId: string };
   index: number;
   availableNodes: Node<NodeData>[];
-  onUpdate: (index: number, updates: { text?: string; nextNodeId?: string }) => void;
+  onUpdate: (index: number, updates: { text?: string; nextComponentId?: string }) => void;
   onDelete: (index: number) => void;
   onConfigureConditions: (index: number) => void;
 }
@@ -30,19 +29,6 @@ export function RouterChoice({
   onDelete,
   onConfigureConditions,
 }: RouterChoiceProps) {
-  // Local state to track the selected value
-  const [selectedNodeId, setSelectedNodeId] = useState(choice.nextNodeId || "");
-
-  // Update local state when the choice prop changes
-  useEffect(() => {
-    setSelectedNodeId(choice.nextNodeId || "");
-  }, [choice.nextNodeId]);
-
-  const handleNodeChange = (value: string) => {
-    setSelectedNodeId(value);
-    onUpdate(index, { nextNodeId: value });
-  };
-
   return (
     <div className="space-y-2 border rounded-lg p-3">
       <div className="flex gap-2">
@@ -67,13 +53,13 @@ export function RouterChoice({
         </Button>
       </div>
       <div>
-        <label className="text-sm font-medium">Connect to node</label>
+        <label className="text-sm font-medium">Connect to component</label>
         <Select
-          value={selectedNodeId}
-          onValueChange={handleNodeChange}
+          value={choice.nextComponentId}
+          onValueChange={(value) => onUpdate(index, { nextComponentId: value })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select a node" />
+            <SelectValue placeholder="Select a component" />
           </SelectTrigger>
           <SelectContent>
             {availableNodes.map((node) => (
@@ -87,3 +73,4 @@ export function RouterChoice({
     </div>
   );
 }
+
