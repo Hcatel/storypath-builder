@@ -84,19 +84,26 @@ export function NodeDetailsPopover({
         }
       };
 
-      const handleMouseUp = () => {
-        setIsDragging(false);
-        (window as any).isPopoverDragging = false;
+      const handleMouseUp = (e: MouseEvent) => {
+        if (isDragging) {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragging(false);
+          (window as any).isPopoverDragging = false;
+        }
       };
 
       header.addEventListener('mousedown', handleMouseDown);
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
 
+      // Cleanup function
       return () => {
         header.removeEventListener('mousedown', handleMouseDown);
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        setIsDragging(false);
+        (window as any).isPopoverDragging = false;
       };
     };
 
