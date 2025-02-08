@@ -88,26 +88,31 @@ export default function BuildPage() {
 
   const onNodeUpdate = (nodeId: string, data: any) => {
     if (data.type === 'router' && data.choices) {
-      // First, update the router node's data
-      setNodes((nds) =>
-        nds.map((node) => {
-          if (node.id === nodeId) {
-            // Update choices based on existing edges if any choice is empty
-            const updatedChoices = data.choices.map((choice: any, index: number) => {
-              if (!choice.nextComponentId) {
-                // Look for an existing edge for this choice
-                const existingEdge = edges.find(edge => 
-                  edge.source === nodeId && 
-                  edge.sourceHandle === `choice-${index}`
-                );
-                return {
-                  ...choice,
-                  nextComponentId: existingEdge?.target || '',
-                };
-              }
-              return choice;
-            });
+      // Get existing edges for this router node
+      const existingRouterEdges = edges.filter(edge => 
+        edge.source === nodeId && edge.sourceHandle?.startsWith('choice-')
+      );
 
+      // Update node data with synchronized choices
+      const updatedChoices = data.choices.map((choice: any, index: number) => {
+        // Find existing edge for this choice index
+        const existingEdge = existingRouterEdges.find(edge => 
+          edge.sourceHandle === `choice-${index}`
+        );
+        
+        // Use the existing edge target if available and no new target is specified
+        const nextComponentId = choice.nextComponentId || existingEdge?.target || '';
+        
+        return {
+          ...choice,
+          nextComponentId,
+        };
+      });
+
+      // Update the node first
+      setNodes(nds =>
+        nds.map(node => {
+          if (node.id === nodeId) {
             return {
               ...node,
               data: {
@@ -121,9 +126,9 @@ export default function BuildPage() {
         })
       );
 
-      // Then update the edges to match the choices
-      const otherEdges = edges.filter(edge => edge.source !== nodeId);
-      const routerEdges = data.choices
+      // Then update edges
+      const nonRouterEdges = edges.filter(edge => edge.source !== nodeId);
+      const newRouterEdges = updatedChoices
         .map((choice: any, index: number) => {
           if (choice.nextComponentId) {
             return {
@@ -139,11 +144,11 @@ export default function BuildPage() {
         })
         .filter((edge: FlowEdge | null): edge is FlowEdge => edge !== null);
 
-      setEdges([...otherEdges, ...routerEdges]);
-    } else if (data.type !== 'router') {
+      setEdges([...nonRouterEdges, ...newRouterEdges]);
+    } else {
       // Handle non-router nodes
-      setNodes((nds) =>
-        nds.map((node) => {
+      setNodes(nds =>
+        nds.map(node => {
           if (node.id === nodeId) {
             return {
               ...node,
