@@ -8,9 +8,22 @@ export function useNodeUpdater(
   setEdges: (edges: FlowEdge[]) => void,
 ) {
   const onNodeUpdate = (nodeId: string, data: any) => {
-    // Only update if there are actual changes
+    // Find the current node
     const currentNode = nodes.find(node => node.id === nodeId);
-    if (!currentNode || JSON.stringify(currentNode.data) === JSON.stringify(data)) {
+    if (!currentNode) return;
+
+    // Create a normalized version of the incoming data for comparison
+    const normalizedNewData = { ...data };
+    const normalizedCurrentData = { ...currentNode.data };
+
+    // Remove nextNodeId from comparison if it's undefined in the new data
+    if (normalizedNewData.nextNodeId === undefined) {
+      delete normalizedNewData.nextNodeId;
+      delete normalizedCurrentData.nextNodeId;
+    }
+
+    // Check if there are actual changes by comparing normalized data
+    if (JSON.stringify(normalizedCurrentData) === JSON.stringify(normalizedNewData)) {
       return;
     }
 
