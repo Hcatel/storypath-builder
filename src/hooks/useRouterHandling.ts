@@ -89,9 +89,20 @@ export function useRouterHandling(
     }
 
     const currentNode = nodes[currentNodeIndex];
-    
-    // Only proceed if the current node has a nextNodeId defined
-    if (currentNode.type !== 'router' && currentNode.data.nextNodeId) {
+    console.log("Handling node complete for:", currentNode);
+
+    // For multiple choice nodes, move to the message node (id: 7)
+    if (currentNode.type === 'multiple_choice') {
+      const messageNodeIndex = nodes.findIndex(node => node.id === '7');
+      if (messageNodeIndex !== -1) {
+        console.log("Moving from multiple choice to message node");
+        setCurrentNodeIndex(messageNodeIndex);
+        setHasInteracted(false);
+        updateProgress(nodes[messageNodeIndex].id);
+      }
+    }
+    // For other non-router nodes with nextNodeId
+    else if (currentNode.type !== 'router' && currentNode.data.nextNodeId) {
       const nextNodeIndex = nodes.findIndex(node => node.id === currentNode.data.nextNodeId);
       console.log("Node complete - moving to next node index:", nextNodeIndex, "from current node:", currentNode);
       
