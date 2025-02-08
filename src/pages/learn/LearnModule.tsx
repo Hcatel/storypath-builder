@@ -1,5 +1,5 @@
 
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useEffect } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { ModuleNavigation } from "@/components/learn/ModuleNavigation";
@@ -31,8 +31,10 @@ const LearnModule = () => {
 
   const {
     currentNodeIndex,
+    setCurrentNodeIndex,
     overlayRouter,
     hasInteracted,
+    setHasInteracted,
     showCompletion,
     setOverlayRouter,
     handleNext,

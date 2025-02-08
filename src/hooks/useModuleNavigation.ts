@@ -52,8 +52,10 @@ export function useModuleNavigation(
 
   return {
     currentNodeIndex,
+    setCurrentNodeIndex,
     overlayRouter,
     hasInteracted,
+    setHasInteracted,
     showCompletion,
     setOverlayRouter,
     handleNext,

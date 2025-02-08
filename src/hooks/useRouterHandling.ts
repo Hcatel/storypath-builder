@@ -1,12 +1,12 @@
 
-import { useModuleNavigation } from "./useModuleNavigation";
+import { useMediaControl } from "./useMediaControl";
 import { FlowNode } from "@/types/module";
 
 export function useRouterHandling(
   nodes: FlowNode[] | undefined,
   currentNodeIndex: number,
   updateProgress: (nodeId: string) => void,
-  setOverlayRouter: (router: null) => void,
+  setOverlayRouter: (router: RouterNodeData | null) => void,
   setCurrentNodeIndex: (index: number) => void,
   setHasInteracted: (interacted: boolean) => void
 ) {
