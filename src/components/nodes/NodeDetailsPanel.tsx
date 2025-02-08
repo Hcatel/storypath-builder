@@ -78,7 +78,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
 
     const updatedData = {
       ...nodeData,
-      nextComponentId: nextNodeId || undefined
+      nextComponentId: nextNodeId === "none" ? undefined : nextNodeId
     };
 
     setNodeData(updatedData);
@@ -159,14 +159,14 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
           <div className="space-y-2">
             <Label>Next Node</Label>
             <Select
-              value={nodeData.nextComponentId || ''}
+              value={nodeData.nextComponentId || "none"}
               onValueChange={handleNextNodeChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select next node" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {availableNodes.map((node) => (
                   <SelectItem key={node.id} value={node.id}>
                     {node.data.label || `${node.type} ${node.id}`}
