@@ -44,6 +44,9 @@ export function useRouterHandling(
       return;
     }
 
+    console.log("Selected choice:", selectedChoice);
+    console.log("Available nodes:", nodes);
+
     if (!selectedChoice.nextNodeId) {
       console.error("Missing nextNodeId for choice", selectedChoice);
       return;
@@ -51,14 +54,17 @@ export function useRouterHandling(
     
     setOverlayRouter(null);
     
+    // Find the exact next node based on the nextNodeId from the choice
     const nextNodeIndex = nodes.findIndex(node => node.id === selectedChoice.nextNodeId);
+    console.log("Next node index:", nextNodeIndex, "for nextNodeId:", selectedChoice.nextNodeId);
     
     if (nextNodeIndex === -1) {
-      console.error("Next node not found");
+      console.error("Next node not found for id:", selectedChoice.nextNodeId);
       return;
     }
 
     const nextNode = nodes[nextNodeIndex];
+    console.log("Moving to next node:", nextNode);
     
     if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
       pauseAllMedia();
@@ -81,6 +87,7 @@ export function useRouterHandling(
     
     if (currentNode.type !== 'router' && currentNode.data.nextNodeId) {
       const nextNodeIndex = nodes.findIndex(node => node.id === currentNode.data.nextNodeId);
+      console.log("Node complete - moving to next node index:", nextNodeIndex, "from current node:", currentNode);
       
       if (nextNodeIndex !== -1) {
         const nextNode = nodes[nextNodeIndex];
