@@ -10,9 +10,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface TextInputNodeRendererProps {
   data: TextInputNodeData;
+  onSubmit?: () => void;
 }
 
-export function TextInputNodeRenderer({ data }: TextInputNodeRendererProps) {
+export function TextInputNodeRenderer({ data, onSubmit }: TextInputNodeRendererProps) {
   const [answer, setAnswer] = useState("");
   const { toast } = useToast();
 
@@ -42,7 +43,7 @@ export function TextInputNodeRenderer({ data }: TextInputNodeRendererProps) {
       description: "Your response has been recorded",
     });
     
-    // Reset the input after submission
+    onSubmit?.();
     setAnswer("");
   };
 
