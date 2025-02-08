@@ -67,7 +67,7 @@ export function ModuleCompletion({
         }
 
         // Extract choices from learner state history and ensure it's an array
-        const history = Array.isArray(learnerState?.history) ? learnerState.history as HistoryEntry[] : [];
+        const history = Array.isArray(learnerState?.history) ? learnerState.history as unknown as HistoryEntry[] : [];
         const choices = history.filter(entry => 
           entry.type === 'text_input' || 
           entry.type === 'router' || 
@@ -83,7 +83,7 @@ export function ModuleCompletion({
           .insert({
             module_id: moduleId,
             user_id: user.id,
-            choices: choices
+            choices: choices as unknown as Json
           });
 
         if (insertError) throw insertError;
