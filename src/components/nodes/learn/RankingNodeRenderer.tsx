@@ -11,6 +11,7 @@ interface RankingNodeRendererProps {
 
 export function RankingNodeRenderer({ data, onRankingChange }: RankingNodeRendererProps) {
   const [items, setItems] = useState<string[]>(data.options);
+  const [hasDragged, setHasDragged] = useState(false);
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -20,6 +21,7 @@ export function RankingNodeRenderer({ data, onRankingChange }: RankingNodeRender
     newItems.splice(result.destination.index, 0, reorderedItem);
 
     setItems(newItems);
+    setHasDragged(true);
     onRankingChange?.(newItems);
   };
 

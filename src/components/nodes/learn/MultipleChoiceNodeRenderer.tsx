@@ -21,14 +21,14 @@ export function MultipleChoiceNodeRenderer({ data, onOptionSelect }: MultipleCho
       
       // If multiple selection is not allowed, replace the selection
       if (!data.allowMultiple) {
+        onOptionSelect?.(index);
         return [index];
       }
       
       // If multiple selection is allowed, add the new selection
+      onOptionSelect?.(index);
       return [...prev, index];
     });
-
-    onOptionSelect?.(index);
   };
 
   return (
