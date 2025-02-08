@@ -45,7 +45,8 @@ export default function BuildPage() {
     edges => setEdges(edges)
   );
 
-  const { onNodeUpdate } = useNodeUpdater(nodes, edges, setNodes, setEdges, saveChanges);
+  // Remove saveChanges from useNodeUpdater parameters
+  const { onNodeUpdate } = useNodeUpdater(nodes, edges, setNodes, setEdges);
 
   if (isLoading && id && id !== 'create') {
     return <div>Loading...</div>;

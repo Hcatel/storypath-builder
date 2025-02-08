@@ -6,7 +6,7 @@ export function useNodeUpdater(
   edges: FlowEdge[],
   setNodes: (nodes: FlowNode[]) => void,
   setEdges: (edges: FlowEdge[]) => void,
-  saveChanges: () => void
+  // Remove saveChanges parameter as it's not needed
 ) {
   const onNodeUpdate = (nodeId: string, data: any) => {
     if (data.type === 'router' && data.choices) {
