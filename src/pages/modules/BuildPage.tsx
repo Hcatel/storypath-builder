@@ -87,6 +87,7 @@ export default function BuildPage() {
   );
 
   const onNodeUpdate = (nodeId: string, data: any) => {
+    // Update nodes first
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === nodeId) {
@@ -102,44 +103,45 @@ export default function BuildPage() {
       })
     );
 
+    // Handle edge updates based on node type and data
     if (data.type === 'router' && data.choices) {
-      setEdges((eds) => {
-        const otherEdges = eds.filter(edge => edge.source !== nodeId);
-        
-        const routerEdges = data.choices
-          .map((choice: any, index: number) => {
-            if (choice.nextComponentId) {
-              return {
-                id: `e${nodeId}-${choice.nextComponentId}-${index}`,
-                source: nodeId,
-                target: choice.nextComponentId,
-                sourceHandle: `choice-${index}`,
-                type: 'default',
-                data: {}
-              } as FlowEdge;
-            }
-            return null;
-          })
-          .filter((edge: FlowEdge | null): edge is FlowEdge => edge !== null);
+      // Remove all existing edges from this router node
+      const otherEdges = edges.filter(edge => edge.source !== nodeId);
+      
+      // Create new edges for each choice that has a nextComponentId
+      const routerEdges = data.choices
+        .map((choice: any, index: number) => {
+          if (choice.nextComponentId) {
+            return {
+              id: `e${nodeId}-${choice.nextComponentId}-${index}`,
+              source: nodeId,
+              target: choice.nextComponentId,
+              sourceHandle: `choice-${index}`,
+              type: 'default',
+              data: {}
+            } as FlowEdge;
+          }
+          return null;
+        })
+        .filter((edge: FlowEdge | null): edge is FlowEdge => edge !== null);
 
-        return [...otherEdges, ...routerEdges];
-      });
+      setEdges([...otherEdges, ...routerEdges]);
     } else if (data.type !== 'router') {
-      setEdges((eds) => {
-        const filteredEdges = eds.filter(edge => edge.source !== nodeId);
-        
-        if (data.nextComponentId) {
-          return [...filteredEdges, {
-            id: `e${nodeId}-${data.nextComponentId}`,
-            source: nodeId,
-            target: data.nextComponentId,
-            type: 'default',
-            data: {}
-          }];
-        }
-        
-        return filteredEdges;
-      });
+      // For non-router nodes, handle single edge
+      const filteredEdges = edges.filter(edge => edge.source !== nodeId);
+      
+      if (data.nextComponentId) {
+        const newEdge: FlowEdge = {
+          id: `e${nodeId}-${data.nextComponentId}`,
+          source: nodeId,
+          target: data.nextComponentId,
+          type: 'default',
+          data: {}
+        };
+        setEdges([...filteredEdges, newEdge]);
+      } else {
+        setEdges(filteredEdges);
+      }
     }
 
     saveChanges();
