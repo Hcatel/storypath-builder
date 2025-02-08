@@ -13,6 +13,9 @@ interface ModuleSummaryDrawerProps {
 export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSummaryDrawerProps) {
   if (!completion) return null;
 
+  console.log('Completion data:', completion);
+  console.log('Choices:', completion.choices);
+
   const durationInMinutes = completion.time_spent_seconds 
     ? Math.round(completion.time_spent_seconds / 60) 
     : null;
@@ -38,9 +41,13 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
     .sort((a: any, b: any) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime())
     .findIndex((c: any) => c.id === completion.id) + 1;
 
+  // Ensure choices is an array
+  const choices = Array.isArray(completion.choices) ? completion.choices : [];
+  console.log('Processed choices:', choices);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl">
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto max-h-screen">
         <SheetHeader>
           <SheetTitle>{completion.module?.title || 'Module'} Summary</SheetTitle>
           <SheetDescription>Session {sessionNumber}</SheetDescription>
@@ -90,10 +97,10 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
           )}
 
           {/* Text Input Responses */}
-          {completion.choices && completion.choices.some((choice: any) => choice.type === 'text_input') && (
+          {choices.length > 0 && choices.some((choice: any) => choice.type === 'text_input') && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Text Responses</h3>
-              {completion.choices
+              {choices
                 .filter((choice: any) => choice.type === 'text_input')
                 .map((choice: any, index: number) => (
                   <Card key={`text-${index}`}>
@@ -107,10 +114,10 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
           )}
 
           {/* Router Choices */}
-          {completion.choices && completion.choices.some((choice: any) => choice.type === 'router') && (
+          {choices.length > 0 && choices.some((choice: any) => choice.type === 'router') && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Decisions Made</h3>
-              {completion.choices
+              {choices
                 .filter((choice: any) => choice.type === 'router')
                 .map((choice: any, index: number) => (
                   <Card key={`router-${index}`}>
@@ -124,10 +131,10 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
           )}
 
           {/* Rankings */}
-          {completion.choices && completion.choices.some((choice: any) => choice.type === 'ranking') && (
+          {choices.length > 0 && choices.some((choice: any) => choice.type === 'ranking') && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Rankings</h3>
-              {completion.choices
+              {choices
                 .filter((choice: any) => choice.type === 'ranking')
                 .map((choice: any, index: number) => (
                   <Card key={`ranking-${index}`}>
@@ -148,10 +155,10 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
           )}
 
           {/* Multiple Choice Answers */}
-          {completion.choices && completion.choices.some((choice: any) => choice.type === 'multiple_choice') && (
+          {choices.length > 0 && choices.some((choice: any) => choice.type === 'multiple_choice') && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Multiple Choice Answers</h3>
-              {completion.choices
+              {choices
                 .filter((choice: any) => choice.type === 'multiple_choice')
                 .map((choice: any, index: number) => (
                   <Card key={`mc-${index}`}>
