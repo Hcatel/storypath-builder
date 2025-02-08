@@ -18,13 +18,23 @@ describe('RouterChoices', () => {
   const mockAvailableNodes = [
     { 
       id: 'node1', 
-      data: { label: 'Node 1', type: 'message' },
+      data: { 
+        type: 'message',
+        label: 'Node 1',
+        title: 'Message 1',
+        content: 'Test content 1'
+      },
       position: { x: 0, y: 0 },
       type: 'message'
     },
     { 
       id: 'node2', 
-      data: { label: 'Node 2', type: 'message' },
+      data: { 
+        type: 'message',
+        label: 'Node 2',
+        title: 'Message 2',
+        content: 'Test content 2'
+      },
       position: { x: 100, y: 0 },
       type: 'message'
     }
