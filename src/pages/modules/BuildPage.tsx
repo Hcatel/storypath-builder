@@ -33,6 +33,10 @@ export default function BuildPage() {
     onEdgesChange,
   } = useModuleBuilderState(id);
 
+  // Debug log to inspect nodes 5 and 7
+  console.log("Node 5 (Multiple Choice) configuration:", nodes?.find(node => node.id === "5"));
+  console.log("Node 7 (Message) configuration:", nodes?.find(node => node.id === "7"));
+
   const { saveChanges, onConnect, addNode } = useModuleFlow(
     id || '',
     nodes,
