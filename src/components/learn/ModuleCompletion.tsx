@@ -31,6 +31,16 @@ export function ModuleCompletion({
       if (!user) return;
 
       try {
+        // Get learner state to access choices
+        const { data: learnerState, error: stateError } = await supabase
+          .from('learner_module_states')
+          .select('*')
+          .eq('module_id', moduleId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (stateError) throw stateError;
+
         // Try to get existing completion
         const { data: existingCompletion, error: fetchError } = await supabase
           .from('module_completions')
@@ -47,12 +57,23 @@ export function ModuleCompletion({
           return;
         }
 
-        // Insert new completion
+        // Extract choices from learner state history
+        const choices = learnerState?.history?.filter(entry => 
+          entry.type === 'text_input' || 
+          entry.type === 'router' || 
+          entry.type === 'multiple_choice' ||
+          entry.type === 'ranking'
+        ) || [];
+
+        console.log('Storing completion with choices:', choices);
+
+        // Insert new completion with choices
         const { error: insertError } = await supabase
           .from('module_completions')
           .insert({
             module_id: moduleId,
             user_id: user.id,
+            choices: choices
           });
 
         if (insertError) throw insertError;
