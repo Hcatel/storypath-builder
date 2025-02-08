@@ -2,28 +2,29 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNodesState, useEdgesState, Node, ReactFlowProvider } from '@xyflow/react';
+import { useNodesState, useEdgesState, ReactFlowProvider } from '@xyflow/react';
 import { useState } from "react";
-import { ComponentType, NodeData, FlowNode, FlowEdge } from "@/types/module";
+import { ComponentType, FlowNode, FlowEdge } from "@/types/module";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
 import { getInitialNode } from "@/constants/moduleComponents";
 import { ModuleFlow } from "@/components/module-builder/ModuleFlow";
 import { NodeDetailsPopover } from "@/components/module-builder/NodeDetailsPopover";
+import { useNodeSelection } from "@/hooks/useNodeSelection";
+import { convertToReactFlowNode } from "@/utils/nodeConverters";
 import "@xyflow/react/dist/style.css";
-
-const convertToReactFlowNode = (node: any): FlowNode => ({
-  id: node.id.toString(),
-  type: node.data.type || "message",
-  position: node.position || { x: 0, y: 0 },
-  data: node.data as NodeData,
-});
 
 export default function BuildPage() {
   const { id } = useParams();
   const [selectedComponentType, setSelectedComponentType] = useState<ComponentType>("message");
-  const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
-  const [popoverPosition, setPopoverPosition] = useState<{ x: number; y: number } | null>(null);
   const isCreateMode = !id || id === 'create';
+  const {
+    selectedNode,
+    setSelectedNode,
+    popoverPosition,
+    setPopoverPosition,
+    onNodeClick,
+    onPaneClick,
+  } = useNodeSelection();
 
   const { data: module, isLoading } = useQuery({
     queryKey: ["module", id],
@@ -85,24 +86,7 @@ export default function BuildPage() {
     edges => setEdges(edges as FlowEdge[])
   );
 
-  const onNodeClick = (event: React.MouseEvent, node: Node) => {
-    if ((window as any).isPopoverDragging) return;
-    
-    event.stopPropagation();
-    const bounds = (event.target as HTMLElement).getBoundingClientRect();
-    setPopoverPosition({ x: bounds.right + 10, y: bounds.top });
-    setSelectedNode(node as unknown as FlowNode);
-  };
-
-  const onPaneClick = () => {
-    if ((window as any).isPopoverDragging) return;
-    
-    setSelectedNode(null);
-    setPopoverPosition(null);
-  };
-
-  const onNodeUpdate = (nodeId: string, data: NodeData) => {
-    // Update the node data
+  const onNodeUpdate = (nodeId: string, data: any) => {
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === nodeId) {
@@ -118,15 +102,12 @@ export default function BuildPage() {
       })
     );
 
-    // Handle edge updates differently for router nodes
     if (data.type === 'router' && data.choices) {
       setEdges((eds) => {
-        // Remove existing edges from this node
         const otherEdges = eds.filter(edge => edge.source !== nodeId);
         
-        // Create edges for each choice that has a nextComponentId
         const routerEdges = data.choices
-          .map((choice, index) => {
+          .map((choice: any, index: number) => {
             if (choice.nextComponentId) {
               return {
                 id: `e${nodeId}-${choice.nextComponentId}-${index}`,
@@ -134,17 +115,16 @@ export default function BuildPage() {
                 target: choice.nextComponentId,
                 sourceHandle: `choice-${index}`,
                 type: 'default',
-                data: {} // Add empty data object to match FlowEdge type
+                data: {}
               } as FlowEdge;
             }
             return null;
           })
-          .filter((edge): edge is FlowEdge => edge !== null);
+          .filter((edge: FlowEdge | null): edge is FlowEdge => edge !== null);
 
         return [...otherEdges, ...routerEdges];
       });
     } else if (data.type !== 'router') {
-      // Handle regular nodes as before
       setEdges((eds) => {
         const filteredEdges = eds.filter(edge => edge.source !== nodeId);
         
@@ -153,7 +133,8 @@ export default function BuildPage() {
             id: `e${nodeId}-${data.nextComponentId}`,
             source: nodeId,
             target: data.nextComponentId,
-            type: 'default'
+            type: 'default',
+            data: {}
           }];
         }
         
@@ -161,12 +142,7 @@ export default function BuildPage() {
       });
     }
 
-    // Automatically save changes
     saveChanges();
-  };
-
-  const handlePositionChange = (position: { x: number; y: number }) => {
-    setPopoverPosition(position);
   };
 
   if (isLoading && !isCreateMode) {
@@ -198,7 +174,7 @@ export default function BuildPage() {
           onClose={() => setSelectedNode(null)}
           availableNodes={availableNodes}
           edges={edges}
-          onPositionChange={handlePositionChange}
+          onPositionChange={setPopoverPosition}
         />
       </ReactFlowProvider>
     </div>
