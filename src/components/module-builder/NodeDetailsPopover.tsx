@@ -40,77 +40,74 @@ export function NodeDetailsPopover({
   }, [popoverPosition, isDragging]);
 
   useEffect(() => {
-    const initializeDragging = () => {
-      const wrapper = document.querySelector('[data-radix-popper-content-wrapper]');
-      if (!wrapper) return;
+    const wrapper = document.querySelector('[data-radix-popper-content-wrapper]') as HTMLElement;
+    const header = wrapper?.querySelector('.popover-header') as HTMLElement;
+    
+    if (!wrapper || !header) return;
 
-      const header = wrapper.querySelector('.popover-header');
-      if (!header) return;
+    let initialWrapperX = 0;
+    let initialWrapperY = 0;
+    let mouseStartX = 0;
+    let mouseStartY = 0;
 
-      const handleMouseDown = (e: MouseEvent) => {
-        if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          setIsDragging(true);
-          const wrapperElement = wrapper as HTMLElement;
-          const wrapperRect = wrapperElement.getBoundingClientRect();
-          
-          // Calculate the offset between mouse position and wrapper's top-left corner
-          setStartPosition({
-            x: e.clientX - wrapperRect.left,
-            y: e.clientY - wrapperRect.top
-          });
-          
-          (window as any).isPopoverDragging = true;
-        }
-      };
+    const handleMouseDown = (e: MouseEvent) => {
+      if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        setIsDragging(true);
+        (window as any).isPopoverDragging = true;
 
-      const handleMouseMove = (e: MouseEvent) => {
-        if (isDragging) {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          const newPosition = {
-            x: e.clientX - startPosition.x,
-            y: e.clientY - startPosition.y
-          };
-          
-          setPosition(newPosition);
-          onPositionChange?.(newPosition);
-
-          const wrapperElement = wrapper as HTMLElement;
-          wrapperElement.style.transform = `translate3d(${newPosition.x}px, ${newPosition.y}px, 0)`;
-        }
-      };
-
-      const handleMouseUp = (e: MouseEvent) => {
-        if (isDragging) {
-          e.preventDefault();
-          e.stopPropagation();
-          setIsDragging(false);
-          (window as any).isPopoverDragging = false;
-        }
-      };
-
-      header.addEventListener('mousedown', handleMouseDown);
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-
-      // Cleanup function
-      return () => {
-        header.removeEventListener('mousedown', handleMouseDown);
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-        setIsDragging(false);
-        (window as any).isPopoverDragging = false;
-      };
+        const wrapperRect = wrapper.getBoundingClientRect();
+        initialWrapperX = wrapperRect.left;
+        initialWrapperY = wrapperRect.top;
+        mouseStartX = e.clientX;
+        mouseStartY = e.clientY;
+      }
     };
 
-    // Small delay to ensure the wrapper is mounted
-    const timeoutId = setTimeout(initializeDragging, 0);
-    return () => clearTimeout(timeoutId);
-  }, [isDragging, position, startPosition, onPositionChange]);
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const deltaX = e.clientX - mouseStartX;
+      const deltaY = e.clientY - mouseStartY;
+      
+      const newX = initialWrapperX + deltaX;
+      const newY = initialWrapperY + deltaY;
+      
+      const newPosition = { x: newX, y: newY };
+      setPosition(newPosition);
+      onPositionChange?.(newPosition);
+
+      wrapper.style.transform = `translate3d(${newX}px, ${newY}px, 0)`;
+    };
+
+    const handleMouseUp = (e: MouseEvent) => {
+      if (isDragging) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      setIsDragging(false);
+      (window as any).isPopoverDragging = false;
+    };
+
+    // Add event listeners
+    header.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    // Cleanup
+    return () => {
+      header.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      setIsDragging(false);
+      (window as any).isPopoverDragging = false;
+    };
+  }, [isDragging, onPositionChange]); // Only re-run when isDragging or onPositionChange changes
 
   if (!selectedNode || !position) return null;
 
