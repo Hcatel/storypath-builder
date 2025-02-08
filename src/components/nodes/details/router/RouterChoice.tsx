@@ -55,6 +55,7 @@ export function RouterChoice({
       <div>
         <label className="text-sm font-medium">Connect to node</label>
         <Select
+          key={`${choice.nextNodeId}-${availableNodes.length}`}
           value={choice.nextNodeId || ""}
           onValueChange={(value) => onUpdate(index, { nextNodeId: value })}
         >

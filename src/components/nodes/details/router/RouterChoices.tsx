@@ -29,7 +29,7 @@ export function RouterChoices({
       <label className="text-sm font-medium">Choices</label>
       {data.choices.map((choice, index) => (
         <RouterChoice
-          key={index}
+          key={`${choice.nextNodeId}-${index}-${availableNodes.length}`}
           choice={choice}
           index={index}
           availableNodes={availableNodes}
