@@ -17,6 +17,22 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
     ? Math.round(completion.time_spent_seconds / 60) 
     : null;
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date:', dateString);
+        return 'Invalid date';
+      }
+      return format(date, 'PPp');
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-xl">
@@ -34,7 +50,7 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
                   <span className="text-sm">Started</span>
                 </div>
                 <p className="mt-1 font-medium">
-                  {format(new Date(completion.started_at), 'PPp')}
+                  {formatDate(completion.started_at)}
                 </p>
               </CardContent>
             </Card>
@@ -46,7 +62,7 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
                   <span className="text-sm">Completed</span>
                 </div>
                 <p className="mt-1 font-medium">
-                  {format(new Date(completion.completed_at), 'PPp')}
+                  {formatDate(completion.completed_at)}
                 </p>
               </CardContent>
             </Card>
