@@ -1,4 +1,3 @@
-
 import { useCallback } from "react";
 import { Connection } from "@xyflow/react";
 import { ComponentType, NodeData, RouterNodeData, FlowNode, FlowEdge } from "@/types/module";
@@ -30,8 +29,8 @@ const getInitialDataForType = (type: ComponentType, nodeCount: number): NodeData
         label: `Decision ${nodeCount + 1}`,
         question: "",
         choices: [
-          { text: "Choice 1", nextComponentId: "" },
-          { text: "Choice 2", nextComponentId: "" },
+          { text: "Choice 1", nextNodeId: "" },
+          { text: "Choice 2", nextNodeId: "" },
         ],
       };
     case "text_input":
@@ -129,7 +128,7 @@ export const useModuleFlow = (
             const choices = [...routerData.choices];
             choices[choiceIndex] = {
               ...choices[choiceIndex],
-              nextComponentId: params.target || '',
+              nextNodeId: params.target || '',
             };
             return {
               ...node,

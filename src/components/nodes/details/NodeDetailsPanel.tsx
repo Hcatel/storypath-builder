@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Node } from "@xyflow/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,12 +12,12 @@ import {
   MultipleChoiceNodeData,
   RankingNodeData
 } from "@/types/module";
-import { MessageNodeDetails } from "./details/MessageNodeDetails";
-import { VideoNodeDetails } from "./details/VideoNodeDetails";
-import { RouterNodeDetails } from "./details/RouterNodeDetails";
-import { TextInputNodeDetails } from "./details/TextInputNodeDetails";
-import { MultipleChoiceNodeDetails } from "./details/MultipleChoiceNodeDetails";
-import { RankingNodeDetails } from "./details/RankingNodeDetails";
+import { MessageNodeDetails } from "../details/MessageNodeDetails";
+import { VideoNodeDetails } from "../details/VideoNodeDetails";
+import { RouterNodeDetails } from "../details/RouterNodeDetails";
+import { TextInputNodeDetails } from "../details/TextInputNodeDetails";
+import { MultipleChoiceNodeDetails } from "../details/MultipleChoiceNodeDetails";
+import { RankingNodeDetails } from "../details/RankingNodeDetails";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
@@ -174,7 +175,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit {nodeType.replace('_', ' ').toUpperCase()}</CardTitle>
+        <CardTitle>Edit {nodeType?.replace('_', ' ').toUpperCase()}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {renderNodeDetails()}
@@ -183,7 +184,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
           <div className="space-y-2">
             <Label>Next Node</Label>
             <Select
-              value={nodeData.nextNodeId || "none"}
+              value={nodeData?.nextNodeId || "none"}
               onValueChange={handleNextNodeChange}
             >
               <SelectTrigger>
