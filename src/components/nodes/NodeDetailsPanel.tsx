@@ -25,9 +25,10 @@ type NodeDetailsPanelProps = {
   selectedNode: Node<NodeData> | null;
   onNodeUpdate: (nodeId: string, data: NodeData) => void;
   availableNodes: Node<NodeData>[];
+  edges: { source: string; target: string; }[];
 };
 
-export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }: NodeDetailsPanelProps) {
+export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, edges }: NodeDetailsPanelProps) {
   const [nodeData, setNodeData] = useState<NodeData | null>(null);
   const [nodeType, setNodeType] = useState<ComponentType | null>(null);
 
@@ -41,24 +42,48 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
       const currentType = selectedNode.data.type as ComponentType;
       let typedData: NodeData;
       
+      // Find if there's an edge from this node to another node
+      const outgoingEdge = edges.find(edge => edge.source === selectedNode.id);
+      const nextComponentId = outgoingEdge?.target || undefined;
+      
       switch (currentType) {
         case 'message':
-          typedData = { ...selectedNode.data, type: 'message' } as MessageNodeData;
+          typedData = { 
+            ...selectedNode.data, 
+            type: 'message',
+            nextComponentId 
+          } as MessageNodeData;
           break;
         case 'video':
-          typedData = { ...selectedNode.data, type: 'video' } as VideoNodeData;
+          typedData = { 
+            ...selectedNode.data, 
+            type: 'video',
+            nextComponentId 
+          } as VideoNodeData;
           break;
         case 'router':
           typedData = { ...selectedNode.data, type: 'router' } as RouterNodeData;
           break;
         case 'text_input':
-          typedData = { ...selectedNode.data, type: 'text_input' } as TextInputNodeData;
+          typedData = { 
+            ...selectedNode.data, 
+            type: 'text_input',
+            nextComponentId 
+          } as TextInputNodeData;
           break;
         case 'multiple_choice':
-          typedData = { ...selectedNode.data, type: 'multiple_choice' } as MultipleChoiceNodeData;
+          typedData = { 
+            ...selectedNode.data, 
+            type: 'multiple_choice',
+            nextComponentId 
+          } as MultipleChoiceNodeData;
           break;
         case 'ranking':
-          typedData = { ...selectedNode.data, type: 'ranking' } as RankingNodeData;
+          typedData = { 
+            ...selectedNode.data, 
+            type: 'ranking',
+            nextComponentId 
+          } as RankingNodeData;
           break;
         default:
           console.error("Unknown node type:", selectedNode.data.type);
@@ -71,7 +96,7 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes }:
       setNodeData(null);
       setNodeType(null);
     }
-  }, [selectedNode]);
+  }, [selectedNode, edges]);
 
   const handleNextNodeChange = (nextNodeId: string | null) => {
     if (!selectedNode || !nodeData) return;

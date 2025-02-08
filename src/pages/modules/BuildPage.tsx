@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -154,6 +153,7 @@ export default function BuildPage() {
           onNodeUpdate={onNodeUpdate}
           onClose={() => setSelectedNode(null)}
           availableNodes={availableNodes}
+          edges={edges}
           onPositionChange={handlePositionChange}
         />
       </ReactFlowProvider>
