@@ -16,13 +16,18 @@ export function useRouterHandling(
     if (!nodes) return;
     
     const currentRouterNode = nodes[currentNodeIndex];
+    if (!currentRouterNode) return;
+
     const routerData = currentRouterNode.data as RouterNodeData;
+    if (!routerData?.choices || !Array.isArray(routerData.choices)) return;
+    
     const selectedChoice = routerData.choices[choiceIndex];
+    if (!selectedChoice) return;
     
     // Clear any existing overlay router
     setOverlayRouter(null);
     
-    if (selectedChoice && selectedChoice.nextComponentId) {
+    if (selectedChoice.nextComponentId) {
       // Find the index of the node that matches the nextComponentId
       const nextNodeIndex = nodes.findIndex(node => node.id === selectedChoice.nextComponentId);
       
