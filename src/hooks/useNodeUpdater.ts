@@ -23,11 +23,9 @@ export function useNodeUpdater(
           edge.sourceHandle === `choice-${index}`
         );
         
-        const nextNodeId = choice.nextNodeId || existingEdge?.target || '';
-        
         return {
           ...choice,
-          nextNodeId,
+          nextNodeId: choice.nextNodeId || existingEdge?.target || '',
         };
       });
 
@@ -65,6 +63,7 @@ export function useNodeUpdater(
 
       setEdges([...nonRouterEdges, ...newRouterEdges]);
     } else {
+      // Handle non-router nodes
       const updatedNodes = nodes.map(node => {
         if (node.id === nodeId) {
           return {
@@ -79,18 +78,21 @@ export function useNodeUpdater(
       });
       setNodes(updatedNodes);
 
-      const filteredEdges = edges.filter(edge => edge.source !== nodeId);
-      if (data.nextNodeId) {
-        const newEdge: FlowEdge = {
-          id: `e${nodeId}-${data.nextNodeId}`,
-          source: nodeId,
-          target: data.nextNodeId,
-          type: 'default',
-          data: {}
-        };
-        setEdges([...filteredEdges, newEdge]);
-      } else {
-        setEdges(filteredEdges);
+      // Update edges only if nextNodeId has changed
+      if (data.nextNodeId !== currentNode.data.nextNodeId) {
+        const filteredEdges = edges.filter(edge => edge.source !== nodeId);
+        if (data.nextNodeId) {
+          const newEdge: FlowEdge = {
+            id: `e${nodeId}-${data.nextNodeId}`,
+            source: nodeId,
+            target: data.nextNodeId,
+            type: 'default',
+            data: {}
+          };
+          setEdges([...filteredEdges, newEdge]);
+        } else {
+          setEdges(filteredEdges);
+        }
       }
     }
   };
