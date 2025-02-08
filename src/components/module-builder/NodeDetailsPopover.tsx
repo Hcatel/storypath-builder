@@ -53,9 +53,13 @@ export function NodeDetailsPopover({
           e.stopPropagation();
           
           setIsDragging(true);
+          const wrapperElement = wrapper as HTMLElement;
+          const wrapperRect = wrapperElement.getBoundingClientRect();
+          
+          // Calculate the offset between mouse position and wrapper's top-left corner
           setStartPosition({
-            x: e.clientX - (position?.x || 0),
-            y: e.clientY - (position?.y || 0)
+            x: e.clientX - wrapperRect.left,
+            y: e.clientY - wrapperRect.top
           });
           
           (window as any).isPopoverDragging = true;
@@ -63,7 +67,7 @@ export function NodeDetailsPopover({
       };
 
       const handleMouseMove = (e: MouseEvent) => {
-        if (isDragging && position) {
+        if (isDragging) {
           e.preventDefault();
           e.stopPropagation();
           
@@ -75,7 +79,6 @@ export function NodeDetailsPopover({
           setPosition(newPosition);
           onPositionChange?.(newPosition);
 
-          // Type assertion to HTMLElement
           const wrapperElement = wrapper as HTMLElement;
           wrapperElement.style.transform = `translate3d(${newPosition.x}px, ${newPosition.y}px, 0)`;
         }
