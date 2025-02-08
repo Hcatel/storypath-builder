@@ -1,7 +1,8 @@
+
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNodesState, useEdgesState, Node, ReactFlowProvider } from "@xyflow/react";
+import { useNodesState, useEdgesState, Node, ReactFlowProvider } from '@xyflow/react';
 import { useState } from "react";
 import { ComponentType, NodeData, FlowNode, FlowEdge } from "@/types/module";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
@@ -101,23 +102,43 @@ export default function BuildPage() {
   };
 
   const onNodeUpdate = (nodeId: string, data: NodeData) => {
+    // Update the node data
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === nodeId) {
-          // Create a new node object with the updated data
-          const updatedNode = {
+          return {
             ...node,
             data: {
               ...node.data,
               ...data,
             },
           };
-          return updatedNode;
         }
         return node;
       })
     );
-    // Automatically save changes when a node is updated
+
+    // Update edges based on nextComponentId
+    if (data.type !== 'router') {
+      setEdges((eds) => {
+        // Remove any existing edges from this node
+        const filteredEdges = eds.filter(edge => edge.source !== nodeId);
+        
+        // Add new edge if nextComponentId is set
+        if (data.nextComponentId) {
+          return [...filteredEdges, {
+            id: `e${nodeId}-${data.nextComponentId}`,
+            source: nodeId,
+            target: data.nextComponentId,
+            type: 'default'
+          }];
+        }
+        
+        return filteredEdges;
+      });
+    }
+
+    // Automatically save changes
     saveChanges();
   };
 
