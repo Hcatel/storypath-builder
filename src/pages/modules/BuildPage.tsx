@@ -1,8 +1,7 @@
-
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNodesState, useEdgesState, Node, ReactFlowProvider } from '@xyflow/react';
+import { useNodesState, useEdgesState, Node, ReactFlowProvider } from "@xyflow/react";
 import { useState } from "react";
 import { ComponentType, NodeData, FlowNode, FlowEdge } from "@/types/module";
 import { useModuleFlow } from "@/hooks/useModuleFlow";
@@ -102,65 +101,23 @@ export default function BuildPage() {
   };
 
   const onNodeUpdate = (nodeId: string, data: NodeData) => {
-    // Update the node data
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === nodeId) {
-          return {
+          // Create a new node object with the updated data
+          const updatedNode = {
             ...node,
             data: {
               ...node.data,
               ...data,
             },
           };
+          return updatedNode;
         }
         return node;
       })
     );
-
-    // Handle edge updates differently for router nodes
-    if (data.type === 'router' && data.choices) {
-      setEdges((eds) => {
-        // Remove existing edges from this node
-        const otherEdges = eds.filter(edge => edge.source !== nodeId);
-        
-        // Create edges for each choice that has a nextComponentId
-        const routerEdges = data.choices
-          .map((choice, index) => {
-            if (choice.nextComponentId) {
-              return {
-                id: `e${nodeId}-${choice.nextComponentId}-${index}`,
-                source: nodeId,
-                target: choice.nextComponentId,
-                sourceHandle: `choice-${index}`,
-                type: 'default'
-              };
-            }
-            return null;
-          })
-          .filter((edge): edge is FlowEdge => edge !== null);
-
-        return [...otherEdges, ...routerEdges];
-      });
-    } else if (data.type !== 'router') {
-      // Handle regular nodes as before
-      setEdges((eds) => {
-        const filteredEdges = eds.filter(edge => edge.source !== nodeId);
-        
-        if (data.nextComponentId) {
-          return [...filteredEdges, {
-            id: `e${nodeId}-${data.nextComponentId}`,
-            source: nodeId,
-            target: data.nextComponentId,
-            type: 'default'
-          }];
-        }
-        
-        return filteredEdges;
-      });
-    }
-
-    // Automatically save changes
+    // Automatically save changes when a node is updated
     saveChanges();
   };
 
