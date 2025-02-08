@@ -1,3 +1,4 @@
+
 import { Edge, Node } from '@xyflow/react';
 
 export type ComponentType = 
@@ -12,7 +13,7 @@ export interface BaseNodeData {
   [key: string]: unknown;
   label: string;
   type: ComponentType;
-  nextComponentId?: string;
+  nextNodeId?: string;
   isRequired?: boolean;
 }
 
@@ -36,7 +37,7 @@ export interface VideoNodeData extends BaseNodeData {
 
 export interface RouterChoice {
   text: string;
-  nextComponentId: string;
+  nextNodeId: string;
 }
 
 export interface RouterNodeData extends BaseNodeData {

@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/select";
 
 interface RouterChoiceProps {
-  choice: { text: string; nextComponentId: string };
+  choice: { text: string; nextNodeId: string };
   index: number;
   availableNodes: Node<NodeData>[];
-  onUpdate: (index: number, updates: { text?: string; nextComponentId?: string }) => void;
+  onUpdate: (index: number, updates: { text?: string; nextNodeId?: string }) => void;
   onDelete: (index: number) => void;
   onConfigureConditions: (index: number) => void;
 }
@@ -53,13 +53,13 @@ export function RouterChoice({
         </Button>
       </div>
       <div>
-        <label className="text-sm font-medium">Connect to component</label>
+        <label className="text-sm font-medium">Connect to node</label>
         <Select
-          value={choice.nextComponentId}
-          onValueChange={(value) => onUpdate(index, { nextComponentId: value })}
+          value={choice.nextNodeId || ""}
+          onValueChange={(value) => onUpdate(index, { nextNodeId: value })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select a component" />
+            <SelectValue placeholder="Select a node" />
           </SelectTrigger>
           <SelectContent>
             {availableNodes.map((node) => (
@@ -73,4 +73,3 @@ export function RouterChoice({
     </div>
   );
 }
-

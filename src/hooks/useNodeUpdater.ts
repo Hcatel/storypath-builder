@@ -19,11 +19,11 @@ export function useNodeUpdater(
           edge.sourceHandle === `choice-${index}`
         );
         
-        const nextComponentId = choice.nextComponentId || existingEdge?.target || '';
+        const nextNodeId = choice.nextNodeId || existingEdge?.target || '';
         
         return {
           ...choice,
-          nextComponentId,
+          nextNodeId,
         };
       });
 
@@ -45,11 +45,11 @@ export function useNodeUpdater(
       const nonRouterEdges = edges.filter(edge => edge.source !== nodeId);
       const newRouterEdges = updatedChoices
         .map((choice: any, index: number) => {
-          if (choice.nextComponentId) {
+          if (choice.nextNodeId) {
             return {
-              id: `e${nodeId}-${choice.nextComponentId}-${index}`,
+              id: `e${nodeId}-${choice.nextNodeId}-${index}`,
               source: nodeId,
-              target: choice.nextComponentId,
+              target: choice.nextNodeId,
               sourceHandle: `choice-${index}`,
               type: 'default',
               data: {}
@@ -76,11 +76,11 @@ export function useNodeUpdater(
       setNodes(updatedNodes);
 
       const filteredEdges = edges.filter(edge => edge.source !== nodeId);
-      if (data.nextComponentId) {
+      if (data.nextNodeId) {
         const newEdge: FlowEdge = {
-          id: `e${nodeId}-${data.nextComponentId}`,
+          id: `e${nodeId}-${data.nextNodeId}`,
           source: nodeId,
-          target: data.nextComponentId,
+          target: data.nextNodeId,
           type: 'default',
           data: {}
         };
