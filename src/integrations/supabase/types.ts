@@ -215,32 +215,38 @@ export type Database = {
       }
       module_completions: {
         Row: {
+          choices: Json | null
           completed_at: string
           decisions: Json
           feedback: string | null
           id: string
           module_id: string
           score: number | null
+          started_at: string | null
           time_spent_seconds: number | null
           user_id: string
         }
         Insert: {
+          choices?: Json | null
           completed_at?: string
           decisions?: Json
           feedback?: string | null
           id?: string
           module_id: string
           score?: number | null
+          started_at?: string | null
           time_spent_seconds?: number | null
           user_id: string
         }
         Update: {
+          choices?: Json | null
           completed_at?: string
           decisions?: Json
           feedback?: string | null
           id?: string
           module_id?: string
           score?: number | null
+          started_at?: string | null
           time_spent_seconds?: number | null
           user_id?: string
         }
