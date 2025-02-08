@@ -15,25 +15,32 @@ export function useRouterHandling(
   const handleRouterChoice = (choiceIndex: number) => {
     if (!nodes) return;
     
-    const currentRouterIndex = currentNodeIndex + 1;
-    const nextIndex = currentRouterIndex + 1;
+    const currentRouterNode = nodes[currentNodeIndex];
+    const routerData = currentRouterNode.data as RouterNodeData;
+    const selectedChoice = routerData.choices[choiceIndex];
     
+    // Clear any existing overlay router
     setOverlayRouter(null);
     
-    if (nextIndex < nodes.length) {
-      const nextNode = nodes[nextIndex];
+    if (selectedChoice && selectedChoice.nextComponentId) {
+      // Find the index of the node that matches the nextComponentId
+      const nextNodeIndex = nodes.findIndex(node => node.id === selectedChoice.nextComponentId);
       
-      if (nextNode.type === 'router' && nextNode.data.isOverlay) {
-        pauseAllMedia();
-        // Ensure the data is of type RouterNodeData before setting it
-        if ('question' in nextNode.data && 'choices' in nextNode.data) {
-          setOverlayRouter(nextNode.data as RouterNodeData);
+      if (nextNodeIndex !== -1) {
+        const nextNode = nodes[nextNodeIndex];
+        
+        if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+          pauseAllMedia();
+          // Ensure the data is of type RouterNodeData before setting it
+          if ('question' in nextNode.data && 'choices' in nextNode.data) {
+            setOverlayRouter(nextNode.data as RouterNodeData);
+            updateProgress(nextNode.id);
+          }
+        } else {
+          setCurrentNodeIndex(nextNodeIndex);
+          setHasInteracted(false);
           updateProgress(nextNode.id);
         }
-      } else {
-        setCurrentNodeIndex(nextIndex);
-        setHasInteracted(false);
-        updateProgress(nextNode.id);
       }
     }
   };
