@@ -133,8 +133,9 @@ export default function BuildPage() {
                 source: nodeId,
                 target: choice.nextComponentId,
                 sourceHandle: `choice-${index}`,
-                type: 'default'
-              };
+                type: 'default',
+                data: {} // Add empty data object to match FlowEdge type
+              } as FlowEdge;
             }
             return null;
           })
