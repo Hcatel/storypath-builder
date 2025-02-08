@@ -1,5 +1,5 @@
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { format } from "date-fns";
 import { CardContent, Card } from "@/components/ui/card";
 import { Timer, Calendar } from "lucide-react";
@@ -21,7 +21,6 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
     if (!dateString) return 'N/A';
     try {
       const date = new Date(dateString);
-      // Check if the date is valid
       if (isNaN(date.getTime())) {
         console.warn('Invalid date:', dateString);
         return 'Invalid date';
@@ -33,11 +32,18 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
     }
   };
 
+  // Get all module completions for this module to determine session number
+  const moduleCompletions = completion.module?.module_completions || [];
+  const sessionNumber = moduleCompletions
+    .sort((a: any, b: any) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime())
+    .findIndex((c: any) => c.id === completion.id) + 1;
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-xl">
         <SheetHeader>
-          <SheetTitle>{completion.module?.title || 'Module Summary'}</SheetTitle>
+          <SheetTitle>{completion.module?.title || 'Module'} Summary</SheetTitle>
+          <SheetDescription>Session {sessionNumber}</SheetDescription>
         </SheetHeader>
         
         <div className="mt-6 space-y-6">
@@ -83,18 +89,86 @@ export function ModuleSummaryDrawer({ completion, open, onOpenChange }: ModuleSu
             </Card>
           )}
 
-          {/* Choices Made */}
-          {completion.choices && completion.choices.length > 0 && (
+          {/* Text Input Responses */}
+          {completion.choices && completion.choices.some((choice: any) => choice.type === 'text_input') && (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Your Choices</h3>
-              {completion.choices.map((choice: any, index: number) => (
-                <Card key={index}>
-                  <CardContent className="pt-6">
-                    <p className="text-sm text-muted-foreground">{choice.question}</p>
-                    <p className="mt-2 font-medium">{choice.answer}</p>
-                  </CardContent>
-                </Card>
-              ))}
+              <h3 className="text-lg font-semibold">Text Responses</h3>
+              {completion.choices
+                .filter((choice: any) => choice.type === 'text_input')
+                .map((choice: any, index: number) => (
+                  <Card key={`text-${index}`}>
+                    <CardContent className="pt-6">
+                      <p className="text-sm text-muted-foreground">{choice.question}</p>
+                      <p className="mt-2 font-medium">{choice.answer}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+            </div>
+          )}
+
+          {/* Router Choices */}
+          {completion.choices && completion.choices.some((choice: any) => choice.type === 'router') && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Decisions Made</h3>
+              {completion.choices
+                .filter((choice: any) => choice.type === 'router')
+                .map((choice: any, index: number) => (
+                  <Card key={`router-${index}`}>
+                    <CardContent className="pt-6">
+                      <p className="text-sm text-muted-foreground">{choice.question}</p>
+                      <p className="mt-2 font-medium">{choice.answer}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+            </div>
+          )}
+
+          {/* Rankings */}
+          {completion.choices && completion.choices.some((choice: any) => choice.type === 'ranking') && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Rankings</h3>
+              {completion.choices
+                .filter((choice: any) => choice.type === 'ranking')
+                .map((choice: any, index: number) => (
+                  <Card key={`ranking-${index}`}>
+                    <CardContent className="pt-6">
+                      <p className="text-sm text-muted-foreground">{choice.title}</p>
+                      <div className="mt-2 space-y-2">
+                        {choice.ranking.map((item: string, rankIndex: number) => (
+                          <div key={rankIndex} className="flex items-center gap-2">
+                            <span className="font-medium">{rankIndex + 1}.</span>
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+            </div>
+          )}
+
+          {/* Multiple Choice Answers */}
+          {completion.choices && completion.choices.some((choice: any) => choice.type === 'multiple_choice') && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Multiple Choice Answers</h3>
+              {completion.choices
+                .filter((choice: any) => choice.type === 'multiple_choice')
+                .map((choice: any, index: number) => (
+                  <Card key={`mc-${index}`}>
+                    <CardContent className="pt-6">
+                      <p className="text-sm text-muted-foreground">{choice.question}</p>
+                      <div className="mt-2">
+                        {Array.isArray(choice.answer) ? (
+                          choice.answer.map((ans: string, ansIndex: number) => (
+                            <p key={ansIndex} className="font-medium">{ans}</p>
+                          ))
+                        ) : (
+                          <p className="font-medium">{choice.answer}</p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
             </div>
           )}
         </div>
