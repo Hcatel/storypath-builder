@@ -37,6 +37,22 @@ export function CompletedModules({ onSelectCompletion }: CompletedModulesProps) 
     enabled: !!user,
   });
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date:', dateString);
+        return 'Invalid date';
+      }
+      return format(date, 'PPp');
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -60,7 +76,7 @@ export function CompletedModules({ onSelectCompletion }: CompletedModulesProps) 
                       <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <CalendarClock className="h-4 w-4" />
-                          Started on {format(new Date(completion.started_at), 'PPp')}
+                          Started on {formatDate(completion.started_at)}
                         </div>
                         {completion.time_spent_seconds && (
                           <div className="flex items-center gap-2">
