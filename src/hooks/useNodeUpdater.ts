@@ -27,21 +27,20 @@ export function useNodeUpdater(
         };
       });
 
-      setNodes(nds =>
-        nds.map(node => {
-          if (node.id === nodeId) {
-            return {
-              ...node,
-              data: {
-                ...node.data,
-                ...data,
-                choices: updatedChoices,
-              },
-            };
-          }
-          return node;
-        })
-      );
+      const updatedNodes = nodes.map(node => {
+        if (node.id === nodeId) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              ...data,
+              choices: updatedChoices,
+            },
+          };
+        }
+        return node;
+      });
+      setNodes(updatedNodes);
 
       const nonRouterEdges = edges.filter(edge => edge.source !== nodeId);
       const newRouterEdges = updatedChoices
@@ -62,20 +61,19 @@ export function useNodeUpdater(
 
       setEdges([...nonRouterEdges, ...newRouterEdges]);
     } else {
-      setNodes(nds =>
-        nds.map(node => {
-          if (node.id === nodeId) {
-            return {
-              ...node,
-              data: {
-                ...node.data,
-                ...data,
-              },
-            };
-          }
-          return node;
-        })
-      );
+      const updatedNodes = nodes.map(node => {
+        if (node.id === nodeId) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              ...data,
+            },
+          };
+        }
+        return node;
+      });
+      setNodes(updatedNodes);
 
       const filteredEdges = edges.filter(edge => edge.source !== nodeId);
       if (data.nextComponentId) {
