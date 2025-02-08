@@ -1,7 +1,7 @@
 
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Share, Trophy, Compass, Play } from "lucide-react";
+import { Share, Trophy, Compass, Play, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ModuleShareLink } from "@/components/modules/share/ModuleShareLink";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -36,6 +36,15 @@ export function ModuleCompletion({
         </div>
 
         <div className="grid gap-4">
+          <Button
+            onClick={() => navigate("/profile")}
+            variant="outline"
+            className="w-full"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            View Summary
+          </Button>
+
           <Button
             onClick={() => navigate("/explore")}
             variant="outline"
