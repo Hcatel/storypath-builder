@@ -5,21 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   NodeData, 
   ComponentType,
-  MessageNodeData,
-  VideoNodeData,
-  RouterNodeData,
-  TextInputNodeData,
-  MultipleChoiceNodeData,
-  RankingNodeData
 } from "@/types/module";
-import { MessageNodeDetails } from "../details/MessageNodeDetails";
-import { VideoNodeDetails } from "../details/VideoNodeDetails";
-import { RouterNodeDetails } from "../details/RouterNodeDetails";
-import { TextInputNodeDetails } from "../details/TextInputNodeDetails";
-import { MultipleChoiceNodeDetails } from "../details/MultipleChoiceNodeDetails";
-import { RankingNodeDetails } from "../details/RankingNodeDetails";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { NodeTypeSwitcher } from "./NodeTypeSwitcher";
+import { NodeNextSelector } from "./NodeNextSelector";
 
 type NodeDetailsPanelProps = {
   selectedNode: Node<NodeData> | null;
@@ -28,7 +16,12 @@ type NodeDetailsPanelProps = {
   edges: { source: string; target: string; }[];
 };
 
-export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, edges }: NodeDetailsPanelProps) {
+export function NodeDetailsPanel({ 
+  selectedNode, 
+  onNodeUpdate, 
+  availableNodes, 
+  edges 
+}: NodeDetailsPanelProps) {
   const [nodeData, setNodeData] = useState<NodeData | null>(null);
   const [nodeType, setNodeType] = useState<ComponentType | null>(null);
 
@@ -46,49 +39,12 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
       const outgoingEdge = edges.find(edge => edge.source === selectedNode.id);
       const nextNodeId = outgoingEdge?.target || undefined;
       
-      switch (currentType) {
-        case 'message':
-          typedData = { 
-            ...selectedNode.data, 
-            type: 'message',
-            nextNodeId 
-          } as MessageNodeData;
-          break;
-        case 'video':
-          typedData = { 
-            ...selectedNode.data, 
-            type: 'video',
-            nextNodeId 
-          } as VideoNodeData;
-          break;
-        case 'router':
-          typedData = { ...selectedNode.data, type: 'router' } as RouterNodeData;
-          break;
-        case 'text_input':
-          typedData = { 
-            ...selectedNode.data, 
-            type: 'text_input',
-            nextNodeId 
-          } as TextInputNodeData;
-          break;
-        case 'multiple_choice':
-          typedData = { 
-            ...selectedNode.data, 
-            type: 'multiple_choice',
-            nextNodeId 
-          } as MultipleChoiceNodeData;
-          break;
-        case 'ranking':
-          typedData = { 
-            ...selectedNode.data, 
-            type: 'ranking',
-            nextNodeId 
-          } as RankingNodeData;
-          break;
-        default:
-          console.error("Unknown node type:", selectedNode.data.type);
-          return;
-      }
+      // Construct typed data based on node type
+      typedData = {
+        ...selectedNode.data,
+        type: currentType,
+        nextNodeId: currentType !== 'router' ? nextNodeId : undefined
+      };
       
       setNodeData(typedData);
       setNodeType(currentType);
@@ -126,39 +82,6 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
   // Don't show next node selection for router nodes since they use choices
   const showNextNodeSelection = nodeType !== 'router';
 
-  const renderNodeDetails = () => {
-    if (!nodeType || !selectedNode) return null;
-
-    switch (nodeType) {
-      case 'message':
-        return <MessageNodeDetails data={nodeData as MessageNodeData} onUpdate={updateNodeData} />;
-      case 'video':
-        return <VideoNodeDetails data={nodeData as VideoNodeData} onUpdate={updateNodeData} />;
-      case 'router':
-        return (
-          <RouterNodeDetails 
-            data={{
-              ...(nodeData as RouterNodeData),
-              id: selectedNode.id,
-              moduleId: (nodeData as RouterNodeData).moduleId || ''
-            }}
-            onUpdate={updateNodeData}
-            availableNodes={availableNodes}
-          />
-        );
-      case 'text_input':
-        return <TextInputNodeDetails data={nodeData as TextInputNodeData} onUpdate={updateNodeData} />;
-      case 'multiple_choice':
-        return <MultipleChoiceNodeDetails data={nodeData as MultipleChoiceNodeData} onUpdate={updateNodeData} />;
-      case 'ranking':
-        return <RankingNodeDetails data={nodeData as RankingNodeData} onUpdate={updateNodeData} />;
-      default: {
-        const _exhaustiveCheck: never = nodeType;
-        return null;
-      }
-    }
-  };
-
   const updateNodeData = (updates: Partial<NodeData>) => {
     if (!selectedNode || !nodeData || !nodeType) return;
 
@@ -178,28 +101,20 @@ export function NodeDetailsPanel({ selectedNode, onNodeUpdate, availableNodes, e
         <CardTitle>Edit {nodeType?.replace('_', ' ').toUpperCase()}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {renderNodeDetails()}
+        <NodeTypeSwitcher
+          nodeType={nodeType}
+          nodeData={nodeData}
+          selectedNode={selectedNode}
+          updateNodeData={updateNodeData}
+          availableNodes={availableNodes}
+        />
         
         {showNextNodeSelection && (
-          <div className="space-y-2">
-            <Label>Next Node</Label>
-            <Select
-              value={nodeData?.nextNodeId || "none"}
-              onValueChange={handleNextNodeChange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select next node" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {availableNodes.map((node) => (
-                  <SelectItem key={node.id} value={node.id}>
-                    {node.data.label || `${node.type} ${node.id}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <NodeNextSelector
+            nodeData={nodeData}
+            availableNodes={availableNodes}
+            onNextNodeChange={handleNextNodeChange}
+          />
         )}
       </CardContent>
     </Card>
