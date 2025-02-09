@@ -77,6 +77,7 @@ export const useModuleFlow = (
 
   const { mutate: saveChanges } = useMutation({
     mutationFn: async () => {
+      // Prepare node data for storage
       const nodeData = nodes.map(node => ({
         id: node.id,
         position: node.position,
@@ -84,6 +85,7 @@ export const useModuleFlow = (
         type: node.type,
       }));
 
+      // Prepare edge data for storage
       const edgeData = edges.map(edge => ({
         id: edge.id,
         source: edge.source,
@@ -95,13 +97,16 @@ export const useModuleFlow = (
       const { error } = await supabase
         .from("modules")
         .update({
-          nodes: nodeData as unknown as JsonValue[],
-          edges: edgeData as unknown as JsonValue[],
+          nodes: nodeData as JsonValue[],
+          edges: edgeData as JsonValue[],
           updated_at: new Date().toISOString(),
         })
         .eq("id", moduleId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error saving module:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({
@@ -121,41 +126,48 @@ export const useModuleFlow = (
   const onConnect = useCallback(
     (params: Connection) => {
       const sourceNode = nodes.find(node => node.id === params.source);
+      if (!params.source || !params.target) return;
+
       if (sourceNode?.type === 'router' && params.sourceHandle) {
         const routerData = sourceNode.data as RouterNodeData;
         const choiceIndex = parseInt(params.sourceHandle.replace('choice-', ''));
-        const updatedNodes = nodes.map(node => {
-          if (node.id === params.source) {
-            const choices = [...routerData.choices];
-            choices[choiceIndex] = {
-              ...choices[choiceIndex],
-              nextNodeId: params.target || '',
-            };
-            return {
-              ...node,
-              data: {
-                ...routerData,
-                choices,
-              } as RouterNodeData,
-            };
-          }
-          return node;
-        });
-        setNodes(updatedNodes);
+        
+        if (!isNaN(choiceIndex) && routerData.choices) {
+          const updatedNodes = nodes.map(node => {
+            if (node.id === params.source) {
+              const choices = [...routerData.choices];
+              choices[choiceIndex] = {
+                ...choices[choiceIndex],
+                nextNodeId: params.target || '',
+              };
+              return {
+                ...node,
+                data: {
+                  ...routerData,
+                  choices,
+                } as RouterNodeData,
+              };
+            }
+            return node;
+          });
+          setNodes(updatedNodes);
+        }
       }
       
       const newEdge: FlowEdge = {
         id: `e${params.source}-${params.target}`,
         source: params.source,
-        target: params.target || '',
+        target: params.target,
         type: 'default',
+        data: {},
       };
-      setEdges([...edges, newEdge]);
+      
+      setEdges(prev => [...prev, newEdge]);
     },
-    [nodes, edges, setNodes, setEdges]
+    [nodes, setNodes, setEdges]
   );
 
-  const addNode = (selectedComponentType: ComponentType) => {
+  const addNode = useCallback((selectedComponentType: ComponentType) => {
     const newNode: FlowNode = {
       id: (nodes.length + 1).toString(),
       type: selectedComponentType,
@@ -166,7 +178,7 @@ export const useModuleFlow = (
       data: getInitialDataForType(selectedComponentType, nodes.length),
     };
     setNodes([...nodes, newNode]);
-  };
+  }, [nodes, setNodes]);
 
   return {
     saveChanges,
@@ -174,3 +186,4 @@ export const useModuleFlow = (
     addNode,
   };
 };
+

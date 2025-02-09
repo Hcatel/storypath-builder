@@ -23,26 +23,25 @@ export function useModuleBuilderState(id: string | undefined) {
         .from("modules")
         .select("*")
         .eq("id", id)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error("Error fetching module:", error);
         throw error;
       }
       
-      const convertedNodes = Array.isArray(data?.nodes) 
-        ? data.nodes.map(convertToReactFlowNode)
-        : [];
+      // Ensure nodes and edges are arrays
+      const moduleNodes = Array.isArray(data?.nodes) ? data.nodes : [];
+      const moduleEdges = Array.isArray(data?.edges) ? data.edges : [];
 
-      const convertedEdges = Array.isArray(data?.edges)
-        ? data.edges.map((edge: any) => ({
-            id: edge.id.toString(),
-            source: edge.source.toString(),
-            target: edge.target.toString(),
-            type: edge.type || 'default',
-            data: edge.data || {},
-          }))
-        : [];
+      const convertedNodes = moduleNodes.map(node => convertToReactFlowNode(node));
+      const convertedEdges = moduleEdges.map(edge => ({
+        id: edge.id?.toString() || '',
+        source: edge.source?.toString() || '',
+        target: edge.target?.toString() || '',
+        type: edge.type || 'default',
+        data: edge.data || {},
+      }));
 
       return {
         ...data,
@@ -72,3 +71,4 @@ export function useModuleBuilderState(id: string | undefined) {
     onEdgesChange,
   };
 }
+
