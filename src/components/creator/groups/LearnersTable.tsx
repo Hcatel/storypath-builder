@@ -15,11 +15,11 @@ export function LearnersTable() {
           id,
           joined_at,
           user_id,
-          groups!inner (
+          groups!group_id (
             id,
             name
           ),
-          profiles!inner (
+          profiles!user_id (
             id,
             username
           )
