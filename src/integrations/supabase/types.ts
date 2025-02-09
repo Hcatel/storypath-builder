@@ -51,21 +51,21 @@ export type Database = {
           group_id: string
           id: string
           joined_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           email?: string | null
           group_id: string
           id?: string
           joined_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           email?: string | null
           group_id?: string
           id?: string
           joined_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {

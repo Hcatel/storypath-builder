@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -92,7 +93,7 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
         .from("group_members")
         .insert({
           group_id: groupId,
-          email: email,
+          email: email
         });
 
       if (error) throw error;
@@ -130,7 +131,6 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
           .update({
             name: formData.name,
             description: formData.description,
-            created_by: userData.user.id
           })
           .eq("id", groupId);
 
@@ -277,3 +277,4 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
     </div>
   );
 }
+
