@@ -1,6 +1,6 @@
 
 import { useMediaControl } from "./useMediaControl";
-import { FlowNode, RouterNodeData } from "@/types/module";
+import { FlowNode, RouterNodeData, FlowEdge } from "@/types/module";
 import { useCallback } from "react";
 
 export function useRouterHandling(
@@ -12,6 +12,22 @@ export function useRouterHandling(
   setHasInteracted: (interacted: boolean) => void
 ) {
   const { pauseAllMedia } = useMediaControl();
+
+  const findNextNodeByEdge = (nodes: FlowNode[], currentNodeId: string): FlowNode | null => {
+    const currentNode = nodes.find(node => node.id === currentNodeId);
+    if (!currentNode) return null;
+    
+    // First try to find the next node using the nextNodeId from the node data
+    if (currentNode.data.nextNodeId) {
+      const nextNode = nodes.find(node => node.id === currentNode.data.nextNodeId);
+      if (nextNode) {
+        console.log("Found next node using nextNodeId:", nextNode);
+        return nextNode;
+      }
+    }
+
+    return null;
+  };
 
   const handleRouterChoice = useCallback((choiceIndex: number) => {
     if (!nodes || nodes.length === 0) {
@@ -91,31 +107,23 @@ export function useRouterHandling(
     const currentNode = nodes[currentNodeIndex];
     console.log("Handling node complete for:", currentNode);
 
-    // Only proceed if the current node has a nextNodeId configured
-    if (currentNode.data.nextNodeId) {
-      // Find the next node based on the configured nextNodeId
-      const nextNodeIndex = nodes.findIndex(node => node.id === currentNode.data.nextNodeId);
+    // Find the next node based on the connections
+    const nextNode = findNextNodeByEdge(nodes, currentNode.id);
+    if (nextNode) {
+      const nextNodeIndex = nodes.findIndex(node => node.id === nextNode.id);
       console.log("Node complete - moving to next node index:", nextNodeIndex, "from current node:", currentNode);
-      
-      if (nextNodeIndex !== -1) {
-        const nextNode = nodes[nextNodeIndex];
-        
-        // Handle overlay routers
-        if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
-          pauseAllMedia();
-          setOverlayRouter(nextNode.data as RouterNodeData);
-          updateProgress(nextNode.id);
-        } else {
-          // Move to the next node and reset interaction state
-          setCurrentNodeIndex(nextNodeIndex);
-          setHasInteracted(false);
-          updateProgress(nextNode.id);
-        }
+
+      if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+        pauseAllMedia();
+        setOverlayRouter(nextNode.data as RouterNodeData);
+        updateProgress(nextNode.id);
       } else {
-        console.error("Next node not found for id:", currentNode.data.nextNodeId);
+        setCurrentNodeIndex(nextNodeIndex);
+        setHasInteracted(false);
+        updateProgress(nextNode.id);
       }
     } else {
-      console.log("Current node has no nextNodeId configured:", currentNode);
+      console.log("No next node found for current node:", currentNode);
     }
   }, [nodes, currentNodeIndex, pauseAllMedia, setOverlayRouter, setCurrentNodeIndex, setHasInteracted, updateProgress]);
 
