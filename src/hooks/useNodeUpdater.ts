@@ -29,19 +29,21 @@ export function useNodeUpdater(
         };
       });
 
-      const updatedNodes = nodes.map(node => {
-        if (node.id === nodeId) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              ...data,
-              choices: updatedChoices,
-            },
-          };
-        }
-        return node;
-      });
+      // Create a new node reference
+      const updatedNode = {
+        ...currentNode,
+        data: {
+          ...currentNode.data,
+          ...data,
+          choices: updatedChoices,
+        },
+      };
+
+      // Update nodes immutably
+      const updatedNodes = nodes.map(node => 
+        node.id === nodeId ? updatedNode : node
+      );
+      
       setNodes(updatedNodes);
 
       const nonRouterEdges = edges.filter(edge => edge.source !== nodeId);

@@ -24,25 +24,25 @@ export function RouterChoices({
     event.preventDefault();
     event.stopPropagation();
     
-    // Force a new reference for the choices array
-    const newChoices = [
-      ...data.choices,
-      { text: `Choice ${data.choices.length + 1}`, nextNodeId: '' }
-    ];
+    const newChoice = {
+      text: `Choice ${data.choices.length + 1}`,
+      nextNodeId: ''
+    };
     
-    // Immediately update parent state
     onUpdate({
       ...data,
-      choices: newChoices,
+      choices: [...data.choices, newChoice],
     });
   };
+
+  if (!data.choices) return null;
 
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">Choices</label>
-      {data.choices?.map((choice, index) => (
+      {data.choices.map((choice, index) => (
         <RouterChoice
-          key={index}
+          key={`choice-${index}-${choice.text}`}
           choice={choice}
           index={index}
           availableNodes={availableNodes}
