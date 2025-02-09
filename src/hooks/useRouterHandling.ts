@@ -13,21 +13,14 @@ export function useRouterHandling(
 ) {
   const { pauseAllMedia } = useMediaControl();
 
-  const findNextNodeByEdge = (nodes: FlowNode[], currentNodeId: string): FlowNode | null => {
-    const currentNode = nodes.find(node => node.id === currentNodeId);
-    if (!currentNode) return null;
-    
-    if (currentNode.data.nextNodeId) {
-      const nextNode = nodes.find(node => node.id === currentNode.data.nextNodeId);
-      if (nextNode) return nextNode;
-    }
-
-    return null;
-  };
-
   const findNodeById = (nodeId: string): FlowNode | null => {
     if (!nodes) return null;
     return nodes.find(node => node.id === nodeId) || null;
+  };
+
+  const findNodeIndex = (nodeId: string): number => {
+    if (!nodes) return -1;
+    return nodes.findIndex(node => node.id === nodeId);
   };
 
   const handleRouterChoice = useCallback((choiceIndex: number) => {
@@ -63,17 +56,19 @@ export function useRouterHandling(
     const nextNode = findNodeById(nextNodeId);
     if (!nextNode) return;
 
-    const nextNodeIndex = nodes.findIndex(node => node.id === nextNodeId);
+    const nextNodeIndex = findNodeIndex(nextNodeId);
     
-    if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
-      console.log("🎭 Activating overlay router:", nextNode.id);
-      pauseAllMedia();
-      setOverlayRouter(nextNode.data as RouterNodeData);
-      updateProgress(nextNode.id);
-    } else {
-      console.log("➡️ Moving to node:", nextNode.id, "of type:", nextNode.type);
-      setCurrentNodeIndex(nextNodeIndex);
-      setHasInteracted(false);
+    if (nextNodeIndex !== -1) {
+      if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+        console.log("🎭 Activating overlay router:", nextNode.id);
+        pauseAllMedia();
+        setOverlayRouter(nextNode.data as RouterNodeData);
+      } else {
+        console.log("➡️ Moving to node:", nextNode.id, "of type:", nextNode.type);
+        setCurrentNodeIndex(nextNodeIndex);
+        setHasInteracted(false);
+      }
+      // Only update progress after all state changes
       updateProgress(nextNode.id);
     }
   }, [nodes, currentNodeIndex, pauseAllMedia, setOverlayRouter, setCurrentNodeIndex, setHasInteracted, updateProgress]);
@@ -85,20 +80,24 @@ export function useRouterHandling(
     console.log("🏁 Current node completed:", currentNode.id, "of type:", currentNode.type);
     console.log("📌 Expected next node:", currentNode.data.nextNodeId || "None");
 
-    const nextNode = findNextNodeByEdge(nodes, currentNode.id);
+    if (!currentNode.data.nextNodeId) return;
+
+    const nextNode = findNodeById(currentNode.data.nextNodeId);
     if (!nextNode) return;
 
-    const nextNodeIndex = nodes.findIndex(node => node.id === nextNode.id);
+    const nextNodeIndex = findNodeIndex(nextNode.id);
     
-    if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
-      console.log("🎭 Activating overlay router:", nextNode.id);
-      pauseAllMedia();
-      setOverlayRouter(nextNode.data as RouterNodeData);
-      updateProgress(nextNode.id);
-    } else {
-      console.log("➡️ Moving to node:", nextNode.id, "of type:", nextNode.type);
-      setCurrentNodeIndex(nextNodeIndex);
-      setHasInteracted(false);
+    if (nextNodeIndex !== -1) {
+      if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+        console.log("🎭 Activating overlay router:", nextNode.id);
+        pauseAllMedia();
+        setOverlayRouter(nextNode.data as RouterNodeData);
+      } else {
+        console.log("➡️ Moving to node:", nextNode.id, "of type:", nextNode.type);
+        setCurrentNodeIndex(nextNodeIndex);
+        setHasInteracted(false);
+      }
+      // Only update progress after all state changes
       updateProgress(nextNode.id);
     }
   }, [nodes, currentNodeIndex, pauseAllMedia, setOverlayRouter, setCurrentNodeIndex, setHasInteracted, updateProgress]);

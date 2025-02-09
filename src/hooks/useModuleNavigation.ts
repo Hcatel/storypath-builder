@@ -42,19 +42,18 @@ export function useModuleNavigation(
       return;
     }
 
-    if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
-      console.log("🎭 Activating overlay router:", nextNode.id);
-      pauseAllMedia();
-      setOverlayRouter(nextNode.data as RouterNodeData);
-      updateProgress(nextNode.id);
-      return;
-    }
-
     const nextIndex = findNodeIndex(nextNode.id);
     if (nextIndex !== -1) {
-      console.log("➡️ Moving to node:", nextNode.id, "of type:", nextNode.type);
-      setCurrentNodeIndex(nextIndex);
-      setHasInteracted(false);
+      if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+        console.log("🎭 Activating overlay router:", nextNode.id);
+        pauseAllMedia();
+        setOverlayRouter(nextNode.data as RouterNodeData);
+      } else {
+        console.log("➡️ Moving to node:", nextNode.id, "of type:", nextNode.type);
+        setCurrentNodeIndex(nextIndex);
+        setHasInteracted(false);
+      }
+      // Only update progress after all state changes
       updateProgress(nextNode.id);
     }
   };
