@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LocalModuleState } from "@/hooks/useModuleData";
+import { RouterNodeData } from "@/types/module";
 
 interface ModuleHeaderActionsProps {
   localModule: LocalModuleState;
@@ -24,6 +25,18 @@ export function ModuleHeaderActions({ localModule, onSave }: ModuleHeaderActions
       errors.push("Module must have at least one content node");
     }
 
+    // Check router nodes validation
+    const routerNodes = localModule?.nodes?.filter(node => node.data.type === 'router') || [];
+    routerNodes.forEach(node => {
+      const routerData = node.data as RouterNodeData;
+      if (!routerData.choices || routerData.choices.length < 2) {
+        errors.push(`Router node "${routerData.label}" must have at least two choices`);
+      }
+      if (routerData.choices?.some(choice => !choice.nextNodeId)) {
+        errors.push(`Router node "${routerData.label}" has choices without connected nodes`);
+      }
+    });
+
     if (errors.length > 0) {
       toast({
         variant: "destructive",
@@ -36,11 +49,19 @@ export function ModuleHeaderActions({ localModule, onSave }: ModuleHeaderActions
           </ul>
         ),
       });
-    } else {
-      toast({
-        title: "Success",
-        description: "No errors found in your module",
-      });
+      return false;
+    }
+
+    toast({
+      title: "Success",
+      description: "No errors found in your module",
+    });
+    return true;
+  };
+
+  const handleSave = () => {
+    if (checkForErrors()) {
+      onSave();
     }
   };
 
@@ -49,7 +70,7 @@ export function ModuleHeaderActions({ localModule, onSave }: ModuleHeaderActions
       <Button onClick={checkForErrors} variant="outline">
         Check for Errors
       </Button>
-      <Button onClick={onSave}>
+      <Button onClick={handleSave}>
         <Save className="w-4 h-4 mr-2" />
         Save Changes
       </Button>

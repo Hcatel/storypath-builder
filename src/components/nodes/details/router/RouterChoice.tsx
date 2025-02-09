@@ -19,6 +19,7 @@ interface RouterChoiceProps {
   onUpdate: (index: number, updates: { text?: string; nextNodeId?: string }) => void;
   onDelete: (index: number) => void;
   onConfigureConditions: (index: number) => void;
+  showDeleteButton?: boolean;
 }
 
 export function RouterChoice({
@@ -28,6 +29,7 @@ export function RouterChoice({
   onUpdate,
   onDelete,
   onConfigureConditions,
+  showDeleteButton = true,
 }: RouterChoiceProps) {
   const currentValue = choice.nextNodeId || "none";
   
@@ -50,20 +52,22 @@ export function RouterChoice({
   };
   
   return (
-    <div className="space-y-2 border rounded-lg p-3">
+    <div className={`space-y-2 border rounded-lg p-3 ${!choice.nextNodeId ? 'border-destructive' : ''}`}>
       <div className="flex gap-2">
         <Input
           value={choice.text}
           onChange={handleTextChange}
           placeholder={`Choice ${index + 1}`}
         />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleDelete}
-        >
-          <Minus className="h-4 w-4" />
-        </Button>
+        {showDeleteButton && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleDelete}
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="icon"
@@ -78,7 +82,7 @@ export function RouterChoice({
           value={currentValue}
           onValueChange={(value) => onUpdate(index, { nextNodeId: value === "none" ? "" : value })}
         >
-          <SelectTrigger>
+          <SelectTrigger className={!choice.nextNodeId ? 'border-destructive' : ''}>
             <SelectValue placeholder="Select a node" />
           </SelectTrigger>
           <SelectContent>
