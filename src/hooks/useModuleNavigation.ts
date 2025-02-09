@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { RouterNodeData, FlowNode } from "@/types/module";
 import { useMediaControl } from "./useMediaControl";
@@ -31,8 +30,10 @@ export function useModuleNavigation(
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
     console.log("🔍 Full node data:", JSON.stringify(currentNode.data, null, 2));
 
-    // Always add current node to history
-    setNavigationHistory(prev => [...prev, currentNode.id]);
+    // Always add current node to history if it's not already the last item
+    if (navigationHistory[navigationHistory.length - 1] !== currentNode.id) {
+      setNavigationHistory(prev => [...prev, currentNode.id]);
+    }
 
     const nextNodeId = currentNode.data?.nextNodeId;
     if (!nextNodeId) {
@@ -58,6 +59,8 @@ export function useModuleNavigation(
         console.log("🎭 Activating overlay router:", nextNode.id);
         pauseAllMedia();
         setOverlayRouter(nextNode.data as RouterNodeData);
+        // Add overlay router to history
+        setNavigationHistory(prev => [...prev, nextNode.id]);
       } else {
         console.log("➡️ Moving to node index:", nextIndex);
         setCurrentNodeIndex(nextIndex);
@@ -68,7 +71,7 @@ export function useModuleNavigation(
       console.log("⚠️ Could not find index for next node:", nextNode.id);
       setShowCompletion(true);
     }
-  }, [nodes, currentNodeIndex, findNodeById, findNodeIndex, pauseAllMedia, updateProgress]);
+  }, [nodes, currentNodeIndex, findNodeById, findNodeIndex, pauseAllMedia, updateProgress, navigationHistory]);
 
   const handlePrevious = useCallback(() => {
     if (!nodes || nodes.length === 0 || navigationHistory.length <= 1) return;
@@ -81,9 +84,16 @@ export function useModuleNavigation(
     // Remove the current node from history
     updatedHistory.pop();
     
-    // Get the previous node ID
-    const previousNodeId = updatedHistory[updatedHistory.length - 1];
-    const previousNode = findNodeById(previousNodeId);
+    // Get the previous node ID (skipping any router nodes)
+    let previousNodeId = updatedHistory[updatedHistory.length - 1];
+    let previousNode = findNodeById(previousNodeId);
+    
+    // Keep going back if we hit a router node
+    while (previousNode?.type === 'router' && updatedHistory.length > 1) {
+      updatedHistory.pop();
+      previousNodeId = updatedHistory[updatedHistory.length - 1];
+      previousNode = findNodeById(previousNodeId);
+    }
     
     if (previousNode) {
       const previousIndex = findNodeIndex(previousNodeId);
