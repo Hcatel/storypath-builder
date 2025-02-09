@@ -93,6 +93,7 @@ export function useRouterHandling(
 
     // For non-router nodes with nextNodeId
     if (currentNode.type !== 'router' && currentNode.data.nextNodeId) {
+      // Find the next node based on the configured nextNodeId
       const nextNodeIndex = nodes.findIndex(node => node.id === currentNode.data.nextNodeId);
       console.log("Node complete - moving to next node index:", nextNodeIndex, "from current node:", currentNode);
       
