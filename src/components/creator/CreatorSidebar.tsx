@@ -15,14 +15,14 @@ const navigation = [
     icon: BookOpen,
   },
   {
-    name: "Analytics",
-    href: "/creator/analytics",
-    icon: BarChart2,
-  },
-  {
     name: "Learners",
     href: "/creator/learners",
     icon: Users,
+  },
+  {
+    name: "Analytics",
+    href: "/creator/analytics",
+    icon: BarChart2,
   },
   {
     name: "Nest Settings",
