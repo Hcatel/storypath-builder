@@ -87,6 +87,9 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
 
   const addMember = async (email: string) => {
     if (!groupId) return;
+
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return;
     
     try {
       const { error } = await supabase
@@ -94,6 +97,7 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
         .insert({
           group_id: groupId,
           email: email,
+          user_id: userData.user.id // Add the current user's ID as the creator
         });
 
       if (error) throw error;
@@ -113,6 +117,16 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create or edit groups",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       if (groupId) {
         // Update existing group
@@ -121,6 +135,7 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
           .update({
             name: formData.name,
             description: formData.description,
+            created_by: userData.user.id
           })
           .eq("id", groupId);
 
@@ -137,6 +152,7 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
           .insert({
             name: formData.name,
             description: formData.description,
+            created_by: userData.user.id
           })
           .select()
           .single();
