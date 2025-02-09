@@ -1,5 +1,5 @@
 
-import { FlowNode, FlowEdge } from "@/types/module";
+import { FlowNode, FlowEdge, RouterNodeData } from "@/types/module";
 
 export function useNodeUpdater(
   nodes: FlowNode[],
@@ -10,10 +10,19 @@ export function useNodeUpdater(
   const onNodeUpdate = (nodeId: string, data: any) => {
     // Find the current node
     const currentNode = nodes.find(node => node.id === nodeId);
-    if (!currentNode) return;
+    if (!currentNode) {
+      console.error("Node not found:", nodeId);
+      return;
+    }
 
     // Special handling for router nodes
     if (data.type === 'router' && data.choices) {
+      // Validate router node data
+      if (!Array.isArray(data.choices) || data.choices.length < 2) {
+        console.error("Router node must have at least two choices");
+        return;
+      }
+
       const existingRouterEdges = edges.filter(edge => 
         edge.source === nodeId && edge.sourceHandle?.startsWith('choice-')
       );
@@ -46,22 +55,32 @@ export function useNodeUpdater(
       
       setNodes(updatedNodes);
 
+      // Handle edge updates
       const nonRouterEdges = edges.filter(edge => edge.source !== nodeId);
       const newRouterEdges = updatedChoices
         .map((choice: any, index: number) => {
-          if (choice.nextNodeId) {
-            return {
-              id: `e${nodeId}-${choice.nextNodeId}-${index}`,
-              source: nodeId,
-              target: choice.nextNodeId,
-              sourceHandle: `choice-${index}`,
-              type: 'default',
-              data: {}
-            } as FlowEdge;
+          if (!choice.nextNodeId) {
+            console.warn(`Choice ${index} has no target node`);
+            return null;
           }
-          return null;
+
+          // Validate target node exists
+          const targetNode = nodes.find(node => node.id === choice.nextNodeId);
+          if (!targetNode) {
+            console.error(`Target node ${choice.nextNodeId} not found`);
+            return null;
+          }
+
+          return {
+            id: `e${nodeId}-${choice.nextNodeId}-${index}`,
+            source: nodeId,
+            target: choice.nextNodeId,
+            sourceHandle: `choice-${index}`,
+            type: 'default',
+            data: {}
+          } as FlowEdge;
         })
-        .filter((edge: FlowEdge | null): edge is FlowEdge => edge !== null);
+        .filter((edge): edge is FlowEdge => edge !== null);
 
       setEdges([...nonRouterEdges, ...newRouterEdges]);
     } else {
@@ -84,6 +103,13 @@ export function useNodeUpdater(
       if (data.nextNodeId !== currentNode.data.nextNodeId) {
         const filteredEdges = edges.filter(edge => edge.source !== nodeId);
         if (data.nextNodeId) {
+          // Validate target node exists
+          const targetNode = nodes.find(node => node.id === data.nextNodeId);
+          if (!targetNode) {
+            console.error(`Target node ${data.nextNodeId} not found`);
+            return;
+          }
+
           const newEdge: FlowEdge = {
             id: `e${nodeId}-${data.nextNodeId}`,
             source: nodeId,
