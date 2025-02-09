@@ -11,6 +11,7 @@ export function useModuleNavigation(
   const [overlayRouter, setOverlayRouter] = useState<RouterNodeData | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [navigationHistory, setNavigationHistory] = useState<string[]>([]);
   const { pauseAllMedia } = useMediaControl();
 
   const findNodeById = (nodeId: string): FlowNode | null => {
@@ -29,6 +30,9 @@ export function useModuleNavigation(
     const currentNode = nodes[currentNodeIndex];
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
     console.log("🔍 Full node data:", JSON.stringify(currentNode.data, null, 2));
+
+    // Add current node to history before moving to next
+    setNavigationHistory(prev => [...prev, currentNode.id]);
 
     // Check if nextNodeId exists in the node's data
     const nextNodeId = currentNode.data?.nextNodeId;
@@ -69,16 +73,24 @@ export function useModuleNavigation(
   };
 
   const handlePrevious = () => {
-    if (!nodes || nodes.length === 0) return;
+    if (!nodes || nodes.length === 0 || navigationHistory.length === 0) return;
     
-    const currentNode = nodes[currentNodeIndex];
-    console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
+    console.log("📍 Current navigation history:", navigationHistory);
     
-    if (currentNodeIndex > 0) {
-      const previousNode = nodes[currentNodeIndex - 1];
-      console.log("⬅️ Moving back to node:", previousNode.id, "of type:", previousNode.type);
-      setCurrentNodeIndex(currentNodeIndex - 1);
-      setHasInteracted(false);
+    // Remove current node from history and get the previous node
+    const updatedHistory = [...navigationHistory];
+    updatedHistory.pop(); // Remove current node
+    const previousNodeId = updatedHistory[updatedHistory.length - 1]; // Get last node in history
+    
+    if (previousNodeId) {
+      const previousIndex = findNodeIndex(previousNodeId);
+      if (previousIndex !== -1) {
+        console.log("⬅️ Moving back to node:", previousNodeId);
+        setCurrentNodeIndex(previousIndex);
+        setNavigationHistory(updatedHistory);
+        setHasInteracted(false);
+        setOverlayRouter(null); // Clear any active overlay router
+      }
     }
   };
 
