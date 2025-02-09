@@ -28,10 +28,12 @@ export function useModuleNavigation(
     
     const currentNode = nodes[currentNodeIndex];
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
-    console.log("📌 Expected next node:", currentNode.data.nextNodeId || "None");
     
-    if (!currentNode.data.nextNodeId) {
-      console.log("🎉 Reached end of module");
+    // Debug log to help diagnose the issue
+    console.log("🔍 Full node data:", JSON.stringify(currentNode.data, null, 2));
+    
+    if (!currentNode.data?.nextNodeId) {
+      console.log("🎉 Reached end of module - no next node defined");
       setShowCompletion(true);
       return;
     }
@@ -41,6 +43,8 @@ export function useModuleNavigation(
       console.log("⚠️ Next node not found:", currentNode.data.nextNodeId);
       return;
     }
+
+    console.log("📌 Found next node:", nextNode.id, "of type:", nextNode.type);
 
     const nextIndex = findNodeIndex(nextNode.id);
     if (nextIndex !== -1) {
@@ -55,6 +59,8 @@ export function useModuleNavigation(
       }
       // Only update progress after all state changes
       updateProgress(nextNode.id);
+    } else {
+      console.log("⚠️ Next node index not found for node:", nextNode.id);
     }
   };
 
@@ -63,7 +69,6 @@ export function useModuleNavigation(
     
     const currentNode = nodes[currentNodeIndex];
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
-    console.log("📌 Expected next node:", currentNode.data.nextNodeId || "None");
     
     if (currentNodeIndex > 0) {
       const previousNode = nodes[currentNodeIndex - 1];
@@ -77,7 +82,7 @@ export function useModuleNavigation(
     if (!nodes) return;
     const currentNode = nodes[currentNodeIndex];
     console.log("👆 User interacted with node:", currentNode.id, "of type:", currentNode.type);
-    console.log("📌 Expected next node:", currentNode.data.nextNodeId || "None");
+    console.log("📌 Expected next node:", currentNode.data?.nextNodeId || "None");
     setHasInteracted(true);
   };
 
