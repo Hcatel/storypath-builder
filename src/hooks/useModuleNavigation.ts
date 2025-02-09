@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { RouterNodeData, FlowNode } from "@/types/module";
 import { useMediaControl } from "./useMediaControl";
 
@@ -14,27 +14,25 @@ export function useModuleNavigation(
   const [navigationHistory, setNavigationHistory] = useState<string[]>([]);
   const { pauseAllMedia } = useMediaControl();
 
-  const findNodeById = (nodeId: string): FlowNode | null => {
+  const findNodeById = useCallback((nodeId: string): FlowNode | null => {
     if (!nodes) return null;
     return nodes.find(node => node.id === nodeId) || null;
-  };
+  }, [nodes]);
 
-  const findNodeIndex = (nodeId: string): number => {
+  const findNodeIndex = useCallback((nodeId: string): number => {
     if (!nodes) return -1;
     return nodes.findIndex(node => node.id === nodeId);
-  };
+  }, [nodes]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (!nodes || nodes.length === 0) return;
     
     const currentNode = nodes[currentNodeIndex];
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
     console.log("🔍 Full node data:", JSON.stringify(currentNode.data, null, 2));
 
-    // Add current node to history before moving to next
     setNavigationHistory(prev => [...prev, currentNode.id]);
 
-    // Check if nextNodeId exists in the node's data
     const nextNodeId = currentNode.data?.nextNodeId;
     if (!nextNodeId) {
       console.log("⚠️ No next node defined for current node:", currentNode.id);
@@ -64,23 +62,21 @@ export function useModuleNavigation(
         setCurrentNodeIndex(nextIndex);
         setHasInteracted(false);
       }
-      // Update progress after state changes
       updateProgress(nextNode.id);
     } else {
       console.log("⚠️ Could not find index for next node:", nextNode.id);
       setShowCompletion(true);
     }
-  };
+  }, [nodes, currentNodeIndex, findNodeById, findNodeIndex, pauseAllMedia, updateProgress]);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     if (!nodes || nodes.length === 0 || navigationHistory.length === 0) return;
     
     console.log("📍 Current navigation history:", navigationHistory);
     
-    // Remove current node from history and get the previous node
     const updatedHistory = [...navigationHistory];
-    updatedHistory.pop(); // Remove current node
-    const previousNodeId = updatedHistory[updatedHistory.length - 1]; // Get last node in history
+    updatedHistory.pop();
+    const previousNodeId = updatedHistory[updatedHistory.length - 1];
     
     if (previousNodeId) {
       const previousIndex = findNodeIndex(previousNodeId);
@@ -89,18 +85,18 @@ export function useModuleNavigation(
         setCurrentNodeIndex(previousIndex);
         setNavigationHistory(updatedHistory);
         setHasInteracted(false);
-        setOverlayRouter(null); // Clear any active overlay router
+        setOverlayRouter(null);
       }
     }
-  };
+  }, [nodes, navigationHistory, findNodeIndex]);
 
-  const handleInteraction = () => {
+  const handleInteraction = useCallback(() => {
     if (!nodes) return;
     const currentNode = nodes[currentNodeIndex];
     console.log("👆 User interacted with node:", currentNode.id, "of type:", currentNode.type);
     console.log("📌 Expected next node:", currentNode.data?.nextNodeId || "None");
     setHasInteracted(true);
-  };
+  }, [nodes, currentNodeIndex]);
 
   return {
     currentNodeIndex,
