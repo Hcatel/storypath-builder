@@ -15,11 +15,11 @@ export function LearnersTable() {
           id,
           joined_at,
           user_id,
-          group:group_id (
+          groups!inner (
             id,
             name
           ),
-          profile:user_id (
+          profiles!inner (
             id,
             username
           )
@@ -58,8 +58,8 @@ export function LearnersTable() {
       <TableBody>
         {learners.map((learner) => (
           <TableRow key={learner.id}>
-            <TableCell className="font-medium">{learner.profile?.username || 'Unknown user'}</TableCell>
-            <TableCell>{learner.group?.name}</TableCell>
+            <TableCell className="font-medium">{learner.profiles?.username || 'Unknown user'}</TableCell>
+            <TableCell>{learner.groups?.name}</TableCell>
             <TableCell className="text-right">{format(new Date(learner.joined_at), 'MMM d, yyyy')}</TableCell>
           </TableRow>
         ))}

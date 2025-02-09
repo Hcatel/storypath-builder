@@ -66,6 +66,20 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_group_members_group"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_group_members_profile"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "group_members_group_id_fkey"
             columns: ["group_id"]
             isOneToOne: false
@@ -540,6 +554,13 @@ export type Database = {
           playlist_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_playlist_group_access_group"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "playlist_group_access_group_id_fkey"
             columns: ["group_id"]
