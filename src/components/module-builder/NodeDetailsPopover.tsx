@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Node } from "@xyflow/react";
 import { NodeData } from "@/types/module";
 import {
@@ -30,89 +30,82 @@ export function NodeDetailsPopover({
   onPositionChange,
 }: NodeDetailsPopoverProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [currentPosition, setCurrentPosition] = useState(popoverPosition);
+  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState(popoverPosition);
 
   useEffect(() => {
     if (!isDragging) {
-      setCurrentPosition(popoverPosition);
+      setPosition(popoverPosition);
     }
   }, [popoverPosition, isDragging]);
 
   useEffect(() => {
-    const wrapper = document.querySelector('[data-radix-popper-content-wrapper]') as HTMLElement;
-    const header = wrapper?.querySelector('.popover-header') as HTMLElement;
-    
-    if (!wrapper || !header) return;
+    const initializeDragging = () => {
+      const wrapper = document.querySelector('[data-radix-popper-content-wrapper]');
+      if (!wrapper) return;
 
-    let initialMouseX = 0;
-    let initialMouseY = 0;
-    let initialWrapperX = 0;
-    let initialWrapperY = 0;
+      const header = wrapper.querySelector('.popover-header');
+      if (!header) return;
 
-    const handleMouseDown = (e: MouseEvent) => {
-      if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
-        const wrapperRect = wrapper.getBoundingClientRect();
-        initialMouseX = e.clientX;
-        initialMouseY = e.clientY;
-        initialWrapperX = wrapperRect.left;
-        initialWrapperY = wrapperRect.top;
-        
-        setDragOffset({
-          x: e.clientX - wrapperRect.left,
-          y: e.clientY - wrapperRect.top
-        });
-        
-        setIsDragging(true);
-        window.isPopoverDragging = true;
-        
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    };
+      const handleMouseDown = (e: MouseEvent) => {
+        if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          setIsDragging(true);
+          const wrapperElement = wrapper as HTMLElement;
+          const wrapperRect = wrapperElement.getBoundingClientRect();
+          
+          // Calculate the offset between mouse position and wrapper's top-left corner
+          setStartPosition({
+            x: e.clientX - wrapperRect.left,
+            y: e.clientY - wrapperRect.top
+          });
+          
+          (window as any).isPopoverDragging = true;
+        }
+      };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
+      const handleMouseMove = (e: MouseEvent) => {
+        if (isDragging) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const newPosition = {
+            x: e.clientX - startPosition.x,
+            y: e.clientY - startPosition.y
+          };
+          
+          setPosition(newPosition);
+          onPositionChange?.(newPosition);
 
-      const deltaX = e.clientX - initialMouseX;
-      const deltaY = e.clientY - initialMouseY;
-      
-      const newX = initialWrapperX + deltaX;
-      const newY = initialWrapperY + deltaY;
-      
-      const newPosition = { x: newX, y: newY };
-      setCurrentPosition(newPosition);
-      onPositionChange?.(newPosition);
-      
-      wrapper.style.transform = `translate3d(${newX}px, ${newY}px, 0)`;
-      
-      e.preventDefault();
-      e.stopPropagation();
-    };
+          const wrapperElement = wrapper as HTMLElement;
+          wrapperElement.style.transform = `translate3d(${newPosition.x}px, ${newPosition.y}px, 0)`;
+        }
+      };
 
-    const handleMouseUp = (e: MouseEvent) => {
-      if (isDragging) {
+      const handleMouseUp = () => {
         setIsDragging(false);
-        window.isPopoverDragging = false;
-        e.preventDefault();
-        e.stopPropagation();
-      }
+        (window as any).isPopoverDragging = false;
+      };
+
+      header.addEventListener('mousedown', handleMouseDown);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+
+      return () => {
+        header.removeEventListener('mousedown', handleMouseDown);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
     };
 
-    header.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    // Small delay to ensure the wrapper is mounted
+    const timeoutId = setTimeout(initializeDragging, 0);
+    return () => clearTimeout(timeoutId);
+  }, [isDragging, position, startPosition, onPositionChange]);
 
-    return () => {
-      header.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      setIsDragging(false);
-      window.isPopoverDragging = false;
-    };
-  }, [isDragging, onPositionChange]);
-
-  if (!selectedNode || !currentPosition) return null;
+  if (!selectedNode || !position) return null;
 
   return (
     <Popover open={selectedNode !== null} onOpenChange={onClose}>
