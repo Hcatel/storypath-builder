@@ -37,8 +37,10 @@ export function Header() {
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <UserRound className="h-7 w-7 text-primary-700 stroke-[2]" />
+                <Button variant="ghost" size="icon" className="relative">
+                  <div className="rounded-full bg-primary-600 p-2">
+                    <UserRound className="h-7 w-7 text-white stroke-[2]" />
+                  </div>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
