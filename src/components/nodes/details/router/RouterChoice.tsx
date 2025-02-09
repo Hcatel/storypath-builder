@@ -52,12 +52,16 @@ export function RouterChoice({
   };
 
   const handleNodeSelection = (value: string) => {
+    // Update the local state immediately
     onUpdate(index, { nextNodeId: value === "none" ? "" : value });
+    
     // Force a reflow of the popover content
-    const wrapper = document.querySelector('[data-radix-popper-content-wrapper]');
-    if (wrapper) {
-      wrapper.setAttribute('style', wrapper.getAttribute('style') || '');
-    }
+    requestAnimationFrame(() => {
+      const wrapper = document.querySelector('[data-radix-popper-content-wrapper]');
+      if (wrapper) {
+        wrapper.setAttribute('style', wrapper.getAttribute('style') || '');
+      }
+    });
   };
   
   return (
