@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Node } from "@xyflow/react";
 import { NodeData } from "@/types/module";
 import {
@@ -30,7 +30,6 @@ export function NodeDetailsPopover({
   onPositionChange,
 }: NodeDetailsPopoverProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
   const [position, setPosition] = useState(popoverPosition);
 
   useEffect(() => {
@@ -45,61 +44,51 @@ export function NodeDetailsPopover({
     
     if (!wrapper || !header) return;
 
-    let initialWrapperX = 0;
-    let initialWrapperY = 0;
-    let mouseStartX = 0;
-    let mouseStartY = 0;
+    let startX = 0;
+    let startY = 0;
+    let startWrapperX = 0;
+    let startWrapperY = 0;
 
     const handleMouseDown = (e: MouseEvent) => {
       if (e.target instanceof HTMLElement && e.target.closest('.popover-header')) {
         e.preventDefault();
-        e.stopPropagation();
-        
+        const wrapperRect = wrapper.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        startWrapperX = wrapperRect.left;
+        startWrapperY = wrapperRect.top;
         setIsDragging(true);
         (window as any).isPopoverDragging = true;
-
-        const wrapperRect = wrapper.getBoundingClientRect();
-        initialWrapperX = wrapperRect.left;
-        initialWrapperY = wrapperRect.top;
-        mouseStartX = e.clientX;
-        mouseStartY = e.clientY;
       }
     };
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
 
-      e.preventDefault();
-      e.stopPropagation();
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
       
-      const deltaX = e.clientX - mouseStartX;
-      const deltaY = e.clientY - mouseStartY;
-      
-      const newX = initialWrapperX + deltaX;
-      const newY = initialWrapperY + deltaY;
+      const newX = startWrapperX + deltaX;
+      const newY = startWrapperY + deltaY;
       
       const newPosition = { x: newX, y: newY };
       setPosition(newPosition);
       onPositionChange?.(newPosition);
-
+      
       wrapper.style.transform = `translate3d(${newX}px, ${newY}px, 0)`;
     };
 
-    const handleMouseUp = (e: MouseEvent) => {
+    const handleMouseUp = () => {
       if (isDragging) {
-        e.preventDefault();
-        e.stopPropagation();
+        setIsDragging(false);
+        (window as any).isPopoverDragging = false;
       }
-      setIsDragging(false);
-      (window as any).isPopoverDragging = false;
     };
 
-    // Add event listeners
     header.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
 
-    // Cleanup
     return () => {
       header.removeEventListener('mousedown', handleMouseDown);
       document.removeEventListener('mousemove', handleMouseMove);
@@ -107,7 +96,7 @@ export function NodeDetailsPopover({
       setIsDragging(false);
       (window as any).isPopoverDragging = false;
     };
-  }, [isDragging, onPositionChange]); // Only re-run when isDragging or onPositionChange changes
+  }, [isDragging, onPositionChange]);
 
   if (!selectedNode || !position) return null;
 
