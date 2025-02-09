@@ -91,8 +91,8 @@ export function useRouterHandling(
     const currentNode = nodes[currentNodeIndex];
     console.log("Handling node complete for:", currentNode);
 
-    // For non-router nodes with nextNodeId
-    if (currentNode.type !== 'router' && currentNode.data.nextNodeId) {
+    // Only proceed if the current node has a nextNodeId configured
+    if (currentNode.data.nextNodeId) {
       // Find the next node based on the configured nextNodeId
       const nextNodeIndex = nodes.findIndex(node => node.id === currentNode.data.nextNodeId);
       console.log("Node complete - moving to next node index:", nextNodeIndex, "from current node:", currentNode);
@@ -111,7 +111,11 @@ export function useRouterHandling(
           setHasInteracted(false);
           updateProgress(nextNode.id);
         }
+      } else {
+        console.error("Next node not found for id:", currentNode.data.nextNodeId);
       }
+    } else {
+      console.log("Current node has no nextNodeId configured:", currentNode);
     }
   }, [nodes, currentNodeIndex, pauseAllMedia, setOverlayRouter, setCurrentNodeIndex, setHasInteracted, updateProgress]);
 
