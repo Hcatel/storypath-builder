@@ -5,6 +5,7 @@ import { ComponentType, NodeData, RouterNodeData, FlowNode, FlowEdge } from "@/t
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
