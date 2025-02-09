@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { RouterNodeData, FlowNode } from "@/types/module";
 import { useMediaControl } from "./useMediaControl";
@@ -30,6 +31,7 @@ export function useModuleNavigation(
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
     console.log("🔍 Full node data:", JSON.stringify(currentNode.data, null, 2));
 
+    // Always add current node to history
     setNavigationHistory(prev => [...prev, currentNode.id]);
 
     const nextNodeId = currentNode.data?.nextNodeId;
@@ -56,8 +58,6 @@ export function useModuleNavigation(
         console.log("🎭 Activating overlay router:", nextNode.id);
         pauseAllMedia();
         setOverlayRouter(nextNode.data as RouterNodeData);
-        // Add router to navigation history even though it's an overlay
-        setNavigationHistory(prev => [...prev, nextNode.id]);
       } else {
         console.log("➡️ Moving to node index:", nextIndex);
         setCurrentNodeIndex(nextIndex);
@@ -75,26 +75,17 @@ export function useModuleNavigation(
     
     console.log("📍 Current navigation history:", navigationHistory);
     
-    // Pop current node
+    // Create a copy of the history to work with
     const updatedHistory = [...navigationHistory];
+    
+    // Remove the current node from history
     updatedHistory.pop();
     
-    // Keep popping if the previous node was an overlay router
-    let previousNodeId = updatedHistory[updatedHistory.length - 1];
-    let previousNode = findNodeById(previousNodeId);
+    // Get the previous node ID
+    const previousNodeId = updatedHistory[updatedHistory.length - 1];
+    const previousNode = findNodeById(previousNodeId);
     
-    while (
-      previousNode && 
-      previousNode.type === 'router' && 
-      (previousNode.data as RouterNodeData).isOverlay && 
-      updatedHistory.length > 1
-    ) {
-      updatedHistory.pop();
-      previousNodeId = updatedHistory[updatedHistory.length - 1];
-      previousNode = findNodeById(previousNodeId);
-    }
-    
-    if (previousNodeId) {
+    if (previousNode) {
       const previousIndex = findNodeIndex(previousNodeId);
       if (previousIndex !== -1) {
         console.log("⬅️ Moving back to node:", previousNodeId);
