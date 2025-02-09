@@ -29,6 +29,9 @@ export function RouterChoice({
   onDelete,
   onConfigureConditions,
 }: RouterChoiceProps) {
+  // Ensure we have a valid value for the select
+  const currentValue = choice.nextNodeId || "none";
+  
   return (
     <div className="space-y-2 border rounded-lg p-3">
       <div className="flex gap-2">
@@ -55,13 +58,14 @@ export function RouterChoice({
       <div>
         <label className="text-sm font-medium">Connect to node</label>
         <Select
-          value={choice.nextNodeId || ""}
-          onValueChange={(value) => onUpdate(index, { nextNodeId: value })}
+          value={currentValue}
+          onValueChange={(value) => onUpdate(index, { nextNodeId: value === "none" ? "" : value })}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a node" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="none">None</SelectItem>
             {availableNodes.map((node) => (
               <SelectItem key={node.id} value={node.id}>
                 {node.data.label}
