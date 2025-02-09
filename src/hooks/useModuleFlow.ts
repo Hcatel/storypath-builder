@@ -1,4 +1,3 @@
-
 import { useCallback } from "react";
 import { Connection } from "@xyflow/react";
 import { ComponentType, NodeData, RouterNodeData, FlowNode, FlowEdge } from "@/types/module";
@@ -97,8 +96,8 @@ export const useModuleFlow = (
       const { error } = await supabase
         .from("modules")
         .update({
-          nodes: nodeData as JsonValue[],
-          edges: edgeData as JsonValue[],
+          nodes: nodeData,
+          edges: edgeData,
           updated_at: new Date().toISOString(),
         })
         .eq("id", moduleId);
@@ -162,7 +161,7 @@ export const useModuleFlow = (
         data: {},
       };
       
-      setEdges(prev => [...prev, newEdge]);
+      setEdges((prev: FlowEdge[]) => [...prev, newEdge]);
     },
     [nodes, setNodes, setEdges]
   );
@@ -186,4 +185,3 @@ export const useModuleFlow = (
     addNode,
   };
 };
-

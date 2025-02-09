@@ -5,6 +5,9 @@ import { useNodesState, useEdgesState } from '@xyflow/react';
 import { FlowNode, FlowEdge } from "@/types/module";
 import { getInitialNode } from "@/constants/moduleComponents";
 import { convertToReactFlowNode } from "@/utils/nodeConverters";
+import { Database } from "@/integrations/supabase/types";
+
+type ModuleRow = Database['public']['Tables']['modules']['Row'];
 
 export function useModuleBuilderState(id: string | undefined) {
   const isCreateMode = !id || id === 'create';
@@ -36,12 +39,12 @@ export function useModuleBuilderState(id: string | undefined) {
 
       const convertedNodes = moduleNodes.map(node => convertToReactFlowNode(node));
       const convertedEdges = moduleEdges.map(edge => ({
-        id: edge.id?.toString() || '',
-        source: edge.source?.toString() || '',
-        target: edge.target?.toString() || '',
-        type: edge.type || 'default',
+        id: String(edge.id || ''),
+        source: String(edge.source || ''),
+        target: String(edge.target || ''),
+        type: String(edge.type || 'default'),
         data: edge.data || {},
-      }));
+      })) as FlowEdge[];
 
       return {
         ...data,
@@ -71,4 +74,3 @@ export function useModuleBuilderState(id: string | undefined) {
     onEdgesChange,
   };
 }
-
