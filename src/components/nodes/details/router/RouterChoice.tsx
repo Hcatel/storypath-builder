@@ -29,28 +29,45 @@ export function RouterChoice({
   onDelete,
   onConfigureConditions,
 }: RouterChoiceProps) {
-  // Ensure we have a valid value for the select
   const currentValue = choice.nextNodeId || "none";
+  
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onUpdate(index, { text: e.target.value });
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDelete(index);
+  };
+
+  const handleConfigureConditions = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onConfigureConditions(index);
+  };
   
   return (
     <div className="space-y-2 border rounded-lg p-3">
       <div className="flex gap-2">
         <Input
           value={choice.text}
-          onChange={(e) => onUpdate(index, { text: e.target.value })}
+          onChange={handleTextChange}
           placeholder={`Choice ${index + 1}`}
         />
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => onDelete(index)}
+          onClick={handleDelete}
         >
           <Minus className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => onConfigureConditions(index)}
+          onClick={handleConfigureConditions}
         >
           <Settings className="h-4 w-4" />
         </Button>
