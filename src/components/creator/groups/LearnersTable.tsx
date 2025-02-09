@@ -12,9 +12,17 @@ export function LearnersTable() {
       const { data, error } = await supabase
         .from("group_members")
         .select(`
-          *,
-          user:user_id(id, email),
-          group:group_id(name)
+          id,
+          joined_at,
+          user_id,
+          group:group_id (
+            id,
+            name
+          ),
+          profile:user_id (
+            id,
+            username
+          )
         `);
       
       if (error) throw error;
@@ -42,7 +50,7 @@ export function LearnersTable() {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Email</TableHead>
+          <TableHead>Username</TableHead>
           <TableHead>Group</TableHead>
           <TableHead className="text-right">Joined</TableHead>
         </TableRow>
@@ -50,7 +58,7 @@ export function LearnersTable() {
       <TableBody>
         {learners.map((learner) => (
           <TableRow key={learner.id}>
-            <TableCell className="font-medium">{learner.user?.email}</TableCell>
+            <TableCell className="font-medium">{learner.profile?.username || 'Unknown user'}</TableCell>
             <TableCell>{learner.group?.name}</TableCell>
             <TableCell className="text-right">{format(new Date(learner.joined_at), 'MMM d, yyyy')}</TableCell>
           </TableRow>
