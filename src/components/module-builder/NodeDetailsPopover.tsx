@@ -56,37 +56,35 @@ export function NodeDetailsPopover({
           const wrapperElement = wrapper as HTMLElement;
           const wrapperRect = wrapperElement.getBoundingClientRect();
           
-          // Calculate the offset between mouse position and wrapper's top-left corner
           setStartPosition({
             x: e.clientX - wrapperRect.left,
             y: e.clientY - wrapperRect.top
           });
-          
-          (window as any).isPopoverDragging = true;
         }
       };
 
       const handleMouseMove = (e: MouseEvent) => {
-        if (isDragging) {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          const newPosition = {
-            x: e.clientX - startPosition.x,
-            y: e.clientY - startPosition.y
-          };
-          
-          setPosition(newPosition);
-          onPositionChange?.(newPosition);
+        if (!isDragging) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const newPosition = {
+          x: e.clientX - startPosition.x,
+          y: e.clientY - startPosition.y
+        };
+        
+        setPosition(newPosition);
+        onPositionChange?.(newPosition);
 
-          const wrapperElement = wrapper as HTMLElement;
-          wrapperElement.style.transform = `translate3d(${newPosition.x}px, ${newPosition.y}px, 0)`;
-        }
+        const wrapperElement = wrapper as HTMLElement;
+        wrapperElement.style.transform = `translate3d(${newPosition.x}px, ${newPosition.y}px, 0)`;
       };
 
       const handleMouseUp = () => {
-        setIsDragging(false);
-        (window as any).isPopoverDragging = false;
+        if (isDragging) {
+          setIsDragging(false);
+        }
       };
 
       header.addEventListener('mousedown', handleMouseDown);
