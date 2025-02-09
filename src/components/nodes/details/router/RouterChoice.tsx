@@ -50,6 +50,15 @@ export function RouterChoice({
     e.stopPropagation();
     onConfigureConditions(index);
   };
+
+  const handleNodeSelection = (value: string) => {
+    onUpdate(index, { nextNodeId: value === "none" ? "" : value });
+    // Force a reflow of the popover content
+    const wrapper = document.querySelector('[data-radix-popper-content-wrapper]');
+    if (wrapper) {
+      wrapper.setAttribute('style', wrapper.getAttribute('style') || '');
+    }
+  };
   
   return (
     <div className={`space-y-2 border rounded-lg p-3 ${!choice.nextNodeId ? 'border-destructive' : ''}`}>
@@ -80,7 +89,7 @@ export function RouterChoice({
         <label className="text-sm font-medium">Connect to node</label>
         <Select
           value={currentValue}
-          onValueChange={(value) => onUpdate(index, { nextNodeId: value === "none" ? "" : value })}
+          onValueChange={handleNodeSelection}
         >
           <SelectTrigger className={!choice.nextNodeId ? 'border-destructive' : ''}>
             <SelectValue placeholder="Select a node" />
