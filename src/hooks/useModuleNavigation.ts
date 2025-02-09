@@ -13,6 +13,16 @@ export function useModuleNavigation(
   const [showCompletion, setShowCompletion] = useState(false);
   const { pauseAllMedia } = useMediaControl();
 
+  const findNodeById = (nodeId: string): FlowNode | null => {
+    if (!nodes) return null;
+    return nodes.find(node => node.id === nodeId) || null;
+  };
+
+  const findNodeIndex = (nodeId: string): number => {
+    if (!nodes) return -1;
+    return nodes.findIndex(node => node.id === nodeId);
+  };
+
   const handleNext = () => {
     if (!nodes) return;
     
@@ -20,26 +30,29 @@ export function useModuleNavigation(
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
     console.log("📌 Expected next node:", currentNode.data.nextNodeId || "None");
     
-    const nextIndex = currentNodeIndex + 1;
-    
-    if (nextIndex === nodes.length) {
+    if (!currentNode.data.nextNodeId) {
       console.log("🎉 Reached end of module");
       setShowCompletion(true);
       return;
     }
 
-    if (nextIndex < nodes.length) {
-      const nextNode = nodes[nextIndex];
-      console.log("➡️ Moving to node:", nextNode.id, "of type:", nextNode.type);
-      
-      if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
-        console.log("🎭 Activating overlay router:", nextNode.id);
-        pauseAllMedia();
-        setOverlayRouter(nextNode.data as RouterNodeData);
-        updateProgress(nextNode.id);
-        return;
-      }
+    const nextNode = findNodeById(currentNode.data.nextNodeId);
+    if (!nextNode) {
+      console.log("⚠️ Next node not found:", currentNode.data.nextNodeId);
+      return;
+    }
 
+    if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
+      console.log("🎭 Activating overlay router:", nextNode.id);
+      pauseAllMedia();
+      setOverlayRouter(nextNode.data as RouterNodeData);
+      updateProgress(nextNode.id);
+      return;
+    }
+
+    const nextIndex = findNodeIndex(nextNode.id);
+    if (nextIndex !== -1) {
+      console.log("➡️ Moving to node:", nextNode.id, "of type:", nextNode.type);
       setCurrentNodeIndex(nextIndex);
       setHasInteracted(false);
       updateProgress(nextNode.id);
