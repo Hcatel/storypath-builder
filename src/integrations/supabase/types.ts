@@ -47,18 +47,21 @@ export type Database = {
       }
       group_members: {
         Row: {
+          email: string | null
           group_id: string
           id: string
           joined_at: string
           user_id: string
         }
         Insert: {
+          email?: string | null
           group_id: string
           id?: string
           joined_at?: string
           user_id: string
         }
         Update: {
+          email?: string | null
           group_id?: string
           id?: string
           joined_at?: string
@@ -94,6 +97,7 @@ export type Database = {
           created_by: string
           description: string | null
           id: string
+          members_modified_at: string | null
           name: string
           updated_at: string | null
         }
@@ -102,6 +106,7 @@ export type Database = {
           created_by: string
           description?: string | null
           id?: string
+          members_modified_at?: string | null
           name: string
           updated_at?: string | null
         }
@@ -110,6 +115,7 @@ export type Database = {
           created_by?: string
           description?: string | null
           id?: string
+          members_modified_at?: string | null
           name?: string
           updated_at?: string | null
         }
