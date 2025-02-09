@@ -24,48 +24,52 @@ export function useModuleNavigation(
   };
 
   const handleNext = () => {
-    if (!nodes) return;
+    if (!nodes || nodes.length === 0) return;
     
     const currentNode = nodes[currentNodeIndex];
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
-    
-    // Debug log to help diagnose the issue
     console.log("🔍 Full node data:", JSON.stringify(currentNode.data, null, 2));
-    
-    if (!currentNode.data?.nextNodeId) {
-      console.log("🎉 Reached end of module - no next node defined");
+
+    // Check if nextNodeId exists in the node's data
+    const nextNodeId = currentNode.data?.nextNodeId;
+    if (!nextNodeId) {
+      console.log("⚠️ No next node defined for current node:", currentNode.id);
       setShowCompletion(true);
       return;
     }
 
-    const nextNode = findNodeById(currentNode.data.nextNodeId);
+    console.log("🔄 Looking for next node with ID:", nextNodeId);
+    const nextNode = findNodeById(nextNodeId);
+    
     if (!nextNode) {
-      console.log("⚠️ Next node not found:", currentNode.data.nextNodeId);
+      console.log("❌ Next node not found with ID:", nextNodeId);
+      setShowCompletion(true);
       return;
     }
 
-    console.log("📌 Found next node:", nextNode.id, "of type:", nextNode.type);
-
+    console.log("✅ Found next node:", nextNode.id, "of type:", nextNode.type);
     const nextIndex = findNodeIndex(nextNode.id);
+    
     if (nextIndex !== -1) {
       if (nextNode.type === 'router' && (nextNode.data as RouterNodeData).isOverlay) {
         console.log("🎭 Activating overlay router:", nextNode.id);
         pauseAllMedia();
         setOverlayRouter(nextNode.data as RouterNodeData);
       } else {
-        console.log("➡️ Moving to node:", nextNode.id, "of type:", nextNode.type);
+        console.log("➡️ Moving to node index:", nextIndex);
         setCurrentNodeIndex(nextIndex);
         setHasInteracted(false);
       }
-      // Only update progress after all state changes
+      // Update progress after state changes
       updateProgress(nextNode.id);
     } else {
-      console.log("⚠️ Next node index not found for node:", nextNode.id);
+      console.log("⚠️ Could not find index for next node:", nextNode.id);
+      setShowCompletion(true);
     }
   };
 
   const handlePrevious = () => {
-    if (!nodes) return;
+    if (!nodes || nodes.length === 0) return;
     
     const currentNode = nodes[currentNodeIndex];
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
