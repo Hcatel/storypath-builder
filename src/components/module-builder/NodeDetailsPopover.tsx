@@ -84,6 +84,7 @@ export function NodeDetailsPopover({
       const handleMouseUp = () => {
         if (isDragging) {
           setIsDragging(false);
+          document.removeEventListener('mousemove', handleMouseMove);
         }
       };
 
