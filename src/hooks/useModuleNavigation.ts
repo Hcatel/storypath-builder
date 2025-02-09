@@ -57,6 +57,8 @@ export function useModuleNavigation(
         console.log("🎭 Activating overlay router:", nextNode.id);
         pauseAllMedia();
         setOverlayRouter(nextNode.data as RouterNodeData);
+        // Add router to navigation history even though it's an overlay
+        setNavigationHistory(prev => [...prev, nextNode.id]);
       } else {
         console.log("➡️ Moving to node index:", nextIndex);
         setCurrentNodeIndex(nextIndex);
@@ -70,12 +72,12 @@ export function useModuleNavigation(
   }, [nodes, currentNodeIndex, findNodeById, findNodeIndex, pauseAllMedia, updateProgress]);
 
   const handlePrevious = useCallback(() => {
-    if (!nodes || nodes.length === 0 || navigationHistory.length === 0) return;
+    if (!nodes || nodes.length === 0 || navigationHistory.length <= 1) return;
     
     console.log("📍 Current navigation history:", navigationHistory);
     
     const updatedHistory = [...navigationHistory];
-    updatedHistory.pop();
+    updatedHistory.pop(); // Remove current node
     const previousNodeId = updatedHistory[updatedHistory.length - 1];
     
     if (previousNodeId) {
