@@ -18,6 +18,7 @@ export function useModuleNavigation(
     
     const currentNode = nodes[currentNodeIndex];
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
+    console.log("📌 Expected next node:", currentNode.data.nextNodeId || "None");
     
     const nextIndex = currentNodeIndex + 1;
     
@@ -50,6 +51,7 @@ export function useModuleNavigation(
     
     const currentNode = nodes[currentNodeIndex];
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
+    console.log("📌 Expected next node:", currentNode.data.nextNodeId || "None");
     
     if (currentNodeIndex > 0) {
       const previousNode = nodes[currentNodeIndex - 1];
@@ -63,6 +65,7 @@ export function useModuleNavigation(
     if (!nodes) return;
     const currentNode = nodes[currentNodeIndex];
     console.log("👆 User interacted with node:", currentNode.id, "of type:", currentNode.type);
+    console.log("📌 Expected next node:", currentNode.data.nextNodeId || "None");
     setHasInteracted(true);
   };
 
@@ -79,4 +82,3 @@ export function useModuleNavigation(
     handleInteraction,
   };
 }
-

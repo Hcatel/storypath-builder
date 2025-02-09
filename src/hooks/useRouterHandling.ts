@@ -35,6 +35,7 @@ export function useRouterHandling(
 
     const currentNode = nodes[currentNodeIndex];
     console.log("📍 Current node:", currentNode.id, "of type:", currentNode.type);
+    console.log("📌 Expected next node:", currentNode.data.nextNodeId || "None");
 
     const overlayRouterNode = nodes.find(node => 
       node.type === 'router' && 
@@ -82,6 +83,7 @@ export function useRouterHandling(
 
     const currentNode = nodes[currentNodeIndex];
     console.log("🏁 Current node completed:", currentNode.id, "of type:", currentNode.type);
+    console.log("📌 Expected next node:", currentNode.data.nextNodeId || "None");
 
     const nextNode = findNextNodeByEdge(nodes, currentNode.id);
     if (!nextNode) return;
