@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -87,9 +86,6 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
 
   const addMember = async (email: string) => {
     if (!groupId) return;
-
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) return;
     
     try {
       const { error } = await supabase
@@ -97,7 +93,6 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
         .insert({
           group_id: groupId,
           email: email,
-          user_id: userData.user.id // Add the current user's ID as the creator
         });
 
       if (error) throw error;
