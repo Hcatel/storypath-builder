@@ -32,6 +32,14 @@ export function NodeDetailsPopover({
   const [isDragging, setIsDragging] = useState(false);
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
   const [position, setPosition] = useState(popoverPosition);
+  const [key, setKey] = useState(0); // Add a key to force re-render
+
+  // Update key when selectedNode or its data changes
+  useEffect(() => {
+    if (selectedNode) {
+      setKey(prev => prev + 1);
+    }
+  }, [selectedNode, selectedNode?.data]);
 
   useEffect(() => {
     if (!isDragging) {
@@ -118,6 +126,7 @@ export function NodeDetailsPopover({
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel defaultSize={100}>
             <NodeDetailsPanel 
+              key={key}
               selectedNode={selectedNode}
               onNodeUpdate={onNodeUpdate}
               availableNodes={availableNodes}
