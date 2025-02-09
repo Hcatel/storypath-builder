@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
 
 interface RouterChoiceProps {
   choice: { text: string; nextNodeId: string };
@@ -30,19 +29,6 @@ export function RouterChoice({
   onDelete,
   onConfigureConditions,
 }: RouterChoiceProps) {
-  // Local state to track the selected value
-  const [selectedNodeId, setSelectedNodeId] = useState(choice.nextNodeId || "");
-
-  // Update local state when the choice prop changes
-  useEffect(() => {
-    setSelectedNodeId(choice.nextNodeId || "");
-  }, [choice.nextNodeId]);
-
-  const handleNodeChange = (value: string) => {
-    setSelectedNodeId(value);
-    onUpdate(index, { nextNodeId: value });
-  };
-
   return (
     <div className="space-y-2 border rounded-lg p-3">
       <div className="flex gap-2">
@@ -69,8 +55,8 @@ export function RouterChoice({
       <div>
         <label className="text-sm font-medium">Connect to node</label>
         <Select
-          value={selectedNodeId}
-          onValueChange={handleNodeChange}
+          value={choice.nextNodeId || ""}
+          onValueChange={(value) => onUpdate(index, { nextNodeId: value })}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a node" />
