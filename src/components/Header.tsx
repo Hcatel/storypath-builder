@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Menu } from "lucide-react";
+import { UserRound } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +38,7 @@ export function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <Menu className="h-6 w-6 text-primary-700 stroke-[2.5]" />
+                  <UserRound className="h-7 w-7 text-primary-700 stroke-[2]" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
