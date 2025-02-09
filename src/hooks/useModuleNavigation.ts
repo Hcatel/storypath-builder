@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { RouterNodeData, FlowNode } from "@/types/module";
 import { useMediaControl } from "./useMediaControl";
@@ -76,9 +75,24 @@ export function useModuleNavigation(
     
     console.log("📍 Current navigation history:", navigationHistory);
     
+    // Pop current node
     const updatedHistory = [...navigationHistory];
-    updatedHistory.pop(); // Remove current node
-    const previousNodeId = updatedHistory[updatedHistory.length - 1];
+    updatedHistory.pop();
+    
+    // Keep popping if the previous node was an overlay router
+    let previousNodeId = updatedHistory[updatedHistory.length - 1];
+    let previousNode = findNodeById(previousNodeId);
+    
+    while (
+      previousNode && 
+      previousNode.type === 'router' && 
+      (previousNode.data as RouterNodeData).isOverlay && 
+      updatedHistory.length > 1
+    ) {
+      updatedHistory.pop();
+      previousNodeId = updatedHistory[updatedHistory.length - 1];
+      previousNode = findNodeById(previousNodeId);
+    }
     
     if (previousNodeId) {
       const previousIndex = findNodeIndex(previousNodeId);
@@ -90,7 +104,7 @@ export function useModuleNavigation(
         setOverlayRouter(null);
       }
     }
-  }, [nodes, navigationHistory, findNodeIndex]);
+  }, [nodes, navigationHistory, findNodeById, findNodeIndex]);
 
   const handleInteraction = useCallback(() => {
     if (!nodes) return;
