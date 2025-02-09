@@ -8,6 +8,13 @@ import { convertToReactFlowNode } from "@/utils/nodeConverters";
 import { Database } from "@/integrations/supabase/types";
 
 type ModuleRow = Database['public']['Tables']['modules']['Row'];
+type ModuleEdge = {
+  id: string;
+  source: string;
+  target: string;
+  type?: string;
+  data?: Record<string, unknown>;
+};
 
 export function useModuleBuilderState(id: string | undefined) {
   const isCreateMode = !id || id === 'create';
@@ -33,9 +40,9 @@ export function useModuleBuilderState(id: string | undefined) {
         throw error;
       }
       
-      // Ensure nodes and edges are arrays
+      // Ensure nodes and edges are arrays and properly typed
       const moduleNodes = Array.isArray(data?.nodes) ? data.nodes : [];
-      const moduleEdges = Array.isArray(data?.edges) ? data.edges : [];
+      const moduleEdges = Array.isArray(data?.edges) ? data.edges as ModuleEdge[] : [];
 
       const convertedNodes = moduleNodes.map(node => convertToReactFlowNode(node));
       const convertedEdges = moduleEdges.map(edge => ({
