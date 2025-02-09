@@ -31,7 +31,11 @@ export function RouterChoices({
     onUpdate({ ...data, choices: newChoices });
   };
 
-  const handleAddChoice = () => {
+  const handleAddChoice = (event: React.MouseEvent) => {
+    // Prevent event propagation to stop canvas interactions
+    event.preventDefault();
+    event.stopPropagation();
+    
     const newChoices = [...choices, { text: '', nextNodeId: '' }];
     setChoices(newChoices);
     onUpdate({ ...data, choices: newChoices });
