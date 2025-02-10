@@ -13,6 +13,11 @@ export default function GroupDetails() {
     console.log(`Loading GroupDetails page with id: ${id}, isCreateMode: ${isCreateMode}`);
   }, [id, isCreateMode]);
 
+  if (!id) {
+    console.error("GroupDetails: No ID provided");
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />

@@ -12,7 +12,7 @@ export default function CreatorLearners() {
   const navigate = useNavigate();
   
   const handleCreateGroup = () => {
-    console.log("Navigating to create group page from Learners page");
+    console.log("Navigating to create group page");
     navigate('/creator/groups/create');
   };
 
