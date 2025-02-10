@@ -8,6 +8,16 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 
+interface GroupWithCounts {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+  group_members: { count: number }[];
+  playlist_group_access: { count: number }[];
+}
+
 export function GroupsTable() {
   const navigate = useNavigate();
 
@@ -23,7 +33,7 @@ export function GroupsTable() {
         `);
       
       if (error) throw error;
-      return data;
+      return data as GroupWithCounts[];
     },
   });
 

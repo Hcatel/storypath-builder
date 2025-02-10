@@ -5,6 +5,20 @@ import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+interface LearnerData {
+  id: string;
+  joined_at: string;
+  user_id: string;
+  groups: {
+    id: string;
+    name: string;
+  } | null;
+  profiles: {
+    id: string;
+    username: string | null;
+  } | null;
+}
+
 export function LearnersTable() {
   const { data: learners, isLoading } = useQuery({
     queryKey: ["learners"],
@@ -15,18 +29,18 @@ export function LearnersTable() {
           id,
           joined_at,
           user_id,
-          groups!group_id (
+          groups (
             id,
             name
           ),
-          profiles!user_id (
+          profiles (
             id,
             username
           )
         `);
       
       if (error) throw error;
-      return data;
+      return data as LearnerData[];
     },
   });
 
