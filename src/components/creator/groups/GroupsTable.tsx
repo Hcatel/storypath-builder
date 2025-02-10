@@ -29,7 +29,7 @@ export function GroupsTable() {
 
   const handleRowClick = (groupId: string) => {
     console.log(`Navigating to group details for group: ${groupId}`);
-    navigate(`/groups/${groupId}`);
+    navigate(`/creator/groups/${groupId}`);
   };
 
   const handleCreateClick = () => {
@@ -55,7 +55,7 @@ export function GroupsTable() {
   return (
     <>
       <div className="flex justify-end mb-4">
-        <Link to="/groups/create" onClick={handleCreateClick}>
+        <Link to="/creator/groups/create" onClick={handleCreateClick}>
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
             Create Group
