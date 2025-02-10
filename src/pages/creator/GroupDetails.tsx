@@ -2,22 +2,20 @@
 import { Header } from "@/components/Header";
 import { GroupDetailsSidebar } from "@/components/creator/groups/GroupDetailsSidebar";
 import { GroupDetailsForm } from "@/components/creator/groups/GroupDetailsForm";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
 export default function GroupDetails() {
   const { id } = useParams();
-  const isCreateMode = id === 'create';
+  const location = useLocation();
+  const isCreateMode = location.pathname === '/creator/groups/create';
   
   useEffect(() => {
-    console.log(`Loading GroupDetails page with id: ${id}, isCreateMode: ${isCreateMode}`);
+    console.log(`Loading GroupDetails page with id: ${isCreateMode ? 'create' : id}, isCreateMode: ${isCreateMode}`);
   }, [id, isCreateMode]);
 
-  // For create mode, id will be 'create', which is truthy
-  // For view/edit mode, id will be the actual group ID
-  // If somehow we get here with no id at all, return null
-  if (!id) {
-    console.error("GroupDetails: No ID provided");
+  // If we're not in create mode and there's no id, return null
+  if (!isCreateMode && !id) {
     return null;
   }
 
