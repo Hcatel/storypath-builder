@@ -2,7 +2,7 @@
 import { Header } from "@/components/Header";
 import { GroupDetailsSidebar } from "@/components/creator/groups/GroupDetailsSidebar";
 import { GroupDetailsForm } from "@/components/creator/groups/GroupDetailsForm";
-import { CreateGroupForm } from "@/components/creator/groups/CreateGroupForm";
+import { GroupBasicForm } from "@/components/creator/groups/GroupBasicForm";
 import { useParams, Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 
@@ -46,7 +46,7 @@ export default function GroupDetails() {
               {isCreateMode ? "Create New Group" : "Group Details"}
             </h1>
             {isCreateMode ? (
-              <CreateGroupForm />
+              <GroupBasicForm />
             ) : (
               <GroupDetailsForm groupId={id} />
             )}
@@ -56,4 +56,3 @@ export default function GroupDetails() {
     </div>
   );
 }
-

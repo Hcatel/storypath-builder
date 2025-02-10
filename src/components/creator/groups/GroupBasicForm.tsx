@@ -31,17 +31,13 @@ export function GroupBasicForm({ groupId, initialData, isLoading }: GroupBasicFo
     e.preventDefault();
     setIsSubmitting(true);
 
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to create or edit groups",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        throw new Error("You must be logged in to create or edit groups");
+      }
+
       if (groupId) {
         // Update existing group
         const { error } = await supabase
@@ -65,12 +61,15 @@ export function GroupBasicForm({ groupId, initialData, isLoading }: GroupBasicFo
           .insert({
             name: formData.name,
             description: formData.description,
-            created_by: userData.user.id
+            created_by: user.id,
           })
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error creating group:", error);
+          throw error;
+        }
 
         toast({
           title: "Success",
@@ -85,6 +84,7 @@ export function GroupBasicForm({ groupId, initialData, isLoading }: GroupBasicFo
         }
       }
     } catch (error: any) {
+      console.error("Form submission error:", error);
       toast({
         title: "Error",
         description: `Failed to ${groupId ? 'update' : 'create'} group: ${error.message}`,
