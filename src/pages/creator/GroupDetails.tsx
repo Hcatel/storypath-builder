@@ -8,16 +8,11 @@ import { useEffect } from "react";
 export default function GroupDetails() {
   const { id } = useParams();
   const location = useLocation();
-  const isCreateMode = location.pathname === '/creator/groups/create';
+  const isCreateMode = location.pathname.endsWith('/create');
   
   useEffect(() => {
     console.log(`Loading GroupDetails page with id: ${isCreateMode ? 'create' : id}, isCreateMode: ${isCreateMode}`);
   }, [id, isCreateMode]);
-
-  // If we're not in create mode and there's no id, return null
-  if (!isCreateMode && !id) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-background">
