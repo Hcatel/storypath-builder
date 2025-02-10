@@ -4,8 +4,11 @@ import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export function GroupsTable() {
+  const navigate = useNavigate();
+
   const { data: groups, isLoading } = useQuery({
     queryKey: ["groups"],
     queryFn: async () => {
@@ -21,6 +24,11 @@ export function GroupsTable() {
       return data;
     },
   });
+
+  const handleRowClick = (groupId: string) => {
+    console.log(`Navigating to group details for group: ${groupId}`);
+    navigate(`/creator/groups/${groupId}`);
+  };
 
   if (isLoading) {
     return (
@@ -52,7 +60,11 @@ export function GroupsTable() {
       </TableHeader>
       <TableBody>
         {groups.map((group) => (
-          <TableRow key={group.id}>
+          <TableRow 
+            key={group.id}
+            onClick={() => handleRowClick(group.id)}
+            className="cursor-pointer hover:bg-muted"
+          >
             <TableCell className="font-medium">{group.name}</TableCell>
             <TableCell>{group.description}</TableCell>
             <TableCell className="text-right">{group.group_members[0]?.count || 0}</TableCell>

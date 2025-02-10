@@ -11,6 +11,11 @@ import { useNavigate } from "react-router-dom";
 export default function CreatorLearners() {
   const navigate = useNavigate();
   
+  const handleCreateGroup = () => {
+    console.log("Navigating to create group page from Learners page");
+    navigate('/creator/groups/create');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -35,7 +40,7 @@ export default function CreatorLearners() {
               </TabsContent>
 
               <div className="flex justify-end mt-4">
-                <Button onClick={() => navigate('/creator/groups/create')}>
+                <Button onClick={handleCreateGroup}>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Create Group
                 </Button>

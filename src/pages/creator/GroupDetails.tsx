@@ -3,11 +3,16 @@ import { Header } from "@/components/Header";
 import { GroupDetailsSidebar } from "@/components/creator/groups/GroupDetailsSidebar";
 import { GroupDetailsForm } from "@/components/creator/groups/GroupDetailsForm";
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function GroupDetails() {
   const { id } = useParams();
   const isCreateMode = id === 'create';
   
+  useEffect(() => {
+    console.log(`Loading GroupDetails page with id: ${id}, isCreateMode: ${isCreateMode}`);
+  }, [id, isCreateMode]);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
