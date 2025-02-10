@@ -13,9 +13,11 @@ export default function GroupDetails() {
     console.log(`Loading GroupDetails page with id: ${id}, isCreateMode: ${isCreateMode}`);
   }, [id, isCreateMode]);
 
-  // Only return null if there's no id AND we're not in create mode
-  if (!id && !isCreateMode) {
-    console.error("GroupDetails: No ID provided and not in create mode");
+  // For create mode, id will be 'create', which is truthy
+  // For view/edit mode, id will be the actual group ID
+  // If somehow we get here with no id at all, return null
+  if (!id) {
+    console.error("GroupDetails: No ID provided");
     return null;
   }
 
