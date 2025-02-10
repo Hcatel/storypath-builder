@@ -693,7 +693,7 @@ export type Database = {
         | "in_array"
         | "not_in_array"
       group_role: "owner" | "member"
-      module_access_type: "private" | "public" | "restricted"
+      module_access_type: "private" | "public"
       variable_type: "number" | "string" | "boolean" | "array"
     }
     CompositeTypes: {

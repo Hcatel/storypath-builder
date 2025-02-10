@@ -6,14 +6,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Globe2, Lock, Users } from "lucide-react";
+import { Globe2, Lock } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 
-type ModuleAccessType = 'private' | 'public' | 'restricted';
+type ModuleAccessType = 'private' | 'public';
 
 interface ModuleAccessControlProps {
   moduleId: string;
@@ -97,12 +95,6 @@ export function ModuleAccessControl({
               <span>Public</span>
             </div>
           </SelectItem>
-          <SelectItem value="restricted">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span>Restricted</span>
-            </div>
-          </SelectItem>
         </SelectContent>
       </Select>
 
@@ -113,23 +105,9 @@ export function ModuleAccessControl({
           <>
             {accessType === "private" && <p>Only you can access this module</p>}
             {accessType === "public" && <p>Anyone can access this module</p>}
-            {accessType === "restricted" && (
-              <p>Only specific users or groups can access this module</p>
-            )}
           </>
         )}
       </div>
-
-      {accessType === "restricted" && !isCreateMode && (
-        <Card>
-          <CardContent className="pt-6">
-            <Button variant="outline">
-              <Users className="w-4 h-4 mr-2" />
-              Add Users or Groups
-            </Button>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
