@@ -50,38 +50,27 @@ export type Database = {
           email: string | null
           group_id: string
           id: string
-          joined_at: string
+          joined_at: string | null
+          role: Database["public"]["Enums"]["group_role"]
           user_id: string | null
         }
         Insert: {
           email?: string | null
           group_id: string
           id?: string
-          joined_at?: string
+          joined_at?: string | null
+          role?: Database["public"]["Enums"]["group_role"]
           user_id?: string | null
         }
         Update: {
           email?: string | null
           group_id?: string
           id?: string
-          joined_at?: string
+          joined_at?: string | null
+          role?: Database["public"]["Enums"]["group_role"]
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_group_members_group"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_group_members_profile"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "group_members_group_id_fkey"
             columns: ["group_id"]
@@ -93,29 +82,26 @@ export type Database = {
       }
       groups: {
         Row: {
-          created_at: string
+          created_at: string | null
           created_by: string
           description: string | null
           id: string
-          members_modified_at: string | null
           name: string
           updated_at: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           created_by: string
           description?: string | null
           id?: string
-          members_modified_at?: string | null
           name: string
           updated_at?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           created_by?: string
           description?: string | null
           id?: string
-          members_modified_at?: string | null
           name?: string
           updated_at?: string | null
         }
@@ -368,42 +354,6 @@ export type Database = {
           },
         ]
       }
-      module_group_access: {
-        Row: {
-          created_at: string
-          group_id: string
-          id: string
-          module_id: string
-        }
-        Insert: {
-          created_at?: string
-          group_id: string
-          id?: string
-          module_id: string
-        }
-        Update: {
-          created_at?: string
-          group_id?: string
-          id?: string
-          module_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "module_group_access_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "module_group_access_module_id_fkey"
-            columns: ["module_id"]
-            isOneToOne: false
-            referencedRelation: "modules"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       module_variables: {
         Row: {
           created_at: string | null
@@ -540,49 +490,6 @@ export type Database = {
         }
         Relationships: []
       }
-      playlist_group_access: {
-        Row: {
-          created_at: string | null
-          group_id: string | null
-          id: string
-          playlist_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          group_id?: string | null
-          id?: string
-          playlist_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          group_id?: string | null
-          id?: string
-          playlist_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_playlist_group_access_group"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "playlist_group_access_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "playlist_group_access_playlist_id_fkey"
-            columns: ["playlist_id"]
-            isOneToOne: false
-            referencedRelation: "playlists"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       playlist_modules: {
         Row: {
           created_at: string
@@ -701,18 +608,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      check_group_member: {
-        Args: {
-          group_id: string
-        }
-        Returns: boolean
-      }
-      check_group_owner: {
-        Args: {
-          group_id: string
-        }
-        Returns: boolean
-      }
       check_playlist_access: {
         Args: {
           playlist_id: string
@@ -794,6 +689,7 @@ export type Database = {
         | "ends_with"
         | "in_array"
         | "not_in_array"
+      group_role: "owner" | "member"
       module_access_type: "private" | "public" | "restricted"
       variable_type: "number" | "string" | "boolean" | "array"
     }
