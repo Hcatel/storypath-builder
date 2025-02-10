@@ -37,10 +37,14 @@ export function PlaylistsTable() {
     enabled: !!user, // Only run query if we have a user
   });
 
+  const handleCreateClick = () => {
+    console.log("Create Playlist button clicked - navigating to create playlist page");
+  };
+
   return (
     <>
       <div className="flex justify-end mb-4">
-        <Link to="/playlists/create">
+        <Link to="/playlists/create" onClick={handleCreateClick}>
           <Button>
             <Plus className="w-4 h-4 mr-2" />
             Create Playlist

@@ -8,12 +8,17 @@ interface PlaylistSidebarProps {
 }
 
 export function PlaylistSidebar({ playlistId }: PlaylistSidebarProps) {
+  const handleDetailsClick = () => {
+    console.log(`Playlist Details link clicked for playlist: ${playlistId}`);
+  };
+
   const items = [
     {
       title: "Details",
       icon: FileText,
       path: playlistId ? `/playlists/${playlistId}` : "#",
       description: "Basic information",
+      onClick: handleDetailsClick
     },
     {
       title: "Content",
@@ -64,6 +69,7 @@ export function PlaylistSidebar({ playlistId }: PlaylistSidebarProps) {
                   : "text-muted-foreground"
               )
             }
+            onClick={item.onClick}
           >
             <item.icon className="w-5 h-5" />
             {item.title}

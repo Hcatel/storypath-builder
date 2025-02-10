@@ -7,12 +7,17 @@ import { EditPlaylistForm } from "@/components/playlist/EditPlaylistForm";
 import { PlaylistContent } from "@/components/playlist/PlaylistContent";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 export default function PlaylistDetail() {
   const { id } = useParams();
   const location = useLocation();
   const isCreateMode = id === "create";
   const showContent = location.pathname.includes("/content");
+
+  useEffect(() => {
+    console.log(`Playlist details page loaded - ID: ${id}, Create mode: ${isCreateMode}`);
+  }, [id, isCreateMode]);
 
   const { data: playlist, isLoading } = useQuery({
     queryKey: ["playlist", id],
