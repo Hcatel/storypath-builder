@@ -2,16 +2,15 @@
 import { Header } from "@/components/Header";
 import { GroupDetailsSidebar } from "@/components/creator/groups/GroupDetailsSidebar";
 import { GroupDetailsForm } from "@/components/creator/groups/GroupDetailsForm";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 
 export default function GroupDetails() {
   const { id } = useParams();
-  const location = useLocation();
-  const isCreateMode = location.pathname.endsWith('/create');
+  const isCreateMode = id === "create";
   
   useEffect(() => {
-    console.log(`Loading GroupDetails page with id: ${isCreateMode ? 'create' : id}, isCreateMode: ${isCreateMode}`);
+    console.log(`Loading GroupDetails page with id: ${id}, isCreateMode: ${isCreateMode}`);
   }, [id, isCreateMode]);
 
   return (
@@ -33,3 +32,4 @@ export default function GroupDetails() {
     </div>
   );
 }
+

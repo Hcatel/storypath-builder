@@ -39,11 +39,10 @@ function App() {
             <Route path="analytics" element={<CreatorAnalytics />} />
             <Route path="learners" element={<CreatorLearners />} />
             <Route path="settings" element={<CreatorSettings />} />
-            <Route path="groups">
-              <Route path="create" element={<GroupDetails />} />
-              <Route path=":id" element={<GroupDetails />} />
-            </Route>
           </Route>
+
+          {/* Groups routes - following playlist pattern */}
+          <Route path="/creator/groups/:id/*" element={<GroupDetails />} />
 
           {/* Module routes */}
           <Route path="/modules">
@@ -93,3 +92,4 @@ function App() {
 }
 
 export default App;
+
