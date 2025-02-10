@@ -39,9 +39,8 @@ function App() {
             <Route path="analytics" element={<CreatorAnalytics />} />
             <Route path="learners" element={<CreatorLearners />} />
             <Route path="settings" element={<CreatorSettings />} />
-            {/* Add group routes */}
-            <Route path="groups/new" element={<GroupDetails />} />
-            <Route path="groups/:groupId" element={<GroupDetails />} />
+            {/* Update group routes to match module pattern */}
+            <Route path="groups/:id" element={<GroupDetails />} />
           </Route>
 
           {/* Module routes */}
