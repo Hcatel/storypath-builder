@@ -27,7 +27,7 @@ export function GroupsTable() {
 
   const handleRowClick = (groupId: string) => {
     console.log(`Navigating to group details for group: ${groupId}`);
-    navigate(`/creator/groups/${groupId}`);
+    navigate(`/groups/${groupId}`);
   };
 
   if (isLoading) {
@@ -77,3 +77,4 @@ export function GroupsTable() {
     </Table>
   );
 }
+
