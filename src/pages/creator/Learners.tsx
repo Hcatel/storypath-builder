@@ -32,19 +32,18 @@ export default function CreatorLearners() {
               </TabsList>
               
               <TabsContent value="groups" className="space-y-4">
+                <div className="flex justify-end mb-4">
+                  <Button onClick={handleCreateGroup}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create Group
+                  </Button>
+                </div>
                 <GroupsTable />
               </TabsContent>
               
               <TabsContent value="learners" className="space-y-4">
                 <LearnersTable />
               </TabsContent>
-
-              <div className="flex justify-end mt-4">
-                <Button onClick={handleCreateGroup}>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Create Group
-                </Button>
-              </div>
             </Tabs>
           </div>
         </main>
