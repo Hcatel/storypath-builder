@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type AccessType = "private" | "public" | "restricted";
+type AccessType = "private" | "public";
 
 interface AccessTypeSelectProps {
   value: AccessType;
@@ -26,7 +26,6 @@ export function AccessTypeSelect({ value, onChange }: AccessTypeSelectProps) {
         <SelectContent>
           <SelectItem value="private">Private</SelectItem>
           <SelectItem value="public">Public</SelectItem>
-          <SelectItem value="restricted">Restricted</SelectItem>
         </SelectContent>
       </Select>
     </div>

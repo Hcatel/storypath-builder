@@ -27,7 +27,7 @@ export function LearnersTable() {
       
       if (groupsError) throw groupsError;
 
-      // Then get the members for those groups
+      // Then get the members for those groups with profiles
       const { data: members, error: membersError } = await supabase
         .from("group_members")
         .select(`
@@ -35,7 +35,7 @@ export function LearnersTable() {
           joined_at,
           user_id,
           group_id,
-          profiles (
+          profiles!group_members_user_id_fkey (
             username
           )
         `);
@@ -96,4 +96,3 @@ export function LearnersTable() {
     </Table>
   );
 }
-

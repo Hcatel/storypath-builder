@@ -10,7 +10,7 @@ import { AccessTypeSelect } from "./form/AccessTypeSelect";
 import { ThumbnailUpload } from "./form/ThumbnailUpload";
 import { useQueryClient } from "@tanstack/react-query";
 
-type AccessType = "private" | "public" | "restricted";
+type AccessType = "private" | "public";
 
 interface FormData {
   name: string;

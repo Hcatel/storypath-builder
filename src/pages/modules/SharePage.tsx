@@ -14,7 +14,7 @@ import { ModuleStatusToggle } from "@/components/modules/share/ModuleStatusToggl
 import { ModuleAccessControl } from "@/components/modules/share/ModuleAccessControl";
 import { ModuleShareLink } from "@/components/modules/share/ModuleShareLink";
 
-type ModuleAccessType = 'private' | 'public' | 'restricted';
+type ModuleAccessType = 'private' | 'public';
 
 export default function SharePage() {
   const { id } = useParams();
