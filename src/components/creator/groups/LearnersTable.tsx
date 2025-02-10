@@ -12,8 +12,8 @@ interface LearnerData {
   groups: {
     id: string;
     name: string;
-  } | null;
-  profiles: {
+  };
+  user: {
     id: string;
     username: string | null;
   } | null;
@@ -33,7 +33,7 @@ export function LearnersTable() {
             id,
             name
           ),
-          profiles (
+          user:user_id (
             id,
             username
           )
@@ -72,7 +72,7 @@ export function LearnersTable() {
       <TableBody>
         {learners.map((learner) => (
           <TableRow key={learner.id}>
-            <TableCell className="font-medium">{learner.profiles?.username || 'Unknown user'}</TableCell>
+            <TableCell className="font-medium">{learner.user?.username || 'Unknown user'}</TableCell>
             <TableCell>{learner.groups?.name}</TableCell>
             <TableCell className="text-right">{format(new Date(learner.joined_at), 'MMM d, yyyy')}</TableCell>
           </TableRow>
