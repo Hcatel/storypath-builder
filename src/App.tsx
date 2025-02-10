@@ -39,6 +39,7 @@ function App() {
             <Route path="analytics" element={<CreatorAnalytics />} />
             <Route path="learners" element={<CreatorLearners />} />
             <Route path="settings" element={<CreatorSettings />} />
+            {/* Put the create route BEFORE the :id route */}
             <Route path="groups/create" element={<GroupDetails />} />
             <Route path="groups/:id" element={<GroupDetails />} />
           </Route>
