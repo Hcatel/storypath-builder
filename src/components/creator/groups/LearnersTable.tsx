@@ -33,7 +33,7 @@ export function LearnersTable() {
             id,
             name
           ),
-          user:user_id (
+          user:profiles!inner (
             id,
             username
           )

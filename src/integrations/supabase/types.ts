@@ -52,6 +52,7 @@ export type Database = {
           id: string
           joined_at: string | null
           role: Database["public"]["Enums"]["group_role"]
+          status: string
           user_id: string | null
         }
         Insert: {
@@ -60,6 +61,7 @@ export type Database = {
           id?: string
           joined_at?: string | null
           role?: Database["public"]["Enums"]["group_role"]
+          status?: string
           user_id?: string | null
         }
         Update: {
@@ -68,6 +70,7 @@ export type Database = {
           id?: string
           joined_at?: string | null
           role?: Database["public"]["Enums"]["group_role"]
+          status?: string
           user_id?: string | null
         }
         Relationships: [

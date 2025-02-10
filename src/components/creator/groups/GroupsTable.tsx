@@ -14,6 +14,7 @@ interface GroupWithCounts {
   description: string | null;
   created_at: string;
   updated_at: string;
+  created_by: string;
   group_members: { count: number }[];
 }
 
