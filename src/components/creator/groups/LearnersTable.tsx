@@ -11,7 +11,9 @@ interface LearnerData {
   user_id: string;
   group_id: string;
   group_name: string;
-  username: string | null;
+  profiles: {
+    username: string | null;
+  } | null;
 }
 
 export function LearnersTable() {
@@ -33,7 +35,7 @@ export function LearnersTable() {
           joined_at,
           user_id,
           group_id,
-          profiles!group_members_user_id_fkey (
+          profiles (
             username
           )
         `);
@@ -49,11 +51,11 @@ export function LearnersTable() {
           user_id: member.user_id,
           group_id: member.group_id,
           group_name: group?.name || 'Unknown group',
-          username: member.profiles?.username
+          profiles: member.profiles
         };
       }) || [];
       
-      return processedData as LearnerData[];
+      return processedData;
     },
   });
 
@@ -85,7 +87,7 @@ export function LearnersTable() {
       <TableBody>
         {learners.map((learner) => (
           <TableRow key={learner.id}>
-            <TableCell className="font-medium">{learner.username || 'Unknown user'}</TableCell>
+            <TableCell className="font-medium">{learner.profiles?.username || 'Unknown user'}</TableCell>
             <TableCell>{learner.group_name}</TableCell>
             <TableCell className="text-right">{format(new Date(learner.joined_at), 'MMM d, yyyy')}</TableCell>
           </TableRow>
