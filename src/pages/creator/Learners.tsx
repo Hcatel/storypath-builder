@@ -4,17 +4,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GroupsTable } from "@/components/creator/groups/GroupsTable";
 import { LearnersTable } from "@/components/creator/groups/LearnersTable";
 import { CreatorSidebar } from "@/components/creator/CreatorSidebar";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { CreateGroupDialog } from "@/components/creator/groups/CreateGroupDialog";
 
 export default function CreatorLearners() {
-  const navigate = useNavigate();
-
-  const handleCreateGroup = () => {
-    navigate("/creator/groups/create");
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -39,10 +31,7 @@ export default function CreatorLearners() {
               </TabsContent>
 
               <div className="flex justify-end mt-4">
-                <Button onClick={handleCreateGroup}>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Create Group
-                </Button>
+                <CreateGroupDialog />
               </div>
             </Tabs>
           </div>
