@@ -41,7 +41,10 @@ function App() {
             <Route path="settings" element={<CreatorSettings />} />
           </Route>
 
-          {/* Groups routes - following playlist pattern */}
+          {/* Playlists route */}
+          <Route path="/playlists/:id/*" element={<PlaylistDetail />} />
+
+          {/* Groups route - moved out of creator routes to match playlist pattern */}
           <Route path="/groups/:id/*" element={<GroupDetails />} />
 
           {/* Module routes */}
@@ -79,9 +82,6 @@ function App() {
 
           {/* Learner routes */}
           <Route path="/learn/:id" element={<LearnModule />} />
-
-          {/* Playlist routes */}
-          <Route path="/playlists/:id/*" element={<PlaylistDetail />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

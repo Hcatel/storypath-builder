@@ -5,11 +5,16 @@ import { GroupDetailsForm } from "@/components/creator/groups/GroupDetailsForm";
 import { CreateGroupForm } from "@/components/creator/groups/CreateGroupForm";
 import { useParams, Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
+import { useEffect } from "react";
 
 export default function GroupDetails() {
   const { id } = useParams();
   const isCreateMode = id === "create";
   
+  useEffect(() => {
+    console.log(`Group details page loaded - ID: ${id}, Create mode: ${isCreateMode}`);
+  }, [id, isCreateMode]);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />

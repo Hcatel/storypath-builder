@@ -4,7 +4,9 @@ import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
 
 export function GroupsTable() {
   const navigate = useNavigate();
@@ -30,6 +32,10 @@ export function GroupsTable() {
     navigate(`/groups/${groupId}`);
   };
 
+  const handleCreateClick = () => {
+    console.log("Create Group button clicked - navigating to create group page");
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center p-8">
@@ -47,34 +53,43 @@ export function GroupsTable() {
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Description</TableHead>
-          <TableHead className="text-right">Learners</TableHead>
-          <TableHead className="text-right">Playlists</TableHead>
-          <TableHead className="text-right">Created</TableHead>
-          <TableHead className="text-right">Last Modified</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {groups.map((group) => (
-          <TableRow 
-            key={group.id}
-            onClick={() => handleRowClick(group.id)}
-            className="cursor-pointer hover:bg-muted"
-          >
-            <TableCell className="font-medium">{group.name}</TableCell>
-            <TableCell>{group.description}</TableCell>
-            <TableCell className="text-right">{group.group_members[0]?.count || 0}</TableCell>
-            <TableCell className="text-right">{group.playlist_group_access[0]?.count || 0}</TableCell>
-            <TableCell className="text-right">{format(new Date(group.created_at), 'MMM d, yyyy')}</TableCell>
-            <TableCell className="text-right">{format(new Date(group.updated_at), 'MMM d, yyyy')}</TableCell>
+    <>
+      <div className="flex justify-end mb-4">
+        <Link to="/groups/create" onClick={handleCreateClick}>
+          <Button>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Create Group
+          </Button>
+        </Link>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead className="text-right">Learners</TableHead>
+            <TableHead className="text-right">Playlists</TableHead>
+            <TableHead className="text-right">Created</TableHead>
+            <TableHead className="text-right">Last Modified</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {groups.map((group) => (
+            <TableRow 
+              key={group.id}
+              onClick={() => handleRowClick(group.id)}
+              className="cursor-pointer hover:bg-muted"
+            >
+              <TableCell className="font-medium">{group.name}</TableCell>
+              <TableCell>{group.description}</TableCell>
+              <TableCell className="text-right">{group.group_members[0]?.count || 0}</TableCell>
+              <TableCell className="text-right">{group.playlist_group_access[0]?.count || 0}</TableCell>
+              <TableCell className="text-right">{format(new Date(group.created_at), 'MMM d, yyyy')}</TableCell>
+              <TableCell className="text-right">{format(new Date(group.updated_at), 'MMM d, yyyy')}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </>
   );
 }
-
