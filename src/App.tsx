@@ -17,6 +17,7 @@ import CreatorContent from "@/pages/creator/Content";
 import CreatorAnalytics from "@/pages/creator/Analytics";
 import CreatorLearners from "@/pages/creator/Learners";
 import CreatorSettings from "@/pages/creator/Settings";
+import GroupDetails from "@/pages/creator/GroupDetails";
 import PlaylistDetail from "@/pages/playlists/PlaylistDetail";
 import LearnModule from "@/pages/learn/LearnModule";
 import ExplorePage from "@/pages/explore";
@@ -38,6 +39,9 @@ function App() {
             <Route path="analytics" element={<CreatorAnalytics />} />
             <Route path="learners" element={<CreatorLearners />} />
             <Route path="settings" element={<CreatorSettings />} />
+            {/* Add group routes */}
+            <Route path="groups/new" element={<GroupDetails />} />
+            <Route path="groups/:groupId" element={<GroupDetails />} />
           </Route>
 
           {/* Module routes */}
