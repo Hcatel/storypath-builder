@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -41,6 +42,8 @@ interface CreateGroupDialogProps {
 export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,6 +54,8 @@ export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps
   });
 
   const onSubmit = async (data: FormData) => {
+    if (!user) return;
+    
     setIsSubmitting(true);
     try {
       // Insert the group
@@ -59,6 +64,7 @@ export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps
         .insert({
           name: data.name,
           description: data.description,
+          created_by: user.id
         })
         .select()
         .single();
@@ -79,7 +85,7 @@ export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps
               emails.map((email) => ({
                 group_id: groupData.id,
                 email: email,
-                role: "member",
+                role: 'member' as const
               }))
             );
 
@@ -94,6 +100,7 @@ export function CreateGroupDialog({ open, onOpenChange }: CreateGroupDialogProps
       onOpenChange(false);
       form.reset();
     } catch (error) {
+      console.error('Error creating group:', error);
       toast({
         title: "Error",
         description: "Failed to create group",
