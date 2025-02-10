@@ -12,23 +12,27 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
   const { data: group, isLoading: isLoadingGroup } = useQuery({
     queryKey: ["group", groupId],
     queryFn: async () => {
-      if (!groupId) return null;
       const { data, error } = await supabase
         .from("groups")
         .select("*")
         .eq("id", groupId)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        // Don't throw error for no rows found - this is expected when creating a new group
+        if (error.code === 'PGRST116') {
+          return null;
+        }
+        throw error;
+      }
       return data;
     },
-    enabled: !!groupId, // Only run query if groupId exists
+    enabled: !!groupId && groupId !== "create", // Only run query if groupId exists and isn't "create"
   });
 
   const { data: members, isLoading: isLoadingMembers } = useQuery({
     queryKey: ["group-members", groupId],
     queryFn: async () => {
-      if (!groupId) return [];
       const { data, error } = await supabase
         .from("group_members")
         .select("*")
@@ -38,22 +42,22 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
       if (error) throw error;
       return data;
     },
-    enabled: !!groupId, // Only run query if groupId exists
+    enabled: !!groupId && groupId !== "create", // Only run query if groupId exists and isn't "create"
   });
 
-  if (groupId && isLoadingGroup) {
+  if (groupId && groupId !== "create" && isLoadingGroup) {
     return <div>Loading group details...</div>;
   }
 
   return (
     <div className="space-y-6">
       <GroupBasicForm 
-        groupId={groupId}
+        groupId={groupId !== "create" ? groupId : undefined}
         initialData={group}
         isLoading={isLoadingGroup}
       />
       
-      {groupId && (
+      {groupId && groupId !== "create" && (
         <GroupMembersManager
           groupId={groupId}
           members={members}
