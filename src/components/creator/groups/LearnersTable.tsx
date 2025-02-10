@@ -33,7 +33,7 @@ export function LearnersTable() {
           joined_at,
           user_id,
           group_id,
-          user:profiles (
+          profiles!group_members_user_id_fkey (
             username
           )
         `);
@@ -49,7 +49,7 @@ export function LearnersTable() {
           user_id: member.user_id,
           group_id: member.group_id,
           group_name: group?.name || 'Unknown group',
-          username: member.user?.username
+          username: member.profiles?.username
         };
       }) || [];
       
@@ -94,3 +94,4 @@ export function LearnersTable() {
     </Table>
   );
 }
+
