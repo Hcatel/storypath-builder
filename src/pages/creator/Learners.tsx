@@ -4,8 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GroupsTable } from "@/components/creator/groups/GroupsTable";
 import { LearnersTable } from "@/components/creator/groups/LearnersTable";
 import { CreatorSidebar } from "@/components/creator/CreatorSidebar";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function CreatorLearners() {
@@ -25,14 +23,12 @@ export default function CreatorLearners() {
               </TabsList>
               
               <TabsContent value="groups" className="space-y-4">
-                <div className="flex justify-end mb-4">
-                  <Link to="/groups/create">
-                    <Button>
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Create Group
-                    </Button>
-                  </Link>
-                </div>
+                <Link to="/creator/groups/create">
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create Group
+                  </Button>
+                </Link>
                 <GroupsTable />
               </TabsContent>
               

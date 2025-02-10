@@ -39,7 +39,11 @@ function App() {
             <Route path="analytics" element={<CreatorAnalytics />} />
             <Route path="learners" element={<CreatorLearners />} />
             <Route path="settings" element={<CreatorSettings />} />
-            <Route path="groups/:id/*" element={<GroupDetails />} />
+            {/* Updated groups routes to be consistent */}
+            <Route path="groups">
+              <Route path="create" element={<GroupDetails />} />
+              <Route path=":id" element={<GroupDetails />} />
+            </Route>
           </Route>
 
           {/* Playlists route */}
