@@ -701,6 +701,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_group_member: {
+        Args: {
+          group_id: string
+        }
+        Returns: boolean
+      }
+      check_group_owner: {
+        Args: {
+          group_id: string
+        }
+        Returns: boolean
+      }
       check_playlist_access: {
         Args: {
           playlist_id: string

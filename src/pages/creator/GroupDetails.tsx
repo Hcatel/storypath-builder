@@ -2,10 +2,16 @@
 import { Header } from "@/components/Header";
 import { GroupDetailsSidebar } from "@/components/creator/groups/GroupDetailsSidebar";
 import { GroupDetailsForm } from "@/components/creator/groups/GroupDetailsForm";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 
 export default function GroupDetails() {
   const { id } = useParams();
+  
+  // Redirect /groups/undefined to /groups/create
+  if (id === 'undefined') {
+    return <Navigate to="/creator/groups/create" replace />;
+  }
+  
   const isCreateMode = !id || id === 'create';
   
   return (
