@@ -12,7 +12,7 @@ export default function CreatorLearners() {
   const navigate = useNavigate();
 
   const handleCreateGroup = () => {
-    navigate("/creator/groups/create");
+    navigate("/creator/groups/undefined");
   };
 
   return (
