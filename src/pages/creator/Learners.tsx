@@ -26,7 +26,7 @@ export default function CreatorLearners() {
               
               <TabsContent value="groups" className="space-y-4">
                 <div className="flex justify-end mb-4">
-                  <Link to="/creator/groups/create">
+                  <Link to="/groups/create">
                     <Button>
                       <PlusCircle className="mr-2 h-4 w-4" />
                       Create Group

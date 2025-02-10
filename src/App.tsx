@@ -42,7 +42,7 @@ function App() {
           </Route>
 
           {/* Groups routes - following playlist pattern */}
-          <Route path="/creator/groups/:id/*" element={<GroupDetails />} />
+          <Route path="/groups/:id/*" element={<GroupDetails />} />
 
           {/* Module routes */}
           <Route path="/modules">
@@ -92,4 +92,3 @@ function App() {
 }
 
 export default App;
-
