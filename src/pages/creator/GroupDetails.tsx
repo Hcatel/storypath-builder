@@ -3,17 +3,22 @@ import { Header } from "@/components/Header";
 import { GroupDetailsSidebar } from "@/components/creator/groups/GroupDetailsSidebar";
 import { GroupDetailsForm } from "@/components/creator/groups/GroupDetailsForm";
 import { CreateGroupForm } from "@/components/creator/groups/CreateGroupForm";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useEffect } from "react";
 
 export default function GroupDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const isCreateMode = id === "create";
   
   useEffect(() => {
-    console.log(`Group details page loaded - ID: ${id}, Create mode: ${isCreateMode}`);
-  }, [id, isCreateMode]);
+    // Redirect if id is undefined or invalid
+    if (id && !isCreateMode && id === "undefined") {
+      console.log("Invalid group ID detected, redirecting to groups list");
+      navigate("/creator/learners?tab=groups");
+    }
+  }, [id, isCreateMode, navigate]);
 
   return (
     <div className="min-h-screen bg-background">

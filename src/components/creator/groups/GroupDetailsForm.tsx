@@ -22,7 +22,7 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
       if (error) throw error;
       return data;
     },
-    enabled: !!groupId,
+    enabled: !!groupId, // Only run query if groupId exists
   });
 
   const { data: members, isLoading: isLoadingMembers } = useQuery({
@@ -38,8 +38,12 @@ export function GroupDetailsForm({ groupId }: GroupDetailsFormProps) {
       if (error) throw error;
       return data;
     },
-    enabled: !!groupId,
+    enabled: !!groupId, // Only run query if groupId exists
   });
+
+  if (groupId && isLoadingGroup) {
+    return <div>Loading group details...</div>;
+  }
 
   return (
     <div className="space-y-6">

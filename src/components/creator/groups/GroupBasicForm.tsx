@@ -77,7 +77,12 @@ export function GroupBasicForm({ groupId, initialData, isLoading }: GroupBasicFo
           description: "Group created successfully",
         });
 
-        navigate(`/creator/groups/${data.id}`);
+        // Only navigate if we have a valid ID
+        if (data?.id) {
+          navigate(`/creator/groups/${data.id}`);
+        } else {
+          throw new Error("No group ID returned from creation");
+        }
       }
     } catch (error: any) {
       toast({
@@ -123,7 +128,14 @@ export function GroupBasicForm({ groupId, initialData, isLoading }: GroupBasicFo
       </div>
 
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? (groupId ? "Saving..." : "Creating...") : (groupId ? "Save Changes" : "Create Group")}
+        {isSubmitting ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {groupId ? "Saving..." : "Creating..."}
+          </>
+        ) : (
+          groupId ? "Save Changes" : "Create Group"
+        )}
       </Button>
     </form>
   );
