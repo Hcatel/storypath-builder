@@ -9,38 +9,51 @@ interface LearnerData {
   id: string;
   joined_at: string;
   user_id: string;
-  groups: {
-    id: string;
-    name: string;
-  };
-  user: {
-    id: string;
-    username: string | null;
-  } | null;
+  group_id: string;
+  group_name: string;
+  username: string | null;
 }
 
 export function LearnersTable() {
   const { data: learners, isLoading } = useQuery({
     queryKey: ["learners"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get the groups the user has access to
+      const { data: groups, error: groupsError } = await supabase
+        .from("groups")
+        .select("id, name");
+      
+      if (groupsError) throw groupsError;
+
+      // Then get the members for those groups
+      const { data: members, error: membersError } = await supabase
         .from("group_members")
         .select(`
           id,
           joined_at,
           user_id,
-          groups (
-            id,
-            name
-          ),
-          user:profiles!inner (
-            id,
+          group_id,
+          user:profiles (
             username
           )
         `);
       
-      if (error) throw error;
-      return data as LearnerData[];
+      if (membersError) throw membersError;
+
+      // Combine the data
+      const processedData = members?.map(member => {
+        const group = groups?.find(g => g.id === member.group_id);
+        return {
+          id: member.id,
+          joined_at: member.joined_at,
+          user_id: member.user_id,
+          group_id: member.group_id,
+          group_name: group?.name || 'Unknown group',
+          username: member.user?.username
+        };
+      }) || [];
+      
+      return processedData as LearnerData[];
     },
   });
 
@@ -72,8 +85,8 @@ export function LearnersTable() {
       <TableBody>
         {learners.map((learner) => (
           <TableRow key={learner.id}>
-            <TableCell className="font-medium">{learner.user?.username || 'Unknown user'}</TableCell>
-            <TableCell>{learner.groups?.name}</TableCell>
+            <TableCell className="font-medium">{learner.username || 'Unknown user'}</TableCell>
+            <TableCell>{learner.group_name}</TableCell>
             <TableCell className="text-right">{format(new Date(learner.joined_at), 'MMM d, yyyy')}</TableCell>
           </TableRow>
         ))}
