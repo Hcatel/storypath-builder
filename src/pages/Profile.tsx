@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ModuleSummaryDrawer } from "@/components/learn/ModuleSummaryDrawer";
 import { CompletedModules } from "@/components/profile/CompletedModules";
 import { SubscribedCreators } from "@/components/profile/SubscribedCreators";
+import { Groups } from "@/components/profile/Groups";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -28,6 +29,7 @@ const Profile = () => {
         <div className="grid gap-6">
           <CompletedModules onSelectCompletion={setSelectedCompletion} />
           <SubscribedCreators />
+          <Groups />
         </div>
       </main>
 

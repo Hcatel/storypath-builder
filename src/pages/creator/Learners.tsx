@@ -1,14 +1,14 @@
 
 import { Header } from "@/components/Header";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GroupsTable } from "@/components/creator/groups/GroupsTable";
+import { LearnersTable } from "@/components/creator/groups/LearnersTable";
 import { CreatorSidebar } from "@/components/creator/CreatorSidebar";
 import { Button } from "@/components/ui/button";
-import { CreateGroupDialog } from "@/components/creator/learners/CreateGroupDialog";
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import { PlusCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function CreatorLearners() {
-  const [createGroupOpen, setCreateGroupOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -16,20 +16,28 @@ export default function CreatorLearners() {
         <CreatorSidebar />
         <main className="flex-1">
           <div className="container py-6">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold">Learners</h1>
-              <Button onClick={() => setCreateGroupOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Create Group
-              </Button>
-            </div>
-            <div className="text-muted-foreground">
-              Learner management features coming soon...
-            </div>
-            <CreateGroupDialog
-              open={createGroupOpen}
-              onOpenChange={setCreateGroupOpen}
-            />
+            <h1 className="text-3xl font-bold mb-6">Learners</h1>
+            
+            <Tabs defaultValue="groups" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="groups">Groups</TabsTrigger>
+                <TabsTrigger value="learners">All Learners</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="groups" className="space-y-4">
+                <Link to="/creator/groups/create">
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create Group
+                  </Button>
+                </Link>
+                <GroupsTable />
+              </TabsContent>
+              
+              <TabsContent value="learners" className="space-y-4">
+                <LearnersTable />
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>
