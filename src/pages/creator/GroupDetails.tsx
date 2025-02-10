@@ -13,8 +13,9 @@ export default function GroupDetails() {
     console.log(`Loading GroupDetails page with id: ${id}, isCreateMode: ${isCreateMode}`);
   }, [id, isCreateMode]);
 
-  if (!id) {
-    console.error("GroupDetails: No ID provided");
+  // Only return null if there's no id AND we're not in create mode
+  if (!id && !isCreateMode) {
+    console.error("GroupDetails: No ID provided and not in create mode");
     return null;
   }
 
