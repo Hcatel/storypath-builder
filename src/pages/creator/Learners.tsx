@@ -4,6 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GroupsTable } from "@/components/creator/groups/GroupsTable";
 import { LearnersTable } from "@/components/creator/groups/LearnersTable";
 import { CreatorSidebar } from "@/components/creator/CreatorSidebar";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function CreatorLearners() {
