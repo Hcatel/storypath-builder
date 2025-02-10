@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface GroupBasicFormProps {
   groupId?: string;
@@ -21,6 +22,7 @@ interface GroupBasicFormProps {
 export function GroupBasicForm({ groupId, initialData, isLoading }: GroupBasicFormProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
@@ -29,15 +31,19 @@ export function GroupBasicForm({ groupId, initialData, isLoading }: GroupBasicFo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create or edit groups",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError || !user) {
-        throw new Error("You must be logged in to create or edit groups");
-      }
-
       if (groupId) {
         // Update existing group
         const { error } = await supabase
