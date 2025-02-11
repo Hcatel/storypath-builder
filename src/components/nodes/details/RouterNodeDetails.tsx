@@ -25,11 +25,18 @@ type RouterNodeDetailsProps = {
 export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNodeDetailsProps) {
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [showConditionDialog, setShowConditionDialog] = useState(false);
+  const [localQuestion, setLocalQuestion] = useState(data.question || "");
   const { toast } = useToast();
 
   const { data: variables } = useModuleVariables(data.moduleId);
   const { data: conditions } = useRouterConditions(data.id);
   const { createCondition, deleteCondition } = useRouterConditionMutations(data.id);
+
+  const handleQuestionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuestion = e.target.value;
+    setLocalQuestion(newQuestion);
+    onUpdate({ ...data, question: newQuestion });
+  };
 
   const handleAddCondition = () => {
     if (selectedChoice === null) {
@@ -69,8 +76,8 @@ export function RouterNodeDetails({ data, onUpdate, availableNodes }: RouterNode
       <div className="space-y-2">
         <label className="text-sm font-medium">Question</label>
         <Input
-          value={data.question}
-          onChange={(e) => onUpdate({ ...data, question: e.target.value })}
+          value={localQuestion}
+          onChange={handleQuestionChange}
           placeholder="Enter the decision question"
         />
       </div>
