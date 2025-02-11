@@ -21,10 +21,6 @@ export function ModuleHeaderActions({ localModule, onSave }: ModuleHeaderActions
       errors.push("Module title is required");
     }
 
-    if (!localModule?.nodes || !Array.isArray(localModule?.nodes) || localModule?.nodes.length === 0) {
-      errors.push("Module must have at least one content node");
-    }
-
     // Check router nodes validation
     const routerNodes = localModule?.nodes?.filter(node => node.data.type === 'router') || [];
     routerNodes.forEach(node => {
