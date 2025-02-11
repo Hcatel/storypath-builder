@@ -34,7 +34,9 @@ export function RouterChoice({
   const currentValue = choice.nextNodeId || "none";
   
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onUpdate(index, { text: e.target.value });
+    e.stopPropagation();
+    const newValue = e.target.value;
+    onUpdate(index, { text: newValue });
   };
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -61,12 +63,17 @@ export function RouterChoice({
     });
   };
   
+  const handleInputClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+  
   return (
     <div className={`space-y-2 border rounded-lg p-3 ${!choice.nextNodeId ? 'border-destructive' : ''}`}>
       <div className="flex gap-2">
         <Input
           value={choice.text}
           onChange={handleTextChange}
+          onClick={handleInputClick}
           placeholder={`Choice ${index + 1}`}
         />
         {showDeleteButton && (
