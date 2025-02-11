@@ -34,8 +34,6 @@ export function RouterChoice({
   const currentValue = choice.nextNodeId || "none";
   
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
     onUpdate(index, { text: e.target.value });
   };
 
@@ -52,7 +50,6 @@ export function RouterChoice({
   };
 
   const handleNodeSelection = (value: string) => {
-    // Update the local state immediately
     onUpdate(index, { nextNodeId: value === "none" ? "" : value });
     
     // Force a reflow of the popover content
