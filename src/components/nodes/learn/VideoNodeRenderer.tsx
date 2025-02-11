@@ -1,9 +1,11 @@
+
 import { useState, useRef, useEffect } from "react";
 import { VideoNodeData } from "@/types/module";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Volume2, VolumeX, Play, Pause, Subtitles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 
 interface VideoNodeRendererProps {
   data: VideoNodeData;
@@ -14,6 +16,8 @@ export function VideoNodeRenderer({ data, onComplete }: VideoNodeRendererProps) 
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSubtitles, setShowSubtitles] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -23,6 +27,12 @@ export function VideoNodeRenderer({ data, onComplete }: VideoNodeRendererProps) 
       videoRef.current.addEventListener('ended', () => {
         setIsPlaying(false);
         onComplete?.();
+      });
+      videoRef.current.addEventListener('timeupdate', () => {
+        setCurrentTime(videoRef.current?.currentTime || 0);
+      });
+      videoRef.current.addEventListener('loadedmetadata', () => {
+        setDuration(videoRef.current?.duration || 0);
       });
 
       // Handle autoplay
@@ -57,6 +67,19 @@ export function VideoNodeRenderer({ data, onComplete }: VideoNodeRendererProps) 
           });
         }
       }
+    }
+  };
+
+  const formatTime = (timeInSeconds: number) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleSeek = (value: number[]) => {
+    if (videoRef.current && data.showSeeking) {
+      videoRef.current.currentTime = value[0];
+      setCurrentTime(value[0]);
     }
   };
 
@@ -105,7 +128,7 @@ export function VideoNodeRenderer({ data, onComplete }: VideoNodeRendererProps) 
           )}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <div 
           className="aspect-video rounded-lg overflow-hidden bg-black relative cursor-pointer group"
           onClick={() => !isPlaying && (!data.autoplay || data.showPlayPause) && handlePlayPause()}
@@ -117,7 +140,7 @@ export function VideoNodeRenderer({ data, onComplete }: VideoNodeRendererProps) 
             autoPlay={data.autoplay}
             muted={isMuted}
             playsInline
-            controls={data.showSeeking}
+            controls={false}
           >
             {showSubtitles && <track kind="captions" />}
           </video>
@@ -131,6 +154,22 @@ export function VideoNodeRenderer({ data, onComplete }: VideoNodeRendererProps) 
             </Button>
           )}
         </div>
+
+        {data.showSeeking && (
+          <div className="space-y-2">
+            <Slider
+              value={[currentTime]}
+              max={duration}
+              step={1}
+              onValueChange={handleSeek}
+              className="cursor-pointer"
+            />
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
