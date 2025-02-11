@@ -34,7 +34,6 @@ export function RouterChoice({
   const currentValue = choice.nextNodeId || "none";
   
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     const newValue = e.target.value;
     onUpdate(index, { text: newValue });
   };
@@ -53,18 +52,6 @@ export function RouterChoice({
 
   const handleNodeSelection = (value: string) => {
     onUpdate(index, { nextNodeId: value === "none" ? "" : value });
-    
-    // Force a reflow of the popover content
-    requestAnimationFrame(() => {
-      const wrapper = document.querySelector('[data-radix-popper-content-wrapper]');
-      if (wrapper) {
-        wrapper.setAttribute('style', wrapper.getAttribute('style') || '');
-      }
-    });
-  };
-  
-  const handleInputClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
   };
   
   return (
@@ -73,8 +60,8 @@ export function RouterChoice({
         <Input
           value={choice.text}
           onChange={handleTextChange}
-          onClick={handleInputClick}
           placeholder={`Choice ${index + 1}`}
+          className="nodrag"
         />
         {showDeleteButton && (
           <Button
